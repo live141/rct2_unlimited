@@ -1,2 +1,2 @@
-rct2_unlimited
+RCT2 Unlimited
 ==============
