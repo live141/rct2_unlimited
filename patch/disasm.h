@@ -68,8 +68,37 @@
 struct opcode_t {
 	uint8_t instruction_prefix, addr_size_prefix, operand_size_prefix, segment_override;
 	uint8_t modrm, sib;
-	uint16_t opcode;
-	uint32_t displacement, immediate;
+	uint8_t displacement, immediate;
+	uint8_t type;
+};
+
+class opcode {
+protected:
+	uint8_t *_addr;
+	uint8_t _size;
+	uint8_t _scale, _idx, _base, _mod, _reg, _rm;
+	int32_t _disp, _imm;
+
+	void _decode_sib(uint8_t sib) {
+		_scale = sib >> 6;
+		if( _scale == SIB_SCALE_8 )
+			_scale = 8;
+		else
+			_scale *= 2;
+		_idx = (sib >> 3) & 0x07;
+		_base = sib & 0x07;
+	}
+
+	void _decode_modrm(uint8_t modrm) {
+		_mod = modrm >> 6;
+		_reg = (modrm >> 3) & 0x07;
+		_rm = modrm & 0x07;
+	}
+
+public:
+	opecode(void *addr) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
+				_mod(0), _reg(0), _rm(0), _disp(0), _imm(0) {}
+	void decode();
 };
 
 #endif
