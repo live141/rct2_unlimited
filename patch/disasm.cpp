@@ -117,7 +117,7 @@ void opcode::decode() {
 	_name = code->name;
 
 	/* check for SIB byte */
-	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT) {
+	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT && _rm != 0x06 && _rm < 0x04) {
 		_decode_sib(*byte);
 		++byte;
 		++size;
@@ -128,7 +128,7 @@ void opcode::decode() {
 		++byte;
 		++size;
 	}	
-	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32) {
+	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && _rm == 0x06)) {
 		if(op_size_div == 2) {
 			_disp = *((int16_t*) byte);
 			byte += 2;
