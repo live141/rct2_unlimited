@@ -100,7 +100,7 @@ void opcode::decode() {
 	}
 	++size;
 	++byte;
-
+	
 	if(code->size_modrm == 1) {
 		_decode_modrm(*byte);
 		++byte;
@@ -115,7 +115,6 @@ void opcode::decode() {
 	}
 
 	_name = code->name;
-	//printf("FOUND %u\n", code->type);
 
 	/* check for SIB byte */
 	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT) {
@@ -129,28 +128,30 @@ void opcode::decode() {
 		++byte;
 		++size;
 	}	
-	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP16) {
+	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32) {
 		if(op_size_div == 2) {
-			_disp = *((uint16_t*) byte);
+			_disp = *((int16_t*) byte);
+			byte += 2;
+			size += 2;
 		}
 		else {
-			_disp = *((uint32_t*) byte);
+			_disp = *((int32_t*) byte);
+			byte += 4;
+			size += 4;
 		}
-		byte += code->size_displacement/op_size_div;
-		size += code->size_displacement/op_size_div;
 	}
 
-		if(code->size_immediate == 1) {
+	if(code->size_immediate == 1) {
 		_imm = *byte;
 		++byte;
 		++size;
 	}	
 	else if(code->size_immediate == 4) {
 		if(op_size_div == 2) {
-			_imm = *((uint16_t*) byte);
+			_imm = *((int16_t*) byte);
 		}
 		else {
-			_imm = *((uint32_t*) byte);
+			_imm = *((int32_t*) byte);
 		}
 		byte += code->size_immediate/op_size_div;
 		size += code->size_immediate/op_size_div;
