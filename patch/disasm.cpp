@@ -124,7 +124,23 @@ void opcode::decode() {
 		++size;
 	}
 
-	if(code->size_immediate == 1) {
+	if(code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
+		_disp = *byte;
+		++byte;
+		++size;
+	}	
+	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP16) {
+		if(op_size_div == 2) {
+			_disp = *((uint16_t*) byte);
+		}
+		else {
+			_disp = *((uint32_t*) byte);
+		}
+		byte += code->size_displacement/op_size_div;
+		size += code->size_displacement/op_size_div;
+	}
+
+		if(code->size_immediate == 1) {
 		_imm = *byte;
 		++byte;
 		++size;
@@ -140,20 +156,5 @@ void opcode::decode() {
 		size += code->size_immediate/op_size_div;
 	}
 
-	if(code->size_displacement == 1) {
-		_disp = *byte;
-		++byte;
-		++size;
-	}	
-	else if(code->size_displacement == 4) {
-		if(op_size_div == 2) {
-			_disp = *((uint16_t*) byte);
-		}
-		else {
-			_disp = *((uint32_t*) byte);
-		}
-		byte += code->size_displacement/op_size_div;
-		size += code->size_displacement/op_size_div;
-	}
 	_size = size;
 }
