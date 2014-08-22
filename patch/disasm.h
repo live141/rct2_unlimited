@@ -65,19 +65,30 @@
 #define REG_ESI 6
 #define REG_EDI 7
 
+/* Operand types */
+#define OPERAAND_TYPE_INVAL 0xff
+#define OPERAND_TYPE_REG32
+#define OPERAND_TYPE_REG8
+#define OPERAND_TYPE_IMM32
+#define OPERAND_TYPE_IMM8
+
+#define OPCODE_EXT_INVAL 0xff
+
 struct opcode_t {
-	uint8_t instruction_prefix, addr_size_prefix, operand_size_prefix, segment_override;
-	uint8_t modrm, sib;
-	uint8_t displacement, immediate;
+	uint8_t opcode, opcode_ext;
+	uint8_t size_modrm, size_sib;
+	uint8_t size_displacement, size_immediate;
 	uint8_t type;
+	uint8_t type_op1, type_op2, type_op3, type_op4;
 };
 
 class opcode {
 protected:
 	uint8_t *_addr;
 	uint8_t _size;
-	uint8_t _scale, _idx, _base, _mod, _reg, _rm;
+	uint8_t _scale, _idx, _base, _mod, _reg_ope, _rm;
 	int32_t _disp, _imm;
+	uint8_t _segment;
 
 	void _decode_sib(uint8_t sib) {
 		_scale = sib >> 6;
@@ -91,13 +102,13 @@ protected:
 
 	void _decode_modrm(uint8_t modrm) {
 		_mod = modrm >> 6;
-		_reg = (modrm >> 3) & 0x07;
+		_reg_ope = (modrm >> 3) & 0x07;
 		_rm = modrm & 0x07;
 	}
 
 public:
 	opecode(void *addr) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
-				_mod(0), _reg(0), _rm(0), _disp(0), _imm(0) {}
+				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0) {}
 	void decode();
 };
 
