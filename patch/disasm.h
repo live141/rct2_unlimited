@@ -2,11 +2,12 @@
 #define _DISASM_H_
 
 #include <stdint.h>
+#include <string>
 
 #define TWO_BYTE 0x0f
 
 /* Instruction prefix */
-#define PREFIX_REP 0xf3
+//#define PREFIX_REP 0xf3
 #define PREFIX_REPZ 0xf3
 #define PREFIX_REPNZ 0xf2
 #define PREFIX_LOCK 0xf0
@@ -22,8 +23,8 @@
 #define SEGMENT_OVERRIDE_ES 0x26
 #define SEGMENT_OVERRIDE_FS 0x64
 #define SEGMENT_OVERRIDE_GS 0x65
-#define SEGMENT_OVERRIDE_OPERAND_SIZE 0x66 
-#define SEGMENT_OVERRIDE_ADDR_SIZE 0x67
+//#define SEGMENT_OVERRIDE_OPERAND_SIZE 0x66 
+//#define SEGMENT_OVERRIDE_ADDR_SIZE 0x67
 
 /* Mod Register */
 #define MOD_REG_INDIRECT 0x00
@@ -66,11 +67,17 @@
 #define REG_EDI 7
 
 /* Operand types */
-#define OPERAAND_TYPE_INVAL 0xff
-#define OPERAND_TYPE_REG32
-#define OPERAND_TYPE_REG8
-#define OPERAND_TYPE_IMM32
-#define OPERAND_TYPE_IMM8
+#define OPERAND_TYPE_INVAL 0xff
+#define OPERAND_TYPE_REG32 0
+#define OPERAND_TYPE_REG8 1
+#define OPERAND_TYPE_IMM32 2
+#define OPERAND_TYPE_IMM8 3
+#define OPERAND_TYPE_RM8 4
+#define OPERAND_TYPE_RM32 5
+#define OPERAND_TYPE_AL 6
+#define OPERAND_TYPE_AX32 7
+#define OPERAND_TYPE_REL8 8
+#define OPERAND_TYPE_REL32 9
 
 #define OPCODE_EXT_INVAL 0xff
 
@@ -80,6 +87,7 @@ struct opcode_t {
 	uint8_t size_displacement, size_immediate;
 	uint8_t type;
 	uint8_t type_op1, type_op2, type_op3, type_op4;
+	char name[16];
 };
 
 class opcode {
@@ -89,6 +97,7 @@ protected:
 	uint8_t _scale, _idx, _base, _mod, _reg_ope, _rm;
 	int32_t _disp, _imm;
 	uint8_t _segment;
+	std::string _name;
 
 	void _decode_sib(uint8_t sib) {
 		_scale = sib >> 6;
@@ -107,9 +116,25 @@ protected:
 	}
 
 public:
-	opecode(void *addr) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
+	opcode(void *addr) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0) {}
 	void decode();
+
+	uint8_t size() const {
+		return _size;
+	}
+
+	const char* name() const {
+		return _name.c_str();
+	}
+
+	const int32_t displacement() const {
+		return _disp;
+	}
+	
+	const int32_t immediate() const {
+		return _imm;
+	}
 };
 
 #endif
