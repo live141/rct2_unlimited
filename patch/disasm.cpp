@@ -101,8 +101,6 @@ void opcode::decode() {
 	++size;
 	++byte;
 
-	_name = code->name;
-
 	if(code->size_modrm == 1) {
 		_decode_modrm(*byte);
 		++byte;
@@ -116,10 +114,11 @@ void opcode::decode() {
 		}
 	}
 
+	_name = code->name;
 	//printf("FOUND %u\n", code->type);
 
 	/* check for SIB byte */
-	if(code->size_sib == 1) {
+	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT) {
 		_decode_sib(*byte);
 		++byte;
 		++size;
