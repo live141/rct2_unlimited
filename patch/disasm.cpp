@@ -9,6 +9,7 @@ void opcode::decode() {
 	uint8_t *byte = _addr;
 	uint8_t size = 0;
 	uint8_t op_size_div = 1;
+	uint8_t addr_size_div = 1;
 
 	/* check prefixes first, max 4 bytes */
 	for(unsigned int i = 0; i < 4; ++i) {
@@ -35,6 +36,7 @@ void opcode::decode() {
 				++size;
 				break;
 			case PREFIX_ADDR_SIZE:
+				addr_size_div = 2;
 				++size;
 				break;
 
@@ -117,10 +119,12 @@ void opcode::decode() {
 	_name = code->name;
 
 	/* check for SIB byte */
-	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT && _rm != 0x06 && _rm < 0x04) {
-		_decode_sib(*byte);
-		++byte;
-		++size;
+	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT) {
+		if((addr_size_div == 2 && _rm != 0x06) || (addr_size_div == 1 && _rm != 0x05)) {
+			_decode_sib(*byte);
+			++byte;
+			++size;
+		}
 	}
 
 	if(code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
@@ -128,8 +132,8 @@ void opcode::decode() {
 		++byte;
 		++size;
 	}	
-	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && _rm == 0x06)) {
-		if(op_size_div == 2) {
+	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && (_rm == 0x06 && addr_size_div == 2) || (_rm == 0x05 && addr_size_div == 1))) {
+		if(addr_size_div == 2) {
 			_disp = *((int16_t*) byte);
 			byte += 2;
 			size += 2;

@@ -29,7 +29,7 @@
 /* Mod Register */
 #define MOD_REG_INDIRECT 0x00
 #define MOD_REG_INDIRECT_DISP8 0x01
-#define MOD_REG_INDIRECT_DISP16 0x02
+#define MOD_REG_INDIRECT_DISP32 0x02
 #define MOD_REG_DIRECT 0x03
 
 /* SIB */
