@@ -85,7 +85,7 @@ struct opcode_t {
 	uint8_t opcode, opcode_ext;
 	uint8_t size_modrm, size_sib;
 	uint8_t size_displacement, size_immediate;
-	uint8_t type;
+	uint16_t type;
 	uint8_t type_op1, type_op2, type_op3, type_op4;
 	char name[16];
 };
