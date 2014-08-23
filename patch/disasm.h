@@ -78,6 +78,8 @@
 #define OPERAND_TYPE_AX32 7
 #define OPERAND_TYPE_REL8 8
 #define OPERAND_TYPE_REL32 9
+#define OPERAND_TYPE_MOFFSET8 10
+#define OPERAND_TYPE_MOFFSET32 11
 
 #define OPCODE_EXT_INVAL 0xff
 
@@ -86,7 +88,7 @@ struct opcode_t {
 	uint8_t size_modrm, size_sib;
 	uint8_t size_displacement, size_immediate;
 	uint16_t type;
-	uint8_t type_op1, type_op2, type_op3, type_op4;
+	uint8_t type_op[4];
 	char name[16];
 };
 
@@ -96,28 +98,26 @@ protected:
 	uint8_t _size;
 	uint8_t _scale, _idx, _base, _mod, _reg_ope, _rm;
 	int32_t _disp, _imm;
-	uint8_t _segment;
-	std::string _name;
+	uint8_t _segment, _addr_size_prefix, _op_size_prefix;
+	uint8_t _sib;
+	uint8_t _disp_size, _imm_size;
+	std::string _name, _expr;
+
+	void _decode_modrm(uint8_t byte);
+	std::string _format_modrm(uint8_t type);
 
 	void _decode_sib(uint8_t sib) {
 		_scale = sib >> 6;
-		if( _scale == SIB_SCALE_8 )
-			_scale = 8;
-		else
-			_scale *= 2;
+		_scale = 1 << _scale;
 		_idx = (sib >> 3) & 0x07;
 		_base = sib & 0x07;
 	}
 
-	void _decode_modrm(uint8_t modrm) {
-		_mod = modrm >> 6;
-		_reg_ope = (modrm >> 3) & 0x07;
-		_rm = modrm & 0x07;
-	}
-
 public:
 	opcode(void *addr) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
-				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0) {}
+				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
+				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
+				_disp_size(0), _imm_size(0) {}
 	void decode();
 
 	uint8_t size() const {
@@ -127,6 +127,10 @@ public:
 	const char* name() const {
 		return _name.c_str();
 	}
+	
+	const char* expression() const {
+		return _expr.c_str();
+	}
 
 	const int32_t displacement() const {
 		return _disp;
@@ -134,6 +138,10 @@ public:
 	
 	const int32_t immediate() const {
 		return _imm;
+	}
+
+	const uint8_t* addr() const {
+		return _addr;
 	}
 };
 

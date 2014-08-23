@@ -1,15 +1,100 @@
 #include "disasm.h"
 #include <stdio.h>
+#include <sstream>
 
 extern opcode_t g_opcode_1b[256];
 extern opcode_t g_opcode_2b[256];
 
+char g_lut_registers8[][4] = {
+	"al",
+	"cl",
+	"dl",
+	"bl",
+	"ah",
+	"ch",
+	"dh",
+	"bh"
+};
+
+char g_lut_registers16[][4] = {
+	"ax",
+	"cx",
+	"dx",
+	"bx",
+	"sp",
+	"bp",
+	"si",
+	"di"
+};
+
+char g_lut_registers32[][4] = {
+	"eax",
+	"ecx",
+	"edx",
+	"ebx",
+	"esp",
+	"ebp",
+	"esi",
+	"edi"
+};
+
+void opcode::_decode_modrm(uint8_t byte) {
+	_mod = byte >> 6;
+	_reg_ope = (byte >> 3) & 0x07;
+	_rm = byte & 0x07;
+
+	/* check if next byte is sib */
+	if(!_addr_size_prefix) {
+		if(_mod != MOD_REG_DIRECT && _rm == 0x04) {
+			_sib = 1;
+		}
+	}
+}
+
+std::string opcode::_format_modrm(uint8_t type) {
+	std::stringstream stream;
+	stream << std::hex;
+	if(!_addr_size_prefix) {
+		if(_mod == MOD_REG_DIRECT) {
+			return std::string(g_lut_registers32[_rm]);
+		}
+		else {
+			if(_rm == 0x04) {
+				/* sib */
+				stream << "[" << g_lut_registers32[_base];
+				if(_idx != 0x04)
+					 stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
+			}
+			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {
+				/* disp32 */
+				stream << "[" << (int) _disp;
+			}
+			else {
+				stream << "[" << g_lut_registers32[_rm];
+			}
+			if(_mod != MOD_REG_INDIRECT) {
+				/* disp */
+				stream << "+" << (int) _disp << "]";
+			}
+			else {
+				/* no disp */
+				stream << "]";
+			}
+		}
+	}
+	else {
+
+	}
+	return stream.str();
+}
+
+
+
 void opcode::decode() {
 	opcode_t *code;
+	std::stringstream stream;
 	uint8_t *byte = _addr;
 	uint8_t size = 0;
-	uint8_t op_size_div = 1;
-	uint8_t addr_size_div = 1;
 
 	/* check prefixes first, max 4 bytes */
 	for(unsigned int i = 0; i < 4; ++i) {
@@ -32,11 +117,11 @@ void opcode::decode() {
 
 			/* Size prefixes */
 			case PREFIX_OPERAND_SIZE:
-				op_size_div = 2;
+				_op_size_prefix = *byte;
 				++size;
 				break;
 			case PREFIX_ADDR_SIZE:
-				addr_size_div = 2;
+				_addr_size_prefix = *byte;
 				++size;
 				break;
 
@@ -119,27 +204,38 @@ void opcode::decode() {
 	_name = code->name;
 
 	/* check for SIB byte */
-	if(code->size_sib == 1 && _mod != MOD_REG_DIRECT) {
+	if(_sib) {
+		_decode_sib(*byte);
+		++byte;
+		++size;
+	}
+
+#if 0
+	if(/*code->size_sib == 1 &&*/ _mod != MOD_REG_DIRECT && _rm == 0x04) {
+		/* check if it is only displacement */
 		if((addr_size_div == 2 && _rm != 0x06) || (addr_size_div == 1 && _rm != 0x05)) {
 			_decode_sib(*byte);
 			++byte;
 			++size;
 		}
 	}
-
+#endif
 	if(code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
 		_disp = *byte;
+		_disp_size = 1;
 		++byte;
 		++size;
 	}	
-	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && (_rm == 0x06 && addr_size_div == 2) || (_rm == 0x05 && addr_size_div == 1))) {
-		if(addr_size_div == 2) {
+	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && (_rm == 0x06 && _addr_size_prefix) || (_rm == 0x05 && !_addr_size_prefix))) {
+		if(_addr_size_prefix) {
 			_disp = *((int16_t*) byte);
+			_disp_size = 2;
 			byte += 2;
 			size += 2;
 		}
 		else {
 			_disp = *((int32_t*) byte);
+			_disp_size = 4;
 			byte += 4;
 			size += 4;
 		}
@@ -147,19 +243,75 @@ void opcode::decode() {
 
 	if(code->size_immediate == 1) {
 		_imm = *byte;
+		_imm_size = 1;
 		++byte;
 		++size;
 	}	
 	else if(code->size_immediate == 4) {
-		if(op_size_div == 2) {
+		if(_op_size_prefix) {
 			_imm = *((int16_t*) byte);
+			_imm_size = 2;
+			byte += 2;
+			size += 2;
 		}
 		else {
 			_imm = *((int32_t*) byte);
+			_imm_size = 4;
+			byte += 4;
+			size += 4;
 		}
-		byte += code->size_immediate/op_size_div;
-		size += code->size_immediate/op_size_div;
 	}
 
 	_size = size;
+
+	/* put in string */
+	stream << _name << std::hex;
+	for(int i = 0; i < 4; ++i) {
+		switch(code->type_op[i]) {
+			case OPERAND_TYPE_REG32:
+				stream << ", ";
+				if(_op_size_prefix)
+					stream << g_lut_registers16[_reg_ope];
+				else
+					stream << g_lut_registers32[_reg_ope];
+				break;
+			case OPERAND_TYPE_REG8:
+				stream << ", " << g_lut_registers8[_reg_ope];
+				break;
+			case OPERAND_TYPE_IMM32:
+				stream << ", " << (int) _imm;
+				break;
+			case OPERAND_TYPE_IMM8:
+				stream << ", " << (int) _imm;
+				break;
+			case OPERAND_TYPE_RM8:
+				stream << ", " << _format_modrm(8);
+				break;
+			case OPERAND_TYPE_RM32:
+				stream << ", " << _format_modrm(32);
+				break;
+			case OPERAND_TYPE_AL:
+				stream << ", al";
+				break;
+			case OPERAND_TYPE_AX32:
+				stream << ", ax";
+				break;
+			case OPERAND_TYPE_REL8:
+				stream << ", " << (int) _imm;
+				break;
+			case OPERAND_TYPE_REL32:
+				stream << ", " << (int) _imm;
+				break;
+			case OPERAND_TYPE_MOFFSET8:
+				stream << ", [" << (int) _disp << "]";
+				break;
+			case OPERAND_TYPE_MOFFSET32:
+				stream << ", " << "["<< (int) _disp << "]";
+				break;
+			default:
+				break;
+		}
+	}
+
+	_expr = stream.str();
 }
