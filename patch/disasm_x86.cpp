@@ -1,9 +1,11 @@
-#include "disasm.h"
+#include "disasm_x86.h"
 #include <stdio.h>
 #include <sstream>
 
-extern opcode_t g_opcode_1b[256];
-extern opcode_t g_opcode_2b[256];
+extern opcode_x86_t g_opcode_32_1b[];
+extern opcode_x86_t g_opcode_32_2b[];
+extern opcode_x86_t g_opcode_64_1b[];
+extern opcode_x86_t g_opcode_64_2b[];
 
 char g_lut_registers8[][4] = {
 	"al",
@@ -38,7 +40,18 @@ char g_lut_registers32[][4] = {
 	"edi"
 };
 
-void opcode::_decode_modrm(uint8_t byte) {
+char g_lut_registers64[][4] = {
+	"rax",
+	"rcx",
+	"rdx",
+	"rbx",
+	"rsp",
+	"rbp",
+	"rsi",
+	"rdi"
+};
+
+void opcode_x86::_decode_modrm(uint8_t byte) {
 	_mod = byte >> 6;
 	_reg_ope = (byte >> 3) & 0x07;
 	_rm = byte & 0x07;
@@ -51,26 +64,36 @@ void opcode::_decode_modrm(uint8_t byte) {
 	}
 }
 
-std::string opcode::_format_modrm(uint8_t type) {
+std::string opcode_x86::_format_modrm(uint8_t type) {
 	std::stringstream stream;
 	stream << std::hex;
 	if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
-			return std::string(g_lut_registers32[_rm]);
+			if(_bitmode == mode_32)
+				return std::string(g_lut_registers32[_rm]);
+			else
+				return std::string(g_lut_registers64[_rm]);
 		}
 		else {
 			if(_rm == 0x04) {
 				/* sib */
 				stream << "[" << g_lut_registers32[_base];
-				if(_idx != 0x04)
-					 stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
+				if(_idx != 0x04) {
+					if(_bitmode == mode_32)
+						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
+					else
+						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
+				}
 			}
 			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {
 				/* disp32 */
 				stream << "[" << (int) _disp;
 			}
 			else {
-				stream << "[" << g_lut_registers32[_rm];
+				if(_bitmode == mode_32)
+					stream << "[" << g_lut_registers32[_rm];
+				else
+					stream << "[" << g_lut_registers64[_rm];
 			}
 			if(_mod != MOD_REG_INDIRECT) {
 				/* disp */
@@ -90,8 +113,8 @@ std::string opcode::_format_modrm(uint8_t type) {
 
 
 
-void opcode::decode() {
-	opcode_t *code;
+void opcode_x86::decode() {
+	opcode_x86_t *code;
 	std::stringstream stream;
 	uint8_t *byte = _addr;
 	uint8_t size = 0;
@@ -168,14 +191,34 @@ void opcode::decode() {
 		++byte;
 	}
 
-	/* check if opcode is two bytes long */
-	if(*byte == TWO_BYTE) {
-		++byte;
-		++size;
-		code = &g_opcode_2b[*byte];
+	if(_bitmode == mode_64) {
+		/* check for PREFIX */
+		if(*byte >= 0x40 && *byte <= 0x4f) {
+			_prefix64 = *byte;
+			++byte;
+			++size;
+		}
+		
+		/* check if opcode is two bytes long */
+		if(*byte == TWO_BYTE) {
+			++byte;
+			++size;
+			code = &g_opcode_64_2b[*byte];
+		}
+		else {
+			code = &g_opcode_64_1b[*byte];
+		}
 	}
 	else {
-		code = &g_opcode_1b[*byte];
+		/* check if opcode is two bytes long */
+		if(*byte == TWO_BYTE) {
+			++byte;
+			++size;
+			code = &g_opcode_32_2b[*byte];
+		}
+		else {
+			code = &g_opcode_32_1b[*byte];
+		}
 	}
 
 	/* opcode LUT is shifted, since one byte can describe mutliple opcodes
@@ -272,8 +315,12 @@ void opcode::decode() {
 				stream << ", ";
 				if(_op_size_prefix)
 					stream << g_lut_registers16[_reg_ope];
-				else
-					stream << g_lut_registers32[_reg_ope];
+				else {
+					if(_bitmode == mode_32)
+						stream << g_lut_registers32[_reg_ope];
+					else
+						stream << g_lut_registers64[_reg_ope];
+				}
 				break;
 			case OPERAND_TYPE_REG8:
 				stream << ", " << g_lut_registers8[_reg_ope];

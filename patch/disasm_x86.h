@@ -1,5 +1,5 @@
-#ifndef _DISASM_H_
-#define _DISASM_H_
+#ifndef _DISASM_X86_H_
+#define _DISASM_X86_H_
 
 #include <stdint.h>
 #include <string>
@@ -83,7 +83,7 @@
 
 #define OPCODE_EXT_INVAL 0xff
 
-struct opcode_t {
+struct opcode_x86_t {
 	uint8_t opcode, opcode_ext;
 	uint8_t size_modrm, size_sib;
 	uint8_t size_displacement, size_immediate;
@@ -92,7 +92,12 @@ struct opcode_t {
 	char name[16];
 };
 
-class opcode {
+enum x86_bitmode {
+	mode_32 = 0,
+	mode_64
+};
+
+class opcode_x86 {
 protected:
 	uint8_t *_addr;
 	uint8_t _size;
@@ -101,6 +106,7 @@ protected:
 	uint8_t _segment, _addr_size_prefix, _op_size_prefix;
 	uint8_t _sib;
 	uint8_t _disp_size, _imm_size;
+	uint8_t _bitmode, _prefix64;
 	std::string _name, _expr;
 
 	void _decode_modrm(uint8_t byte);
@@ -113,11 +119,14 @@ protected:
 		_base = sib & 0x07;
 	}
 
+	/* bitmode and addr are important, so don't allow standard constructor */
+	opcode_x86() {}
+
 public:
-	opcode(void *addr) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
+	opcode_x86(void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
-				_disp_size(0), _imm_size(0) {}
+				_disp_size(0), _imm_size(0), _bitmode(bitmode), _prefix64(0) {}
 	void decode();
 
 	uint8_t size() const {

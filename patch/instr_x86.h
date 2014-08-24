@@ -1,5 +1,5 @@
-#ifndef _INSTR_H_
-#define _INSTR_H_
+#ifndef _INSTR_x86_H_
+#define _INSTR_x86_H_
 
 #define INSTR_INVAL 0
 #define INSTR_ADD 1
@@ -575,5 +575,11 @@
 #define INSTR_PADDB 571
 #define INSTR_PADDW 572
 #define INSTR_PADDD 573
+#define INSTR_INVALID 574
+#define INSTR_MOVSXD 575
+#define INSTR_JECXZ 576
+#define INSTR_SWAPGS 577
+#define INSTR_SYSCALL 578
+#define INSTR_SYSRET 579
 
 #endif
