@@ -69,7 +69,7 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 	stream << std::hex;
 	if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
-			if(!_prefix64)
+			if(!_is_opsize64())
 				return std::string(g_lut_registers32[_rm]);
 			else
 				return std::string(g_lut_registers64[_rm]);
@@ -77,7 +77,7 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 		else {
 			if(_rm == 0x04) {
 				/* sib */
-				if(!_prefix64)
+				if(!_is_opsize64())
 					stream << "[" << g_lut_registers32[_base];
 				else
 					stream << "[" << g_lut_registers64[_base];
@@ -93,7 +93,7 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 				stream << "[" << _disp;
 			}
 			else {
-				if(!_prefix64)
+				if(!_is_opsize64())
 					stream << "[" << g_lut_registers32[_rm];
 				else
 					stream << "[" << g_lut_registers64[_rm];
@@ -272,7 +272,7 @@ void opcode_x86::decode() {
 		++byte;
 		++size;
 	}	
-	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && (_rm == 0x06 && _addr_size_prefix) || (_rm == 0x05 && !_addr_size_prefix))) {
+	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && ((_rm == 0x06 && _addr_size_prefix) || (_rm == 0x05 && !_addr_size_prefix)))) {
 		if(_addr_size_prefix) {
 			_disp = *((int16_t*) byte);
 			_disp_size = 2;
@@ -298,7 +298,7 @@ void opcode_x86::decode() {
 			_imm = *((int16_t*) byte);
 			_imm_size = 2;
 		}
-		else if(!_prefix64) {
+		else if(!_is_opsize64()) {
 			_imm = *((int32_t*) byte);
 			_imm_size = 4;
 		}
@@ -321,7 +321,7 @@ void opcode_x86::decode() {
 				if(_op_size_prefix)
 					stream << g_lut_registers16[_reg_ope];
 				else {
-					if(_prefix64)
+					if(!_is_opsize64())
 						stream << g_lut_registers32[_reg_ope];
 					else
 						stream << g_lut_registers64[_reg_ope];

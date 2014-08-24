@@ -119,6 +119,10 @@ protected:
 		_base = sib & 0x07;
 	}
 
+	uint8_t _is_opsize64() {
+		return (_prefix64 & 0x08);
+	}
+
 	/* bitmode and addr are important, so don't allow standard constructor */
 	opcode_x86() {}
 
