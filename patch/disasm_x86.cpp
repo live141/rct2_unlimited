@@ -37,7 +37,15 @@ char g_lut_registers32[][4] = {
 	"esp",
 	"ebp",
 	"esi",
-	"edi"
+	"edi",
+	"rax",
+	"rcx",
+	"rdx",
+	"rbx",
+	"rsp",
+	"rbp",
+	"rsi",
+	"rdi"
 };
 
 char g_lut_registers64[][4] = {
@@ -56,11 +64,18 @@ void opcode_x86::_decode_modrm(uint8_t byte) {
 	_reg_ope = (byte >> 3) & 0x07;
 	_rm = byte & 0x07;
 
+	if(_prefix64 & 0x04)
+		_reg_ope |= 0x08;
+
 	/* check if next byte is sib */
 	if(!_addr_size_prefix) {
 		if(_mod != MOD_REG_DIRECT && _rm == 0x04) {
 			_sib = 1;
 		}
+	}
+
+	if(!_sib && (_prefix64 & 0x01)) {
+		_rm |= 0x08;
 	}
 }
 
@@ -82,10 +97,7 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 				else
 					stream << "[" << g_lut_registers64[_base];
 				if(_idx != 0x04) {
-					if(!_prefix64)
-						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
-					else
-						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
+					stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
 				}
 			}
 			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {
@@ -245,6 +257,11 @@ void opcode_x86::decode() {
 		while(code->opcode_ext != _reg_ope) {
 			++code;
 		}
+		if(code->size_modrm != 1) {
+			/* 64bit prefix rex.b specifies extended register */
+			if(_prefix64 & 0x01)
+				_reg_ope |= 0x08;
+		}
 	}
 
 	_name = code->name;
@@ -321,10 +338,7 @@ void opcode_x86::decode() {
 				if(_op_size_prefix)
 					stream << g_lut_registers16[_reg_ope];
 				else {
-					if(!_is_opsize64())
-						stream << g_lut_registers32[_reg_ope];
-					else
-						stream << g_lut_registers64[_reg_ope];
+					stream << g_lut_registers32[_reg_ope];
 				}
 				break;
 			case OPERAND_TYPE_REG8:

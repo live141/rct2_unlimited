@@ -117,6 +117,12 @@ protected:
 		_scale = 1 << _scale;
 		_idx = (sib >> 3) & 0x07;
 		_base = sib & 0x07;
+
+		if(_prefix64 & 0x02)
+			_idx |= 0x08;
+
+		if(_prefix64 & 0x01)
+			_base |= 0x08;
 	}
 
 	uint8_t _is_opsize64() {
