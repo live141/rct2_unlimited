@@ -69,7 +69,7 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 	stream << std::hex;
 	if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
-			if(_bitmode == mode_32)
+			if(!_prefix64)
 				return std::string(g_lut_registers32[_rm]);
 			else
 				return std::string(g_lut_registers64[_rm]);
@@ -77,9 +77,12 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 		else {
 			if(_rm == 0x04) {
 				/* sib */
-				stream << "[" << g_lut_registers32[_base];
+				if(!_prefix64)
+					stream << "[" << g_lut_registers32[_base];
+				else
+					stream << "[" << g_lut_registers64[_base];
 				if(_idx != 0x04) {
-					if(_bitmode == mode_32)
+					if(!_prefix64)
 						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
 					else
 						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
@@ -87,17 +90,17 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 			}
 			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {
 				/* disp32 */
-				stream << "[" << (int) _disp;
+				stream << "[" << _disp;
 			}
 			else {
-				if(_bitmode == mode_32)
+				if(!_prefix64)
 					stream << "[" << g_lut_registers32[_rm];
 				else
 					stream << "[" << g_lut_registers64[_rm];
 			}
 			if(_mod != MOD_REG_INDIRECT) {
 				/* disp */
-				stream << "+" << (int) _disp << "]";
+				stream << "+" << _disp << "]";
 			}
 			else {
 				/* no disp */
@@ -294,15 +297,17 @@ void opcode_x86::decode() {
 		if(_op_size_prefix) {
 			_imm = *((int16_t*) byte);
 			_imm_size = 2;
-			byte += 2;
-			size += 2;
 		}
-		else {
+		else if(!_prefix64) {
 			_imm = *((int32_t*) byte);
 			_imm_size = 4;
-			byte += 4;
-			size += 4;
 		}
+		else {
+			_imm = *((int64_t*) byte);
+			_imm_size = 8;
+		}
+		byte += _imm_size;
+		size += _imm_size;
 	}
 
 	_size = size;
@@ -316,7 +321,7 @@ void opcode_x86::decode() {
 				if(_op_size_prefix)
 					stream << g_lut_registers16[_reg_ope];
 				else {
-					if(_bitmode == mode_32)
+					if(_prefix64)
 						stream << g_lut_registers32[_reg_ope];
 					else
 						stream << g_lut_registers64[_reg_ope];
@@ -326,10 +331,10 @@ void opcode_x86::decode() {
 				stream << ", " << g_lut_registers8[_reg_ope];
 				break;
 			case OPERAND_TYPE_IMM32:
-				stream << ", " << (int) _imm;
+				stream << ", " << _imm;
 				break;
 			case OPERAND_TYPE_IMM8:
-				stream << ", " << (int) _imm;
+				stream << ", " << _imm;
 				break;
 			case OPERAND_TYPE_RM8:
 				stream << ", " << _format_modrm(8);
@@ -344,16 +349,16 @@ void opcode_x86::decode() {
 				stream << ", ax";
 				break;
 			case OPERAND_TYPE_REL8:
-				stream << ", " << (int) _imm;
+				stream << ", " << _imm;
 				break;
 			case OPERAND_TYPE_REL32:
-				stream << ", " << (int) _imm;
+				stream << ", " << _imm;
 				break;
 			case OPERAND_TYPE_MOFFSET8:
-				stream << ", [" << (int) _disp << "]";
+				stream << ", [" << _disp << "]";
 				break;
 			case OPERAND_TYPE_MOFFSET32:
-				stream << ", " << "["<< (int) _disp << "]";
+				stream << ", " << "["<< _disp << "]";
 				break;
 			default:
 				break;

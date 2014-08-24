@@ -102,7 +102,7 @@ protected:
 	uint8_t *_addr;
 	uint8_t _size;
 	uint8_t _scale, _idx, _base, _mod, _reg_ope, _rm;
-	int32_t _disp, _imm;
+	int64_t _disp, _imm;
 	uint8_t _segment, _addr_size_prefix, _op_size_prefix;
 	uint8_t _sib;
 	uint8_t _disp_size, _imm_size;
@@ -141,11 +141,11 @@ public:
 		return _expr.c_str();
 	}
 
-	const int32_t displacement() const {
+	const int64_t displacement() const {
 		return _disp;
 	}
 	
-	const int32_t immediate() const {
+	const int64_t immediate() const {
 		return _imm;
 	}
 
