@@ -4,7 +4,7 @@ template<class T> uint32_t memscan<T>::search_byte(T val, T *begin, T *end, sear
 	uint64_t found = 0;
 	/* move value to our aligned member variable */
 	for(uint8_t j = 0; j < 16/sizeof(T); ++j) {
-		_var[j] = val;
+		_val[j] = val;
 	}
 
 	switch(type) {
@@ -12,7 +12,7 @@ template<class T> uint32_t memscan<T>::search_byte(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_BYTE(i+j, _var, found);
+					CHECK_BYTE(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -28,7 +28,7 @@ template<class T> uint32_t memscan<T>::search_byte(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_BYTE_GT(i+j, _var, found);
+					CHECK_BYTE_GT(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -44,7 +44,7 @@ template<class T> uint32_t memscan<T>::search_byte(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_BYTE_GT(i+j, _var-1, found);
+					CHECK_BYTE_GT(i+j, _val-1, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -60,7 +60,7 @@ template<class T> uint32_t memscan<T>::search_byte(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_BYTE_GT(_var, i+j,found);
+					CHECK_BYTE_GT(_val, i+j,found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -76,7 +76,7 @@ template<class T> uint32_t memscan<T>::search_byte(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_BYTE_GT(_var+1, i+j, found);
+					CHECK_BYTE_GT(_val+1, i+j, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -99,7 +99,7 @@ template<class T> uint32_t memscan<T>::search_word(T val, T *begin, T *end, sear
 	uint64_t found = 0;
 	/* move value to our aligned member variable */
 	for(uint8_t j = 0; j < 16/sizeof(T); ++j) {
-		_var[j] = val;
+		_val[j] = val;
 	}
 
 	switch(type) {
@@ -107,7 +107,7 @@ template<class T> uint32_t memscan<T>::search_word(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_WORD(i+j, _var, found);
+					CHECK_WORD(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -123,7 +123,7 @@ template<class T> uint32_t memscan<T>::search_word(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_WORD_GT(i+j, _var, found);
+					CHECK_WORD_GT(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -139,7 +139,7 @@ template<class T> uint32_t memscan<T>::search_word(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_WORD_GT(i+j, _var-1, found);
+					CHECK_WORD_GT(i+j, _val-1, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -155,7 +155,7 @@ template<class T> uint32_t memscan<T>::search_word(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_WORD_GT(_var, i+j,found);
+					CHECK_WORD_GT(_val, i+j,found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -171,7 +171,7 @@ template<class T> uint32_t memscan<T>::search_word(T val, T *begin, T *end, sear
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_WORD_GT(_var+1, i+j, found);
+					CHECK_WORD_GT(_val+1, i+j, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -194,7 +194,7 @@ template<class T> uint32_t memscan<T>::search_dword(T val, T *begin, T *end, sea
 	uint64_t found = 0;
 	/* move value to our aligned member variable */
 	for(uint8_t j = 0; j < 16/sizeof(T); ++j) {
-		_var[j] = val;
+		_val[j] = val;
 	}
 
 	switch(type) {
@@ -202,7 +202,7 @@ template<class T> uint32_t memscan<T>::search_dword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_DWORD(i+j, _var, found);
+					CHECK_DWORD(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -218,7 +218,7 @@ template<class T> uint32_t memscan<T>::search_dword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_DWORD_GT(i+j, _var, found);
+					CHECK_DWORD_GT(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -234,7 +234,7 @@ template<class T> uint32_t memscan<T>::search_dword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_DWORD_GT(i+j, _var-1, found);
+					CHECK_DWORD_GT(i+j, _val-1, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -250,7 +250,7 @@ template<class T> uint32_t memscan<T>::search_dword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_DWORD_GT(_var, i+j,found);
+					CHECK_DWORD_GT(_val, i+j,found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -266,7 +266,7 @@ template<class T> uint32_t memscan<T>::search_dword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_DWORD_GT(_var+1, i+j, found);
+					CHECK_DWORD_GT(_val+1, i+j, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -289,7 +289,7 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 	uint64_t found = 0;
 	/* move value to our aligned member variable */
 	for(uint8_t j = 0; j < 16/sizeof(T); ++j) {
-		_var[j] = val;
+		_val[j] = val;
 	}
 
 	switch(type) {
@@ -297,7 +297,7 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_QWORD(i+j, _var, found);
+					CHECK_QWORD(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -313,7 +313,7 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_QWORD_GT(i+j, _var, found);
+					CHECK_QWORD_GT(i+j, _val, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -329,7 +329,7 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_QWORD_GT(i+j, _var-1, found);
+					CHECK_QWORD_GT(i+j, _val-1, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -345,7 +345,7 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_QWORD_GT(_var, i+j,found);
+					CHECK_QWORD_GT(_val, i+j,found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -361,7 +361,7 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 			for(T *i = begin; i < end; i += 16) {
 				/* check against every possible alignment */
 				for(uint8_t j = 0; j < sizeof(T); ++j) {
-					CHECK_QWORD_GT(_var+1, i+j, found);
+					CHECK_QWORD_GT(_val+1, i+j, found);
 
 					if( found != 0 ) {
 						/* where exactly? */
@@ -380,47 +380,48 @@ template<class T> uint32_t memscan<T>::search_qword(T val, T *begin, T *end, sea
 }
 	
 
-uint32_t search_cont(search_type type, T val) {
-	std::vector<T*> vec;
-	switch(search_type) {
+template<class T> uint32_t memscan<T>::search_cont(search_type type, T val) {
+	typename std::vector<T*> vec;
+	typename std::vector<T*>::iterator it;
+	switch(type) {
 		case search_equal:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it == val )
 					vec.push_back(*it);
 			}
 			break;
 		case search_notequal:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it != val )
 					vec.push_back(*it);
 			}
 			break;
 		case search_gt:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it > val )
 					vec.push_back(*it);
 			}
 			break;
 		case search_ge:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it >= val )
 					vec.push_back(*it);
 			}
 			break;
 		case search_lt:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it < val )
 					vec.push_back(*it);
 			}
 			break;
 		case search_le:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it <= val )
 					vec.push_back(*it);
 			}
 			break;
 		case search_unchanged:
-			for(std::vector<T*>::iterator it = _vec_results.begin(); it < _vec_results.end(); ++it) {
+			for(it = _vec_results.begin(); it < _vec_results.end(); ++it) {
 				if( **it == _val )
 					vec.push_back(*it);
 			}

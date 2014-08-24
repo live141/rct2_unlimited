@@ -4,7 +4,7 @@
 #include <vector>
 #include <stdint.h>
 
-#ifdef _LINUX_
+#if defined(linux) || defined(__APPLE__)
 #define CHECK_BYTE(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups %1, %%xmm1\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
@@ -181,7 +181,7 @@ enum search_type {
 template<class T>
 class memscan {
 protected:
-	T _var[16/sizeof(T)] __attribute__((aligned(16)));
+	T _val[16/sizeof(T)] __attribute__((aligned(16)));
 	std::vector<T*> _vec_results;
 
 public:
