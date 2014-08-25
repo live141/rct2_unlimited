@@ -2,9 +2,11 @@
 #define _DETOUR_H_
 
 #include "disasm_x86.h"
+#include <vector>
 
 class detour {
 protected:
+	std::vector<opcode_x86> _vec_opcode;
 	uint64_t _saved_ret_addr;
 	uint8_t *_addr_target;
 	uint8_t *_addr_new;

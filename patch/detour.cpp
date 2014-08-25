@@ -62,6 +62,7 @@ void detour::hook_function() {
 	while(_size_replaced < 5) {
 		op.next();
 		_size_replaced += op.size();
+		_vec_opcode.push_back(op);
 	}
 	
 	/* create trampoline first, we need executable memory */
@@ -80,5 +81,23 @@ void detour::hook_function() {
 	code[0] = 0xE9;
 	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((int64_t) (_addr_new - _addr_target - 5));
 	memcpy(_addr_target, code, 5);
+
+	/* TODO: check for opcode that uses relative address and adjust them! */
+	std::vector<opcode_x86>::iterator it;
+	size_t size = 0;
+	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
+		if(it->optype(1) == OPERAND_TYPE_REL32 || it->optype(1) == OPERAND_TYPE_REL8) {
+			if(it->size_imm() == 1) {
+				/* TODO: extend opcode... */
+			}
+			else if(it->size_imm() == 2) {
+				/* TODO: extend opcode... */
+			}
+			else if(it->size_imm() == 4) {
+				*((uint32_t*)((uint8_t*) _addr_tramp+size+it->offset_imm())) = it->immediate() + (uint8_t*) it->addr() + it->size() - _addr_tramp+size - it->size();
+			}
+		}
+		size += it->size();
+	}
 }
 
