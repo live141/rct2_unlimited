@@ -7,7 +7,7 @@ extern opcode_x86_t g_opcode_32_2b[];
 extern opcode_x86_t g_opcode_64_1b[];
 extern opcode_x86_t g_opcode_64_2b[];
 
-char g_lut_registers8[][4] = {
+char g_lut_registers8[][7] = {
 	"al",
 	"cl",
 	"dl",
@@ -27,7 +27,7 @@ char g_lut_registers8[][4] = {
 
 };
 
-char g_lut_registers16[][4] = {
+char g_lut_registers16[][7] = {
 	"ax",
 	"cx",
 	"dx",
@@ -48,7 +48,7 @@ char g_lut_registers16[][4] = {
 	
 };
 
-char g_lut_registers32[][4] = {
+char g_lut_registers32[][7] = {
 	"eax",
 	"ecx",
 	"edx",
@@ -68,7 +68,7 @@ char g_lut_registers32[][4] = {
 
 };
 
-char g_lut_registers64[][4] = {
+char g_lut_registers64[][7] = {
 	"rax",
 	"rcx",
 	"rdx",
