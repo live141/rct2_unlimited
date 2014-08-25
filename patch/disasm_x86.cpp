@@ -38,14 +38,6 @@ char g_lut_registers32[][4] = {
 	"ebp",
 	"esi",
 	"edi",
-	"rax",
-	"rcx",
-	"rdx",
-	"rbx",
-	"rsp",
-	"rbp",
-	"rsi",
-	"rdi"
 };
 
 char g_lut_registers64[][4] = {
@@ -56,7 +48,15 @@ char g_lut_registers64[][4] = {
 	"rsp",
 	"rbp",
 	"rsi",
-	"rdi"
+	"rdi",
+	"r8",
+	"r9",
+	"r10",
+	"r11",
+	"r12",
+	"r13",
+	"r14",
+	"r15"
 };
 
 void opcode_x86::_decode_modrm(uint8_t byte) {
@@ -97,7 +97,10 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 				else
 					stream << "[" << g_lut_registers64[_base];
 				if(_idx != 0x04) {
-					stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
+					if(!_is_opsize64())
+						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
+					else
+						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
 				}
 			}
 			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {

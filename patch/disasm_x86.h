@@ -66,6 +66,15 @@
 #define REG_ESI 6
 #define REG_EDI 7
 
+#define REG_R8 0
+#define REG_R9 1
+#define REG_R10 2
+#define REG_R11 3
+#define REG_R12 4
+#define REG_R13 5
+#define REG_R14 6
+#define REG_R15 7
+
 /* Operand types */
 #define OPERAND_TYPE_INVAL 0xff
 #define OPERAND_TYPE_REG32 0
