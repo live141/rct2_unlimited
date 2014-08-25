@@ -181,7 +181,11 @@ enum search_type {
 template<class T>
 class memscan {
 protected:
+#if defined(linux) || defined(__APPLE__)
 	T _val[16/sizeof(T)] __attribute__((aligned(16)));
+#else
+	__declspec(align(16)) T _val[16/sizeof(T)];
+#endif
 	std::vector<T*> _vec_results;
 
 public:

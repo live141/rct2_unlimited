@@ -5,7 +5,8 @@ extern module_t g_rct2;
 
 uint8_t _compare(uint8_t *b1, uint8_t *b2, unsigned int size) {
 	/* ? is wildcard */
-	for(unsigned int i = 0; i < size; ++i) {
+	unsigned int i;
+	for(i = 0; i < size; ++i) {
 		if(b1[i] == '?')
 			continue;
 		if( b1[i] != b2[i] )
@@ -15,11 +16,11 @@ uint8_t _compare(uint8_t *b1, uint8_t *b2, unsigned int size) {
 }
 
 uint32_t signature::search() {
-	unsigned char *sig = _sig.c_str();
-	unsigned char *begin = g_rct2.section_text.addr;
+	uint8_t *sig = (uint8_t*) _sig.c_str();
+	uint8_t *begin = g_rct2.section_text.addr;
 	unsigned long size = g_rct2.section_text.size;
 	/* don't count terminating 0x00 */
-	unsigned int size_sig = _sig.len()-1;
+	unsigned int size_sig = _sig.length()-1;
 	/* adjust size with signature length */
 	size = size - size_sig + 1;
 

@@ -9,7 +9,7 @@ struct section_t {
 };
 
 struct module_t {
-	HANDLE module;
+	HMODULE module;
 	section_t section_text;
 	section_t section_data;
 };
