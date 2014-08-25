@@ -164,7 +164,8 @@ void opcode_x86::decode() {
 	std::stringstream stream;
 	uint8_t *byte = _addr;
 	uint8_t size = 0;
-
+	_reset();
+	
 	/* check prefixes first, max 4 bytes */
 	for(unsigned int i = 0; i < 4; ++i) {
 		switch(*byte) {
@@ -317,6 +318,7 @@ void opcode_x86::decode() {
 	if(code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
 		_disp = *byte;
 		_disp_size = 1;
+		_offset_disp = size;
 		++byte;
 		++size;
 	}	
@@ -324,12 +326,14 @@ void opcode_x86::decode() {
 		if(_addr_size_prefix) {
 			_disp = *((int16_t*) byte);
 			_disp_size = 2;
+			_offset_disp = size;
 			byte += 2;
 			size += 2;
 		}
 		else {
 			_disp = *((int32_t*) byte);
 			_disp_size = 4;
+			_offset_disp = size;
 			byte += 4;
 			size += 4;
 		}
@@ -338,6 +342,7 @@ void opcode_x86::decode() {
 	if(code->size_immediate == 1) {
 		_imm = *byte;
 		_imm_size = 1;
+		_offset_imm = size;
 		++byte;
 		++size;
 	}	
@@ -354,6 +359,7 @@ void opcode_x86::decode() {
 			_imm = *((int64_t*) byte);
 			_imm_size = 8;
 		}
+		_offset_imm = size;
 		byte += _imm_size;
 		size += _imm_size;
 	}

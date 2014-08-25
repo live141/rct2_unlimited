@@ -116,6 +116,7 @@ protected:
 	uint8_t _sib;
 	uint8_t _disp_size, _imm_size;
 	uint8_t _bitmode, _prefix64;
+	uint8_t _offset_imm, _offset_disp;
 	std::string _name, _expr;
 
 	void _decode_modrm(uint8_t byte);
@@ -138,6 +139,27 @@ protected:
 		return (_prefix64 & 0x08);
 	}
 
+	void _reset() {
+		_scale = 0;
+		_idx = 0;
+		_base = 0;
+		_mod = 0;
+		_reg_ope = 0;
+		_rm = 0;
+		_disp = 0;
+		_imm = 0;
+		_segment = 0;
+		_addr_size_prefix = 0;
+		_op_size_prefix = 0;
+		_sib = 0;
+		_prefix64 = 0;
+		_imm_size = 0;
+		_disp_size = 0;
+		_size = 0;
+		_offset_imm = 0;
+		_offset_disp = 0;
+	}
+
 	/* bitmode and addr are important, so don't allow standard constructor */
 	opcode_x86() {}
 
@@ -145,7 +167,8 @@ public:
 	opcode_x86(void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
-				_disp_size(0), _imm_size(0), _bitmode(bitmode), _prefix64(0) {}
+				_disp_size(0), _imm_size(0), _bitmode(bitmode), _prefix64(0),
+				_offset_imm(0), _offset_disp(0) {}
 	void decode();
 
 	uint8_t size() const {
@@ -170,6 +193,11 @@ public:
 
 	const uint8_t* addr() const {
 		return _addr;
+	}
+
+	void next() {
+		_addr += size();
+		decode();
 	}
 };
 

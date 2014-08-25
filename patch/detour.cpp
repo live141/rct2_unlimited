@@ -58,9 +58,9 @@ void detour::unhook() {
 void detour::hook_function() {
 	uint8_t code[8];
 	_size_replaced = 0;
+	opcode_x86 op(_addr_target, mode_64);
 	while(_size_replaced < 5) {
-		opcode_x86 op(_addr_target+_size_replaced, mode_64);
-		op.decode();
+		op.next();
 		_size_replaced += op.size();
 	}
 	
@@ -72,9 +72,6 @@ void detour::hook_function() {
 	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((int64_t) _addr_target + _size_replaced - ((int64_t)_addr_tramp+_size_replaced)-5);
 	memcpy((uint8_t*) _addr_tramp+_size_replaced, code, 5);
 
-	opcode_x86 op(code, mode_64);
-	op.decode();
-	
 	/* replace target code */
 	_change_page_permissions(_addr_target);
 	/* NOP first */
