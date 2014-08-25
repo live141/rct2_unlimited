@@ -109,6 +109,7 @@ enum x86_bitmode {
 class opcode_x86 {
 protected:
 	uint8_t *_addr;
+	opcode_x86_t *_code;
 	uint8_t _size;
 	uint8_t _scale, _idx, _base, _mod, _reg_ope, _rm;
 	int64_t _disp, _imm;
@@ -164,11 +165,40 @@ protected:
 	opcode_x86() {}
 
 public:
-	opcode_x86(void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _size(0), _scale(0), _idx(0), _base(0),
+	opcode_x86(void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _code(NULL), _size(0), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
 				_disp_size(0), _imm_size(0), _bitmode(bitmode), _prefix64(0),
 				_offset_imm(0), _offset_disp(0) {}
+
+	opcode_x86& operator =(opcode_x86 &op) {
+		_addr = op._addr;
+		_code = op._code;
+		_size = op._size;
+		_scale = op._scale;
+		_idx = op._idx;
+		_base = op._base;
+		_mod = op._mod;
+		_reg_ope = op._reg_ope;
+		_rm = op._rm;
+		_disp = op._disp;
+		_imm = op._imm;
+		_segment = op._segment;
+		_addr_size_prefix = op._addr_size_prefix;
+		_op_size_prefix = op._op_size_prefix;
+		_sib = op._sib;
+		_disp_size = op._disp_size;
+		_imm_size = op._imm_size;
+		_bitmode = op._bitmode;
+		_prefix64 = op._prefix64;
+		_offset_imm = op._offset_imm;
+		_offset_disp = op._offset_disp;
+		_name = op._name;
+		_expr = op._expr;
+
+		return *this;
+	}
+
 	void decode();
 
 	uint8_t size() const {
@@ -191,8 +221,30 @@ public:
 		return _imm;
 	}
 
+	const uint8_t size_disp() const {
+		return _disp_size;
+	}
+	
+	const uint8_t size_imm() const {
+		return _imm_size;
+	}
+
+	const uint8_t offset_disp() const {
+		return _offset_disp;
+	}
+	
+	const uint8_t offset_imm() const {
+		return _offset_imm;
+	}
+
 	const uint8_t* addr() const {
 		return _addr;
+	}
+
+	const uint8_t optype(uint8_t n) const {
+		if(_code == NULL)
+			return 0;
+		return _code->type_op[n%4];
 	}
 
 	void next() {

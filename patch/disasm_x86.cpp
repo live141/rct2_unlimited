@@ -160,7 +160,6 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 
 
 void opcode_x86::decode() {
-	opcode_x86_t *code;
 	std::stringstream stream;
 	uint8_t *byte = _addr;
 	uint8_t size = 0;
@@ -250,10 +249,10 @@ void opcode_x86::decode() {
 		if(*byte == TWO_BYTE) {
 			++byte;
 			++size;
-			code = &g_opcode_64_2b[*byte];
+			_code = &g_opcode_64_2b[*byte];
 		}
 		else {
-			code = &g_opcode_64_1b[*byte];
+			_code = &g_opcode_64_1b[*byte];
 		}
 	}
 	else {
@@ -261,10 +260,10 @@ void opcode_x86::decode() {
 		if(*byte == TWO_BYTE) {
 			++byte;
 			++size;
-			code = &g_opcode_32_2b[*byte];
+			_code = &g_opcode_32_2b[*byte];
 		}
 		else {
-			code = &g_opcode_32_1b[*byte];
+			_code = &g_opcode_32_1b[*byte];
 		}
 	}
 
@@ -272,31 +271,31 @@ void opcode_x86::decode() {
 	 * -> search for real opcode
 	 * -> check for opcode with respect to opcode extension in mod r/m byte */
 
-	while(code->opcode != *byte) {
-		++code;
+	while(_code->opcode != *byte) {
+		++_code;
 	}
 	++size;
 	++byte;
 	
-	if(code->size_modrm == 1) {
+	if(_code->size_modrm == 1) {
 		_decode_modrm(*byte);
 		++byte;
 		++size;
 	}
 
-	if(code->opcode_ext != OPCODE_EXT_INVAL) {
+	if(_code->opcode_ext != OPCODE_EXT_INVAL) {
 		/* search for opcode with opcode extension */
-		while(code->opcode_ext != _reg_ope) {
-			++code;
+		while(_code->opcode_ext != _reg_ope) {
+			++_code;
 		}
-		if(code->size_modrm != 1) {
+		if(_code->size_modrm != 1) {
 			/* 64bit prefix rex.b specifies extended register */
 			if(_prefix64 & 0x01)
 				_reg_ope |= 0x08;
 		}
 	}
 
-	_name = code->name;
+	_name = _code->name;
 
 	/* check for SIB byte */
 	if(_sib) {
@@ -315,14 +314,14 @@ void opcode_x86::decode() {
 		}
 	}
 #endif
-	if(code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
+	if(_code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
 		_disp = *byte;
 		_disp_size = 1;
 		_offset_disp = size;
 		++byte;
 		++size;
 	}	
-	else if(code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && ((_rm == 0x06 && _addr_size_prefix) || (_rm == 0x05 && !_addr_size_prefix)))) {
+	else if(_code->size_displacement == 4 || _mod == MOD_REG_INDIRECT_DISP32 || (_mod == MOD_REG_INDIRECT && ((_rm == 0x06 && _addr_size_prefix) || (_rm == 0x05 && !_addr_size_prefix)))) {
 		if(_addr_size_prefix) {
 			_disp = *((int16_t*) byte);
 			_disp_size = 2;
@@ -339,14 +338,14 @@ void opcode_x86::decode() {
 		}
 	}
 
-	if(code->size_immediate == 1) {
+	if(_code->size_immediate == 1) {
 		_imm = *byte;
 		_imm_size = 1;
 		_offset_imm = size;
 		++byte;
 		++size;
 	}	
-	else if(code->size_immediate == 4) {
+	else if(_code->size_immediate == 4) {
 		if(_op_size_prefix) {
 			_imm = *((int16_t*) byte);
 			_imm_size = 2;
@@ -369,7 +368,7 @@ void opcode_x86::decode() {
 	/* put in string */
 	stream << _name << std::hex;
 	for(int i = 0; i < 4; ++i) {
-		switch(code->type_op[i]) {
+		switch(_code->type_op[i]) {
 			case OPERAND_TYPE_REG32:
 				stream << ", ";
 				if(_op_size_prefix)
