@@ -15,7 +15,16 @@ char g_lut_registers8[][4] = {
 	"ah",
 	"ch",
 	"dh",
-	"bh"
+	"bh",
+	"r8b",
+	"r9b",
+	"r10b",
+	"r11b",
+	"r12b",
+	"r13b",
+	"r14b",
+	"r15b"
+
 };
 
 char g_lut_registers16[][4] = {
@@ -26,7 +35,17 @@ char g_lut_registers16[][4] = {
 	"sp",
 	"bp",
 	"si",
-	"di"
+	"di",
+	"r8w",
+	"r9w",
+	"r10w",
+	"r11w",
+	"r12w",
+	"r13w",
+	"r14w",
+	"r15w"
+
+	
 };
 
 char g_lut_registers32[][4] = {
@@ -38,6 +57,15 @@ char g_lut_registers32[][4] = {
 	"ebp",
 	"esi",
 	"edi",
+	"r8d",
+	"r9d",
+	"r10d",
+	"r11d",
+	"r12d",
+	"r13d",
+	"r14d",
+	"r15d"
+
 };
 
 char g_lut_registers64[][4] = {
