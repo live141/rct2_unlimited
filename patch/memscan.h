@@ -7,7 +7,7 @@
 
 #if defined(linux) || defined(__APPLE__)
 /* SSE */
-#define CHECK_BYTE(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_BYTE(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
@@ -16,10 +16,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_WORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_WORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
@@ -28,10 +28,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_DWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_DWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
@@ -40,10 +40,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_QWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_QWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
@@ -52,9 +52,9 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
-#define CHECK_BYTE_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_BYTE_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
@@ -63,10 +63,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_WORD_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_WORD_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
@@ -75,10 +75,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_DWORD_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_DWORD_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
@@ -87,10 +87,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_QWORD_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+#define CHECK_QWORD_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
@@ -99,10 +99,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "m"(src) \
 		: "xmm0", "xmm1", "xmm3")
-#define CHECK_BYTE_LE(dst,src,flag) asm volatile("movaps (%1), %%xmm0\n\t" \
-		"movups (%2), %%xmm1\n\t" \
+#define CHECK_BYTE_LE(dst,src,flag) asm volatile("movaps %1, %%xmm1\n\t" \
+		"movups (%2), %%xmm0\n\t" \
 		"prefetch 0x10(%2)\n\t" \
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
@@ -110,10 +110,10 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "m"(dst), "r"(src) \
 		: "xmm0", "xmm1", "xmm3")
-#define CHECK_WORD_LE(dst,src,flag) asm volatile("movaps (%1), %%xmm0\n\t" \
-		"movups (%2), %%xmm1\n\t" \
+#define CHECK_WORD_LE(dst,src,flag) asm volatile("movaps %1, %%xmm1\n\t" \
+		"movups (%2), %%xmm0\n\t" \
 		"prefetch 0x10(%2)\n\t" \
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
@@ -121,11 +121,11 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "m"(dst), "r"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_DWORD_LE(dst,src,flag) asm volatile("movaps (%1), %%xmm0\n\t" \
-		"movups (%2), %%xmm1\n\t" \
+#define CHECK_DWORD_LE(dst,src,flag) asm volatile("movaps %1, %%xmm1\n\t" \
+		"movups (%2), %%xmm0\n\t" \
 		"prefetch 0x10(%2)\n\t" \
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
@@ -133,11 +133,11 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "m"(dst), "r"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
-#define CHECK_QWORD_LE(dst,src,flag) asm volatile("movaps (%1), %%xmm0\n\t" \
-		"movups (%2), %%xmm1\n\t" \
+#define CHECK_QWORD_LE(dst,src,flag) asm volatile("movaps %1, %%xmm1\n\t" \
+		"movups (%2), %%xmm0\n\t" \
 		"prefetch 0x10(%2)\n\t" \
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
@@ -145,7 +145,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
-		: "r"(dst), "r"(src) \
+		: "m"(dst), "r"(src) \
 		: "xmm0", "xmm1", "xmm3")
 /* AVX 256 */
 #define CHECK_BYTE_AVX(dst,src,flag) asm volatile("vmovaps (%2), %%ymm0\n\t" \
@@ -933,6 +933,56 @@ public:
 		return _vec_results.size();
 	}
 
+#if 0
+	uint32_t search_aligned(T val, T *begin, T *end, search_type type) {
+		switch(type) {
+			case search_equal:
+				/* vectorized search seems to be only faster when comparing for equality! */
+				switch(sizeof(T)) {
+					case 1:
+						return _search_aligned_byte(val, (T*) begin, (T*) end, type);
+						break;
+					case 2:
+						return _search_aligned_word(val, (T*) begin, (T*) end, type);
+						break;
+					case 4:
+						return _search_aligned_dword(val, (T*) begin, (T*) end, type);
+						break;
+					case 8:
+						return _search_aligned_qword(val, (T*) begin, (T*) end, type);
+						break;
+				}
+				break;
+			case search_gt:
+				for(T *i = begin; i < end; ++i) {
+					if( *i > val )
+						_vec_results.push_back(i);
+				}
+				break;
+			case search_ge:
+				for(T *i = begin; i < end; ++i) {
+					if( *i >= val )
+						_vec_results.push_back(i);
+				}
+				break;
+			case search_lt:
+				for(T *i = begin; i < end; ++i) {
+					if( *i < val )
+						_vec_results.push_back(i);
+				}
+				break;
+			case search_le:
+				for(T *i = begin; i < end; ++i) {
+					if( *i <= val )
+						_vec_results.push_back(i);
+				}
+				break;
+			default:
+				break;
+		}
+		return _vec_results.size();
+	}
+#else
 	uint32_t search(T val, void *begin, void *end, search_type type) {
 		switch(sizeof(T)) {
 			case 1:
@@ -966,7 +1016,7 @@ public:
 				break;
 		}
 	}
-
+#endif
 	uint32_t search_cont(T val, search_type type) {
 		typename std::vector<T*> vec;
 		typename std::vector<T*>::iterator it;
