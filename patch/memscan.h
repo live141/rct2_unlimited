@@ -6,13 +6,14 @@
 #include <stdlib.h>
 
 #if defined(linux) || defined(__APPLE__)
+/* SSE */
 #define CHECK_BYTE(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -24,7 +25,7 @@
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -36,7 +37,7 @@
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -48,7 +49,7 @@
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -59,7 +60,7 @@
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -71,7 +72,7 @@
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -83,7 +84,7 @@
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -95,7 +96,7 @@
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -106,7 +107,7 @@
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -117,7 +118,7 @@
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -129,7 +130,7 @@
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
@@ -141,49 +142,66 @@
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"movaps %%xmm1, %%xmm3\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
-		"paddq %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=m"(flag) \
 		: "r"(dst), "r"(src) \
 		: "xmm0", "xmm1", "xmm3")
+/* AVX 256 */
+#define CHECK_BYTE_AVX(dst,src,flag) asm volatile("vmovaps (%2), %%ymm0\n\t" \
+		"vmovups (%1), %%ymm1\n\t" \
+		"prefetch 0x20(%1)\n\t" \
+		"vpcmpeqb %%ymm0, %%ymm1, %%ymm1\n\t" \
+		"vmovaps %%ymm1, %%ymm3\n\t" \
+		"vpshufd $0xee, %%ymm1, %%ymm3\n\t" \
+		"vorpd %%ymm1, %%ymm3, %%ymm3\n\t" \
+		"vpextrq $0, %%xmm3, %0\n\t" \
+		: "=m"(flag) \
+		: "r"(dst), "r"(src) \
+		: "ymm0", "ymm1", "ymm3")
+
 #else
 #define CHECK_BYTE(dst,src,flag) __asm__ volatile { \
 					movaps xmm0, src; \
 					movups xmm1, dst; \
+					prefetch [dst+0x10]; \
 					pcmpeqb xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
 #define CHECK_WORD(dst,src,flag) __asm__ volatile { \
 					movaps xmm0, src; \
 					movups xmm1, dst; \
+					prefetch [dst+0x10]; \
 					pcmpeqw xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
 #define CHECK_DWORD(dst,src,flag) __asm__ volatile { \
 					movaps xmm0, src; \
 					movups xmm1, dst; \
+					prefetch [dst+0x10]; \
 					pcmpeqd xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
 #define CHECK_QWORD(dst,src,flag) __asm__ volatile { \
 					movaps xmm0, src; \
 					movups xmm1, dst; \
+					prefetch [dst+0x10]; \
 					pcmpeqq xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 #define CHECK_BYTE_GT(dst,src,flag) __asm__ volatile { \
@@ -192,7 +210,7 @@
 					pcmpgtb xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
@@ -202,7 +220,7 @@
 					pcmpgtw xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
@@ -212,7 +230,7 @@
 					pcmpgtd xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
@@ -222,7 +240,7 @@
 					pcmpgtq xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 #define CHECK_BYTE_LE(dst,src,flag) __asm__ volatile { \
@@ -231,7 +249,7 @@
 					pcmpgtb xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
@@ -241,7 +259,7 @@
 					pcmpgtw xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
@@ -251,7 +269,7 @@
 					pcmpgtd xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 
@@ -261,7 +279,7 @@
 					pcmpgtq xmm1, xmm0; \
 					movaps xmm3, xmm1; \
 					pushfd xmm3, xmm1, 0xee; \
-					paddq xmm3, xmm1; \
+					orpd xmm3, xmm1; \
 					pextrq flag, xmm3, 0; \
 				}
 #endif
@@ -898,7 +916,7 @@ protected:
 
 		return _vec_results.size();
 	}
-
+	
 public:
 	typedef typename std::vector<T*>::iterator iterator;
 	memscan() {}
