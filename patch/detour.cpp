@@ -68,7 +68,7 @@ void detour::unhook() {
 	}
 }
 
-void detour::hook_function() {
+void detour::hook() {
 	uint8_t code[8];
 	_size_replaced = 0;
 	opcode_x86 op(_addr_target, _bitmode);
@@ -107,3 +107,12 @@ void detour::hook_function() {
 	}
 }
 
+void detour::jump_to_function() {
+	/* function begins at trampoline address */
+	if(_addr_tramp == NULL)
+		return;
+	asm volatile("jmp (%0)"
+			:
+			: "r"(_addr_tramp)
+			:);
+}

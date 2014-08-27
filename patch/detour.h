@@ -22,8 +22,9 @@ public:
 	detour(void *addr_target, void *addr_new, x86_bitmode bitmode) : _saved_ret_addr(0), _addr_target((uint8_t*) addr_target), _addr_new((uint8_t*) addr_new),
 	_addr_tramp(NULL), _size_replaced(0), _bitmode(bitmode) {}
 	~detour();
-	void hook_function();
+	void hook();
 	void unhook();
+	void jump_to_function();
 
 	uint8_t* trampoline() const {
 		return _addr_tramp;
