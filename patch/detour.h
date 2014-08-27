@@ -12,14 +12,15 @@ protected:
 	uint8_t *_addr_new;
 	uint8_t *_addr_tramp;
 	uint8_t _size_replaced;
+	x86_bitmode _bitmode;
 
 	void _change_page_permissions(void *addr);
 	void* _alloc_mem(size_t size);
 	void _free_mem(void *addr);
 
 public:
-	detour(void *addr_target, void *addr_new) : _saved_ret_addr(0), _addr_target((uint8_t*) addr_target), _addr_new((uint8_t*) addr_new),
-	_addr_tramp(NULL), _size_replaced(0) {}
+	detour(void *addr_target, void *addr_new, x86_bitmode bitmode) : _saved_ret_addr(0), _addr_target((uint8_t*) addr_target), _addr_new((uint8_t*) addr_new),
+	_addr_tramp(NULL), _size_replaced(0), _bitmode(bitmode) {}
 	~detour();
 	void hook_function();
 	void unhook();

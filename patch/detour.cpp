@@ -54,6 +54,15 @@ void detour::_change_page_permissions(void *addr) {
 void detour::unhook() {
 	if(_addr_tramp != NULL) {
 		memcpy(_addr_target, _addr_tramp, _size_replaced);
+		/* fix rel. addresses */
+		opcode_x86 op(_addr_target, _bitmode);
+		for(uint32_t i = 0; i < _size_replaced;) {
+			op.next();
+			if( op.optype(0) == OPERAND_TYPE_REL32 ) {
+				op.set_imm(opcode_x86(_addr_tramp+i, _bitmode).immediate());
+			}
+			i += op.size();
+		}
 		_free_mem(_addr_tramp);
 		_addr_tramp = NULL;
 	}
@@ -62,7 +71,7 @@ void detour::unhook() {
 void detour::hook_function() {
 	uint8_t code[8];
 	_size_replaced = 0;
-	opcode_x86 op(_addr_target, mode_64);
+	opcode_x86 op(_addr_target, _bitmode);
 	while(_size_replaced < 5) {
 		op.next();
 		_size_replaced += op.size();
@@ -86,20 +95,13 @@ void detour::hook_function() {
 	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((int64_t) (_addr_new - _addr_target - 5));
 	memcpy(_addr_target, code, 5);
 
-	/* TODO: check for opcode that uses relative address and adjust them! */
+	/* TODO: extend opcode in case we just have 1 or 2 bytes for rel. address */
 	std::vector<opcode_x86>::iterator it;
 	size_t size = 0;
 	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
-		if(it->optype(0) == OPERAND_TYPE_REL32 || it->optype(0) == OPERAND_TYPE_REL8) {
-			if(it->size_imm() == 1) {
-				/* TODO: extend opcode... */
-			}
-			else if(it->size_imm() == 2) {
-				/* TODO: extend opcode... */
-			}
-			else if(it->size_imm() == 4) {
-				*((uint32_t*)((uint8_t*) _addr_tramp+size+it->offset_imm())) = it->immediate() + (uint8_t*) it->addr() + it->size() - _addr_tramp+size - it->size();
-			}
+		if(it->optype(0) == OPERAND_TYPE_REL32) {
+			opcode_x86 op(_addr_tramp+size, _bitmode);
+			op.set_imm(it->immediate());
 		}
 		size += it->size();
 	}
