@@ -19,11 +19,13 @@ void* detour::_alloc_mem(size_t size) {
 #if defined(__APPLE__) || defined(linux)
 	void *addr = NULL;
 	int page_size = getpagesize();
-	if((addr = mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) != MAP_FAILED) {
-		return addr;
+	if((addr = mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
+		addr = NULL;
+		std::cout << "Error: Could not map memory: " << errno << std::endl;
 	}
-	std::cout << "Error: Could not map memory: " << errno << std::endl;
+	return addr;
 #else
+#error "TODO"
 #endif
 }
 
@@ -34,6 +36,7 @@ void detour::_free_mem(void *addr) {
 		munmap(addr, page_size);
 	}
 #else
+#error "TODO"
 #endif
 }
 
@@ -44,6 +47,7 @@ void detour::_change_page_permissions(void *addr) {
 		std::cout << "Error: Could not change page permissions: " << errno << std::endl; 
 	}
 #else
+#error "TODO"
 #endif
 }
 
@@ -86,7 +90,7 @@ void detour::hook_function() {
 	std::vector<opcode_x86>::iterator it;
 	size_t size = 0;
 	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
-		if(it->optype(1) == OPERAND_TYPE_REL32 || it->optype(1) == OPERAND_TYPE_REL8) {
+		if(it->optype(0) == OPERAND_TYPE_REL32 || it->optype(0) == OPERAND_TYPE_REL8) {
 			if(it->size_imm() == 1) {
 				/* TODO: extend opcode... */
 			}
