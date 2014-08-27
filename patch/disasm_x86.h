@@ -218,6 +218,8 @@ public:
 	}
 	
 	const int64_t immediate() const {
+		if(_code->type_op[0] == OPERAND_TYPE_REL8 || _code->type_op[0] == OPERAND_TYPE_REL32)
+			return _size + _imm + (uint64_t) _addr;
 		return _imm;
 	}
 
@@ -247,6 +249,28 @@ public:
 		return _code->type_op[n%4];
 	}
 
+	void set_imm(uint64_t val) {
+		uint64_t imm = val;
+		if(_code->type_op[0] == OPERAND_TYPE_REL8 || _code->type_op[0] == OPERAND_TYPE_REL32) {
+			imm = imm - (uint64_t) _addr - _size;
+		}
+			
+		switch(_imm_size) {
+			case 1:
+				*((uint8_t*) ((uint8_t*) _addr+_offset_imm)) = (uint8_t) imm;
+				break;
+			case 2:
+				*((uint16_t*) ((uint8_t*) _addr+_offset_imm)) = (uint16_t) imm;
+				break;
+			case 4:
+				*((uint32_t*) ((uint8_t*) _addr+_offset_imm)) = (uint32_t) imm;
+				break;
+			case 8:
+				*((uint64_t*) ((uint8_t*) _addr+_offset_imm)) = (uint64_t) imm;
+				break;
+		}
+	}
+	
 	void next() {
 		_addr += size();
 		decode();
