@@ -381,10 +381,10 @@ void opcode_x86::decode() {
 				stream << ", " << g_lut_registers8[_reg_ope];
 				break;
 			case OPERAND_TYPE_IMM32:
-				stream << ", " << _imm;
+				stream << ", 0x" << _imm;
 				break;
 			case OPERAND_TYPE_IMM8:
-				stream << ", " << _imm;
+				stream << ", 0x" << _imm;
 				break;
 			case OPERAND_TYPE_RM8:
 				stream << ", " << _format_modrm(8);
@@ -399,16 +399,16 @@ void opcode_x86::decode() {
 				stream << ", ax";
 				break;
 			case OPERAND_TYPE_REL8:
-				stream << ", " << _imm;
+				stream << ", 0x" << immediate();
 				break;
 			case OPERAND_TYPE_REL32:
-				stream << ", " << _imm;
+				stream << ", 0x" << immediate();
 				break;
 			case OPERAND_TYPE_MOFFSET8:
-				stream << ", [" << _disp << "]";
+				stream << ", [0x" << _disp << "]";
 				break;
 			case OPERAND_TYPE_MOFFSET32:
-				stream << ", " << "["<< _disp << "]";
+				stream << ", " << "[0x"<< _disp << "]";
 				break;
 			default:
 				break;
