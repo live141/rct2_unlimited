@@ -371,6 +371,9 @@ void opcode_x86::decode() {
 	stream << _name << std::hex;
 	for(int i = 0; i < 4; ++i) {
 		switch(_code->type_op[i]) {
+			case OPERAND_TYPE_REG64:
+				stream << g_lut_registers64[_reg_ope];
+				break;
 			case OPERAND_TYPE_REG32:
 				stream << ", ";
 				if(_op_size_prefix)
@@ -378,6 +381,8 @@ void opcode_x86::decode() {
 				else if(!_is_opsize64()) {
 					stream << g_lut_registers32[_reg_ope];
 				}
+				else
+					stream << g_lut_registers64[_reg_ope];
 				break;
 			case OPERAND_TYPE_REG8:
 				stream << ", " << g_lut_registers8[_reg_ope];
@@ -431,7 +436,6 @@ void opcode_x86::decode() {
 				else
 					stream << ", edx";
 				break;
-
 			case OPERAND_TYPE_REL8:
 				stream << ", 0x" << immediate();
 				break;
