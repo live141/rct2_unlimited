@@ -1,4 +1,5 @@
 #include "detour.h"
+#include "page.h"
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
@@ -15,42 +16,6 @@ detour::~detour() {
 	unhook();
 }
 
-void* detour::_alloc_mem(size_t size) {
-#if defined(__APPLE__) || defined(linux)
-	void *addr = NULL;
-	int page_size = getpagesize();
-	if((addr = mmap(NULL, page_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
-		addr = NULL;
-		std::cout << "Error: Could not map memory: " << errno << std::endl;
-	}
-	return addr;
-#else
-#error "TODO"
-#endif
-}
-
-void detour::_free_mem(void *addr) {
-#if defined(__APPLE__) || defined(linux)
-	int page_size = getpagesize();
-	if(addr != NULL) {
-		munmap(addr, page_size);
-	}
-#else
-#error "TODO"
-#endif
-}
-
-void detour::_change_page_permissions(void *addr) {
-#if defined(__APPLE__) || defined(linux)
-	int page_size = getpagesize();
-	if(mprotect((void*)((unsigned long) addr & ~(page_size-1)), page_size, PROT_READ | PROT_EXEC | PROT_WRITE ) != 0) {
-		std::cout << "Error: Could not change page permissions: " << errno << std::endl; 
-	}
-#else
-#error "TODO"
-#endif
-}
-
 void detour::unhook() {
 	if(_addr_tramp != NULL) {
 		memcpy(_addr_target, _addr_tramp, _size_replaced);
@@ -63,7 +28,7 @@ void detour::unhook() {
 			}
 			i += op.size();
 		}
-		_free_mem(_addr_tramp);
+		page::free(_addr_tramp);
 		_addr_tramp = NULL;
 	}
 }
@@ -79,7 +44,7 @@ void detour::hook() {
 	}
 	
 	/* create trampoline first, we need executable memory */
-	_addr_tramp = (uint8_t*) _alloc_mem(_size_replaced+7);
+	_addr_tramp = (uint8_t*) page::alloc(/*_size_replaced+7*/);
 	memcpy(_addr_tramp, _addr_target, _size_replaced);
 	/* create jumpback */
 	code[0] = 0xE9;
@@ -87,7 +52,7 @@ void detour::hook() {
 	memcpy((uint8_t*) _addr_tramp+_size_replaced, code, 5);
 
 	/* replace target code */
-	_change_page_permissions(_addr_target);
+	page::change_permissions(_addr_target, _size_replaced, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
 	/* NOP first */
 	memset(_addr_target, 0x90, _size_replaced);
 	/* jump to our function */
