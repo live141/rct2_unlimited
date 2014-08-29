@@ -122,16 +122,12 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 		else {
 			if(_rm == 0x04) {
 				/* sib */
-				if(type == 8)
-					stream << "[" << g_lut_registers8[_base];
-				else if(!_is_opsize64())
+				if(_bitmode == mode_32 /*!_is_opsize64()*/)
 					stream << "[" << g_lut_registers32[_base];
 				else
 					stream << "[" << g_lut_registers64[_base];
 				if(_idx != 0x04) {
-					if(type == 8)
-						stream << "+" << g_lut_registers8[_idx] << "*" << (int) _scale;
-					else if(!_is_opsize64())
+					if(_bitmode == mode_32 /*!_is_opsize64()*/)
 						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
 					else
 						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
@@ -142,9 +138,7 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 				stream << "[" << _disp;
 			}
 			else {
-				if(type == 8)
-					stream << "[" << g_lut_registers8[_rm];
-				else if(!_is_opsize64())
+				if(_bitmode == mode_32 /*!_is_opsize64()*/)
 					stream << "[" << g_lut_registers32[_rm];
 				else
 					stream << "[" << g_lut_registers64[_rm];
