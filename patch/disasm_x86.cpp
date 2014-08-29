@@ -375,7 +375,7 @@ void opcode_x86::decode() {
 				stream << ", ";
 				if(_op_size_prefix)
 					stream << g_lut_registers16[_reg_ope];
-				else {
+				else if(!_is_opsize64()) {
 					stream << g_lut_registers32[_reg_ope];
 				}
 				break;
@@ -397,9 +397,41 @@ void opcode_x86::decode() {
 			case OPERAND_TYPE_AL:
 				stream << ", al";
 				break;
-			case OPERAND_TYPE_AX32:
+			case OPERAND_TYPE_AX:
 				stream << ", ax";
 				break;
+			case OPERAND_TYPE_EAX:
+				if(!_op_size_prefix)
+					stream << ", eax";
+				else
+					stream << ", ax";
+				break;
+			case OPERAND_TYPE_RAX:
+				if(_is_opsize64())
+					stream << ", rax";
+				else if(_op_size_prefix)
+					stream << ", ax";
+				else
+					stream << ", eax";
+				break;
+			case OPERAND_TYPE_DX:
+				stream << ", dx";
+				break;
+			case OPERAND_TYPE_EDX:
+				if(!_op_size_prefix)
+					stream << ", edx";
+				else
+					stream << ", dx";
+				break;
+			case OPERAND_TYPE_RDX:
+				if(_is_opsize64())
+					stream << ", rdx";
+				else if(_op_size_prefix)
+					stream << ", dx";
+				else
+					stream << ", edx";
+				break;
+
 			case OPERAND_TYPE_REL8:
 				stream << ", 0x" << immediate();
 				break;
