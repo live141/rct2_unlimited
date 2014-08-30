@@ -4,7 +4,7 @@
 int page::_page_size = 0;
 
 page::~page() {
-
+	page::free(_addr);
 }
 
 page::page(void *addr, size_t size) : _addr(NULL), _size(0), _flags(0) {
@@ -13,6 +13,7 @@ page::page(void *addr, size_t size) : _addr(NULL), _size(0), _flags(0) {
 	if(size % page::_page_size)
 		++_size;
 	_size *= page::_page_size;
+	_addr = page::alloc(size);
 }
 
 void page::init() {
@@ -74,10 +75,9 @@ void* page::alloc() {
 
 }
 
-page* page::alloc(size_t size) {
+void* page::alloc(size_t size) {
 #if defined(__APPLE__) || defined(linux)
 	void *addr = NULL;
-	page *p = NULL;
 	size_t alloc_size = size/page::_page_size;
 	if(size % page::_page_size)
 		++alloc_size;
@@ -88,8 +88,7 @@ page* page::alloc(size_t size) {
 		return NULL;
 	}
 	
-	p = new page(addr, alloc_size);
-	return p;
+	return addr;
 #else
 #error "TODO"
 #endif
