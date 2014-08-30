@@ -66,14 +66,14 @@
 #define REG_ESI 6
 #define REG_EDI 7
 
-#define REG_R8 0
-#define REG_R9 1
-#define REG_R10 2
-#define REG_R11 3
-#define REG_R12 4
-#define REG_R13 5
-#define REG_R14 6
-#define REG_R15 7
+#define REG_R8 8
+#define REG_R9 9
+#define REG_R10 10
+#define REG_R11 11
+#define REG_R12 12
+#define REG_R13 13
+#define REG_R14 14
+#define REG_R15 15
 
 /* Operand types */
 #define OPERAND_TYPE_INVAL 0xff
@@ -112,6 +112,12 @@ struct opcode_x86_t {
 enum x86_bitmode {
 	mode_32 = 0,
 	mode_64
+};
+
+struct machine_context_x86_t {
+	uint64_t *rax, *rbx, *rcx, *rdx, *rdi, *rsi, *rpb, *rsp;
+	uint64_t *r8, *r9, *r10, *r11, *r12, *r13, *r14, *r15;
+	uint64_t *rip, *rflags, *cs, *fs, *gs;
 };
 
 class opcode_x86 {
@@ -283,6 +289,16 @@ public:
 		_addr += size();
 		decode();
 	}
+
+	bool is_op_register(uint8_t n) const {
+		return (optype(n) == OPERAND_TYPE_REG32 || optype(n) == OPERAND_TYPE_REG8 || optype(n) == OPERAND_TYPE_AL
+                || optype(n) == OPERAND_TYPE_AH || optype(n) == OPERAND_TYPE_AX || optype(n) == OPERAND_TYPE_EAX
+                || optype(n) == OPERAND_TYPE_RAX || optype(n) == OPERAND_TYPE_DX || optype(n) == OPERAND_TYPE_EDX
+                || optype(n) == OPERAND_TYPE_RDX);
+	}
+
+	void execute_change_result(uint64_t result, machine_context_t *context);
+	uint64_t execute(machine_context_x86_t *context);
 };
 
 #endif
