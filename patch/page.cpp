@@ -1,6 +1,9 @@
 #include "page.h"
 #include <stdint.h>
 #include <iostream>
+#ifdef WIN32
+#pragma comment(lib, "user32.lib")
+#endif
 
 int page::_page_size = 0;
 
@@ -17,7 +20,13 @@ page::page(size_t size) : _addr(NULL), _size(0), _flags(0) {
 }
 
 void page::init() {
+#if defined(linux) || defined(__APPLE__)
 	page::_page_size = getpagesize();
+#else
+	SYSTEM_INFO sys_info;
+	GetSystemInfo(&sys_info);
+	page::_page_size = sys_info.dwPageSize;
+#endif
 }
 
 void page::change_permissions(int flags) {
