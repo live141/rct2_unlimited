@@ -1,8 +1,12 @@
 #ifndef _PAGE_H_
 #define _PAGE_H
 
+#if defined(linux) || defined(__APPLE__)
 #include <sys/mman.h>
 #include <errno.h>
+#else
+#include <windows.h>
+#endif
 #include <unistd.h>
 
 #define PAGE_READ 1
@@ -19,7 +23,7 @@ protected:
 	page();
 	
 public:
-	page(void *addr, size_t size);
+	page(size_t size);
 	~page();
 	void change_permissions(int flags);
 	static void init();
