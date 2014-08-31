@@ -107,17 +107,23 @@ void opcode_x86::_decode_modrm(uint8_t byte) {
 	}
 }
 
-std::string opcode_x86::_format_modrm(uint8_t type) {
+std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	std::stringstream stream;
 	stream << std::hex;
 	if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
-			if(type == 8)
+			if(type == 8) {
+				_op_size[i] = 1;
 				return std::string(g_lut_registers8[_rm]);
-			else if(!_is_opsize64())
+			}
+			else if(!_is_opsize64()) {
+				_op_size[i] = 4;
 				return std::string(g_lut_registers32[_rm]);
-			else
+			}
+			else {
+				_op_size[i] = 8;
 				return std::string(g_lut_registers64[_rm]);
+			}
 		}
 		else {
 			if(_rm == 0x04) {
@@ -135,7 +141,14 @@ std::string opcode_x86::_format_modrm(uint8_t type) {
 			}
 			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {
 				/* disp32 */
-				stream << "[" << _disp;
+				stream << "[";
+				if(_bitmode == mode_64) {
+					if(_is_opsize64())
+						stream << "rip+";
+					else
+						stream << "eip+";
+				}
+				stream << _disp;
 			}
 			else {
 				if(_bitmode == mode_32 /*!_is_opsize64()*/)
@@ -373,68 +386,100 @@ void opcode_x86::decode() {
 		switch(_code->type_op[i]) {
 			case OPERAND_TYPE_REG64:
 				stream << g_lut_registers64[_reg_ope];
+				_op_size[i] = 4;
 				break;
 			case OPERAND_TYPE_REG32:
 				stream << ", ";
-				if(_op_size_prefix)
+				if(_op_size_prefix) {
+					_op_size[i] = 2;
 					stream << g_lut_registers16[_reg_ope];
+				}
 				else if(!_is_opsize64()) {
 					stream << g_lut_registers32[_reg_ope];
+					_op_size[i] = 4;
 				}
-				else
+				else {
 					stream << g_lut_registers64[_reg_ope];
+					_op_size[i] = 8;
+				}
 				break;
 			case OPERAND_TYPE_REG8:
 				stream << ", " << g_lut_registers8[_reg_ope];
+				_op_size[i] = 1;
 				break;
 			case OPERAND_TYPE_IMM32:
 				stream << ", 0x" << _imm;
+				_op_size[i] = 4;
 				break;
 			case OPERAND_TYPE_IMM8:
 				stream << ", 0x" << _imm;
+				_op_size[i] = 1;
 				break;
 			case OPERAND_TYPE_RM8:
-				stream << ", " << _format_modrm(8);
+				stream << ", " << _format_modrm(8, i);
 				break;
 			case OPERAND_TYPE_RM32:
-				stream << ", " << _format_modrm(32);
+				stream << ", " << _format_modrm(32, i);
 				break;
 			case OPERAND_TYPE_AL:
 				stream << ", al";
+				_op_size[i] = 1;
 				break;
 			case OPERAND_TYPE_AX:
 				stream << ", ax";
+				_op_size[i] = 2;
 				break;
 			case OPERAND_TYPE_EAX:
-				if(!_op_size_prefix)
+				if(!_op_size_prefix) {
 					stream << ", eax";
-				else
+					_op_size[i] = 4;
+				}
+				else {
 					stream << ", ax";
+					_op_size[i] = 2;
+				}
 				break;
 			case OPERAND_TYPE_RAX:
-				if(_is_opsize64())
+				if(_is_opsize64()) {
 					stream << ", rax";
-				else if(_op_size_prefix)
+					_op_size[i] = 8;
+				}
+				else if(_op_size_prefix) {
 					stream << ", ax";
-				else
+					_op_size[i] = 2;
+				}
+				else {
 					stream << ", eax";
+					_op_size[i] = 4;
+				}
 				break;
 			case OPERAND_TYPE_DX:
 				stream << ", dx";
+				_op_size[i] = 2;
 				break;
 			case OPERAND_TYPE_EDX:
-				if(!_op_size_prefix)
+				if(!_op_size_prefix) {
 					stream << ", edx";
-				else
+					_op_size[i] = 4;
+				}
+				else {
 					stream << ", dx";
+					_op_size[i] = 2;
+				}
 				break;
 			case OPERAND_TYPE_RDX:
-				if(_is_opsize64())
+				if(_is_opsize64()) {
 					stream << ", rdx";
-				else if(_op_size_prefix)
+					_op_size[i] = 8;
+				}
+				else if(_op_size_prefix) {
 					stream << ", dx";
-				else
+					_op_size[i] = 2;
+				}
+				else {
 					stream << ", edx";
+					_op_size[i] = 4;
+				}
 				break;
 			case OPERAND_TYPE_REL8:
 				stream << ", 0x" << immediate();

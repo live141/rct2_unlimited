@@ -132,10 +132,11 @@ protected:
 	uint8_t _disp_size, _imm_size;
 	uint8_t _bitmode, _prefix64;
 	uint8_t _offset_imm, _offset_disp;
+	uint8_t _op_size[4];
 	std::string _name, _expr;
 
 	void _decode_modrm(uint8_t byte);
-	std::string _format_modrm(uint8_t type);
+	std::string _format_modrm(uint8_t type, uint8_t i);
 
 	void _decode_sib(uint8_t sib) {
 		_scale = sib >> 6;
@@ -173,6 +174,10 @@ protected:
 		_size = 0;
 		_offset_imm = 0;
 		_offset_disp = 0;
+		_op_size[0] = 0;
+		_op_size[1] = 0;
+		_op_size[2] = 0;
+		_op_size[3] = 0;
 	}
 
 	/* bitmode and addr are important, so don't allow standard constructor */
@@ -297,8 +302,8 @@ public:
                 || optype(n) == OPERAND_TYPE_RDX);
 	}
 
-	void execute_change_result(uint64_t result, machine_context_t *context);
-	uint64_t execute(machine_context_x86_t *context);
+	//void execute_change_result(uint64_t result, machine_context_t *context);
+	//uint64_t execute(machine_context_x86_t *context);
 };
 
 #endif
