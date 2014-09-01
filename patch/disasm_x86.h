@@ -114,10 +114,20 @@ enum x86_bitmode {
 	mode_64
 };
 
+union reg_t {
+	uint64_t rx;
+	uint32_t ex;
+	uint16_t x;
+	struct {
+		uint8_t low;
+		uint8_t high;
+	};
+};
+
 struct machine_context_x86_t {
-	uint64_t *rax, *rbx, *rcx, *rdx, *rdi, *rsi, *rpb, *rsp;
-	uint64_t *r8, *r9, *r10, *r11, *r12, *r13, *r14, *r15;
-	uint64_t *rip, *rflags, *cs, *fs, *gs;
+	reg_t *rax, *rbx, *rcx, *rdx, *rdi, *rsi, *rpb, *rsp;
+	reg_t *r8, *r9, *r10, *r11, *r12, *r13, *r14, *r15;
+	reg_t *rip, *rflags, *cs, *fs, *gs;
 };
 
 class opcode_x86 {
