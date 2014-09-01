@@ -44,7 +44,7 @@ void detour::hook() {
 	}
 	
 	/* create trampoline first, we need executable memory */
-	_addr_tramp = (uint8_t*) page::alloc(/*_size_replaced+7*/);
+	_addr_tramp = (uint8_t*) page::alloc(_size_replaced+5);
 	memcpy(_addr_tramp, _addr_target, _size_replaced);
 	/* create jumpback */
 	code[0] = 0xE9;

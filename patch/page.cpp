@@ -11,12 +11,9 @@ page::~page() {
 	page::free(_addr);
 }
 
-page::page(size_t size) : _addr(NULL), _size(0), _flags(0) {
-	_size = size/page::_page_size;
-	if(size % page::_page_size)
-		++_size;
-	_size *= page::_page_size;
-	_addr = page::alloc(size);
+page::page() : _addr(NULL), _size(0), _flags(0) {
+	_size = page::_page_size;
+	_addr = page::alloc(_size);
 }
 
 void page::init() {
@@ -30,6 +27,10 @@ void page::init() {
 }
 
 void page::change_permissions(int flags) {
+	void *aligned_addr = (void*)((unsigned long) _addr & ~(page::_page_size-1));
+	size_t prot_size = ((uint64_t) _addr + _size - (uint64_t) aligned_addr);
+	prot_size = prot_size/page::_page_size + (prot_size%page::_page_size)?1:0;
+	prot_size *= page::_page_size;
 	_flags = flags;
 #if defined(__APPLE__) || defined(linux)
 	int prot = 0;
@@ -111,19 +112,14 @@ void* page::alloc() {
 
 void* page::alloc(size_t size) {
 	void *addr = NULL;
-	size_t alloc_size = size/page::_page_size;
-	if(size % page::_page_size)
-		++alloc_size;
-	alloc_size *= page::_page_size;
-	
 #if defined(__APPLE__) || defined(linux)
-	if((addr = mmap(NULL, alloc_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
+	if((addr = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
 		std::cout << "Error: Could not map memory: " << errno << std::endl;
 		return NULL;
 	}
 #else
 	addr = malloc(alloc_size);
-	change_permissions(addr, alloc_size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
+	change_permissions(addr, size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
 #endif
 	return addr;
 }

@@ -20,10 +20,9 @@ protected:
 	int _flags;
 
 	static int _page_size;
-	page();
 	
 public:
-	page(size_t size);
+	page();
 	~page();
 	void change_permissions(int flags);
 	static void init();
