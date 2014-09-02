@@ -3,7 +3,7 @@
 
 extern module_t g_rct2;
 
-uint8_t _compare(uint8_t *b1, uint8_t *b2, unsigned int size) {
+uint8_t signature::_compare(uint8_t *b1, uint8_t *b2, unsigned int size) {
 	/* ? is wildcard */
 	unsigned int i;
 	for(i = 0; i < size; ++i) {

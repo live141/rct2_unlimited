@@ -1,4 +1,5 @@
 #include <Windows.h>
+#include <Dbghelp.h>
 #include "signature.h"
 #include <psapi.h>
 #include <sstream>
