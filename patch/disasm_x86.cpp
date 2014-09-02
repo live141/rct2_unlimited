@@ -1,6 +1,7 @@
 #include "disasm_x86.h"
 #include <stdio.h>
 #include <sstream>
+#include <algorithm>
 
 extern opcode_x86_t g_opcode_32_1b[];
 extern opcode_x86_t g_opcode_32_2b[];
@@ -110,18 +111,26 @@ void opcode_x86::_decode_modrm(uint8_t byte) {
 std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	std::stringstream stream;
 	stream << std::hex;
-	if(!_addr_size_prefix) {
+	/* determin operand size */
+	if(type == 8)
+		_op_size[i] = 1;
+	else {
+		if(_addr_size_prefix)
+			_op_size[i] = 2;
+		else if(_is_opsize64())
+			_op_size[i] = 8;
+		else
+			_op_size[i] = 4;
+	}
+	//if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
 			if(type == 8) {
-				_op_size[i] = 1;
 				return std::string(g_lut_registers8[_rm]);
 			}
 			else if(!_is_opsize64()) {
-				_op_size[i] = 4;
 				return std::string(g_lut_registers32[_rm]);
 			}
 			else {
-				_op_size[i] = 8;
 				return std::string(g_lut_registers64[_rm]);
 			}
 		}
@@ -165,10 +174,12 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				stream << "]";
 			}
 		}
+/*
 	}
 	else {
 
 	}
+*/
 	return stream.str();
 }
 
@@ -381,7 +392,8 @@ void opcode_x86::decode() {
 	_size = size;
 
 	/* put in string */
-	stream << _name << std::hex;
+	//stream << _name << std::hex;
+	stream << std::hex;
 	for(int i = 0; i < 4; ++i) {
 		switch(_code->type_op[i]) {
 			case OPERAND_TYPE_REG64:
@@ -409,7 +421,12 @@ void opcode_x86::decode() {
 				break;
 			case OPERAND_TYPE_IMM32:
 				stream << ", 0x" << _imm;
-				_op_size[i] = 4;
+				if(_op_size_prefix)
+					_op_size[i] = 2;
+				else if(!_is_opsize64())
+					_op_size[i] = 4;
+				else
+					_op_size[i] = 8;
 				break;
 			case OPERAND_TYPE_IMM8:
 				stream << ", 0x" << _imm;
@@ -498,5 +515,18 @@ void opcode_x86::decode() {
 		}
 	}
 
-	_expr = stream.str();
+	for(int i = 0; i < 1; ++i) {
+		if(_op_size[i] == 8)
+			_name.append("q");
+		if(_op_size[i] == 4)
+			_name.append("l");
+		if(_op_size[i] == 2)
+			_name.append("w");
+		if(_op_size[i] == 1)
+			_name.append("b");
+	}
+
+	std::transform(_name.begin(), _name.end(), _name.begin(), ::tolower);
+	_expr = _name;
+	_expr += stream.str().c_str()+1;
 }
