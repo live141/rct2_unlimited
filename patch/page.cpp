@@ -44,7 +44,7 @@ void page::change_permissions(int flags) {
 		std::cout << "Error: Could not change page permissions: " << errno << std::endl; 
 	}
 #else
-	uint32_t old_prot, prot = PAGE_NOACCESS;
+	DWORD old_prot, prot = PAGE_NOACCESS;
 	if(flags & PAGE_READ && flags & PAGE_WRITE && flags & PAGE_EXEC)
 		prot = PAGE_EXECUTE_READWRITE;
 	else if(flags & PAGE_READ && flags & PAGE_EXEC)
@@ -54,7 +54,7 @@ void page::change_permissions(int flags) {
 	else if(flags & PAGE_READ)
 		prot = PAGE_READONLY;
 	else if(flags & PAGE_WRITE)
-		prot = PAGE_WRITEONLY;
+		prot = PAGE_WRITECOPY;
 	
 	if(!VirtualProtect(_addr, _size, prot, &old_prot))
 		std::cout << "Error: Could not change page permissions" << std::endl; 
@@ -78,7 +78,7 @@ void page::change_permissions(void *addr, size_t size, int flags) {
 		std::cout << "Error: Could not change page permissions: " << errno << std::endl; 
 	}
 #else
-	uint32_t old_prot, prot = PAGE_NOACCESS;
+	DWORD old_prot, prot = PAGE_NOACCESS;
 	if(flags & PAGE_READ && flags & PAGE_WRITE && flags & PAGE_EXEC)
 		prot = PAGE_EXECUTE_READWRITE;
 	else if(flags & PAGE_READ && flags & PAGE_EXEC)
@@ -88,7 +88,7 @@ void page::change_permissions(void *addr, size_t size, int flags) {
 	else if(flags & PAGE_READ)
 		prot = PAGE_READONLY;
 	else if(flags & PAGE_WRITE)
-		prot = PAGE_WRITEONLY;
+		prot = PAGE_WRITECOPY;
 	
 	if(!VirtualProtect(aligned_addr, prot_size, prot, &old_prot))
 		std::cout << "Error: Could not change page permissions" << std::endl; 
@@ -104,7 +104,7 @@ void* page::alloc() {
 		std::cout << "Error: Could not map memory: " << errno << std::endl;
 	}
 #else
-	addr = malloc(page::_page_size);
+	addr = _aligned_malloc(page::_page_size, page::_page_size);
 	change_permissions(addr, page::_page_size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
 #endif
 	return addr;
@@ -118,7 +118,7 @@ void* page::alloc(size_t size) {
 		return NULL;
 	}
 #else
-	addr = malloc(alloc_size);
+	addr = _aligned_malloc(size, page::_page_size);
 	change_permissions(addr, size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
 #endif
 	return addr;
