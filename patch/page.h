@@ -4,10 +4,10 @@
 #if defined(linux) || defined(__APPLE__)
 #include <sys/mman.h>
 #include <errno.h>
+#include <unistd.h>
 #else
 #include <windows.h>
 #endif
-#include <unistd.h>
 
 #define PAGE_READ 1
 #define PAGE_WRITE 2
