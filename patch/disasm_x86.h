@@ -224,6 +224,10 @@ public:
 		_offset_disp = op._offset_disp;
 		_name = op._name;
 		_expr = op._expr;
+		_op_size[0] = op._op_size[0];
+		_op_size[1] = op._op_size[1];
+		_op_size[2] = op._op_size[2];
+		_op_size[3] = op._op_size[3];
 
 		return *this;
 	}
