@@ -399,8 +399,8 @@ void opcode_x86::decode() {
 	for(int i = 0; i < 4; ++i) {
 		switch(_code->type_op[i]) {
 			case OPERAND_TYPE_REG64:
-				stream << g_lut_registers64[_reg_ope];
-				_op_size[i] = 4;
+				stream << ", " << g_lut_registers64[_reg_ope];
+				_op_size[i] = 8;
 				break;
 			case OPERAND_TYPE_REG32:
 				stream << ", ";
