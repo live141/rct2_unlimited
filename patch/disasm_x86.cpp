@@ -153,11 +153,11 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				stream << "[";
 				if(_bitmode == mode_64) {
 					if(_is_opsize64())
-						stream << "rip+";
+						stream << "rip";
 					else
-						stream << "eip+";
+						stream << "eip";
 				}
-				stream << _disp;
+				stream << std::dec << std::showpos << _disp;
 			}
 			else {
 				if(_bitmode == mode_32 /*!_is_opsize64()*/)
@@ -167,7 +167,7 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 			}
 			if(_mod != MOD_REG_INDIRECT) {
 				/* disp */
-				stream << "+" << _disp << "]";
+				stream << std::dec << std::showpos << _disp << "]";
 			}
 			else {
 				/* no disp */
@@ -343,7 +343,7 @@ void opcode_x86::decode() {
 	}
 #endif
 	if(_code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
-		_disp = *byte;
+		_disp = *((int8_t*) byte);
 		_disp_size = 1;
 		_offset_disp = size;
 		++byte;
@@ -367,7 +367,7 @@ void opcode_x86::decode() {
 	}
 
 	if(_code->size_immediate == 1) {
-		_imm = *byte;
+		_imm = *((int8_t*) byte);
 		_imm_size = 1;
 		_offset_imm = size;
 		++byte;
