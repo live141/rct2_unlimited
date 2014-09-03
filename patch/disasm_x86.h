@@ -1,6 +1,7 @@
 #ifndef _DISASM_X86_H_
 #define _DISASM_X86_H_
 
+#include "instr_x86.h"
 #include <stdint.h>
 #include <string>
 
@@ -143,6 +144,7 @@ protected:
 	uint8_t _bitmode, _prefix64;
 	uint8_t _offset_imm, _offset_disp;
 	uint8_t _op_size[4];
+	uint16_t _instr;
 	std::string _name, _expr;
 
 	void _decode_modrm(uint8_t byte);
@@ -188,6 +190,7 @@ protected:
 		_op_size[1] = 0;
 		_op_size[2] = 0;
 		_op_size[3] = 0;
+		_instr = INSTR_INVAL;
 	}
 
 	/* bitmode and addr are important, so don't allow standard constructor */
@@ -198,7 +201,7 @@ public:
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
 				_disp_size(0), _imm_size(0), _bitmode(bitmode), _prefix64(0),
-				_offset_imm(0), _offset_disp(0) {}
+				_offset_imm(0), _offset_disp(0), _instr(INSTR_INVAL) {}
 
 	opcode_x86& operator =(opcode_x86 &op) {
 		_addr = op._addr;
@@ -228,6 +231,7 @@ public:
 		_op_size[1] = op._op_size[1];
 		_op_size[2] = op._op_size[2];
 		_op_size[3] = op._op_size[3];
+		_instr = op._instr;
 
 		return *this;
 	}
@@ -240,6 +244,10 @@ public:
 
 	const char* name() const {
 		return _name.c_str();
+	}
+
+	const uint16_t instr() const {
+		return _instr;
 	}
 	
 	const char* expression() const {
@@ -314,6 +322,19 @@ public:
                 || optype(n) == OPERAND_TYPE_AH || optype(n) == OPERAND_TYPE_AX || optype(n) == OPERAND_TYPE_EAX
                 || optype(n) == OPERAND_TYPE_RAX || optype(n) == OPERAND_TYPE_DX || optype(n) == OPERAND_TYPE_EDX
                 || optype(n) == OPERAND_TYPE_RDX);
+	}
+
+	bool is_cond_jump() const {
+		return ((_instr >= INSTR_JO && _instr <= INSTR_JNLE) || _instr == INSTR_JCXZ || _instr == INSTR_JECXZ);
+	}
+
+	bool is_jump() const {
+		return (is_cond_jump() || _instr == INSTR_JMP || _instr == INSTR_JMPF);
+	}
+
+	bool is_ret() const {
+		return (_instr == INSTR_RETN || _instr == INSTR_RETF || _instr == INSTR_IRET
+			|| _instr == INSTR_IRETD || _instr == INSTR_SYSRET);
 	}
 
 	//void execute_change_result(uint64_t result, machine_context_t *context);

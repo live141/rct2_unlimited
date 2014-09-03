@@ -302,6 +302,8 @@ void opcode_x86::decode() {
 	}
 	++size;
 	++byte;
+
+	_instr = _code->type;
 	
 	if(_code->size_modrm == 1) {
 		_decode_modrm(*byte);
