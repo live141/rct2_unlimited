@@ -98,6 +98,8 @@
 #define OPERAND_TYPE_RDX 17
 #define OPERAND_TYPE_DIRECT_REGISTER 18
 #define OPERAND_TYPE_REG64 19
+#define OPERAND_TYPE_XMM128 20
+#define OPERAND_TYPE_XMM64 21
 
 #define OPCODE_EXT_INVAL 0xff
 
@@ -116,12 +118,12 @@ enum x86_bitmode {
 };
 
 union reg_t {
-	uint64_t rx;
-	uint32_t ex;
-	uint16_t x;
+	int64_t rx;
+	int32_t ex;
+	int16_t x;
 	struct {
-		uint8_t low;
-		uint8_t high;
+		int8_t low;
+		int8_t high;
 	};
 };
 
