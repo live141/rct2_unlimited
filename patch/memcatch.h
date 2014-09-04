@@ -21,7 +21,7 @@ typedef memcatch_action (*memcatch_callback)(memcatch *mem, void *addr, memcatch
 
 class memcatch {
 protected:
-	void *_addr;
+	void *_addr, *_new_addr;
 	size_t _size;
 	unsigned long _saved_flags;
 	memcatch_action _type;
@@ -40,10 +40,7 @@ public:
 	void activate();
 	void deactivate();
 	static memcatch* find(void *addr);
-
-	memcatch_action callback(void *addr, memcatch_action action, uint64_t *val) {
-		_callback(this, addr, action, val);
-	}
+	memcatch_action callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context);
 
 	size_t size() const {
 		return _size;
@@ -53,6 +50,14 @@ public:
 		return _addr;
 	}
 
+	void* new_addr() const {
+		return _new_addr;
+	}
+
+	void patch_addr(void *addr) {
+		_new_addr = addr;
+	}
+	
 	static iterator begin() {
 		return memcatch::_map.begin();
 	}
