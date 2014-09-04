@@ -88,6 +88,63 @@ char g_lut_registers64[][7] = {
 	"r15"
 };
 
+char g_lut_mm[][7] = {
+	"mm0",
+	"mm1",
+	"mm2",
+	"mm3",
+	"mm4",
+	"mm5",
+	"mm6",
+	"mm7",
+	"mm8",
+	"mm9",
+	"mm10",
+	"mm11",
+	"mm12",
+	"mm13",
+	"mm14",
+	"mm15"
+};
+
+char g_lut_xmm[][7] = {
+	"xmm0",
+	"xmm1",
+	"xmm2",
+	"xmm3",
+	"xmm4",
+	"xmm5",
+	"xmm6",
+	"xmm7",
+	"xmm8",
+	"xmm9",
+	"xmm10",
+	"xmm11",
+	"xmm12",
+	"xmm13",
+	"xmm14",
+	"xmm15"
+};
+
+char g_lut_ymm[][7] = {
+	"ymm0",
+	"ymm1",
+	"ymm2",
+	"ymm3",
+	"ymm4",
+	"ymm5",
+	"ymm6",
+	"ymm7",
+	"ymm8",
+	"ymm9",
+	"ymm10",
+	"ymm11",
+	"ymm12",
+	"ymm13",
+	"ymm14",
+	"ymm15"
+};
+
 reg machine_context_x86::get(const char *name) {
 	int i, hash = 0;
 	enum reg_size size = byte;
@@ -217,6 +274,12 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	/* determin operand size */
 	if(type == 8)
 		_op_size[i] = 1;
+	else if(type == 64)
+		_op_size[i] = 8;
+	else if(type == 128)
+		_op_size[i] = 16;
+	else if(type == 256)
+		_op_size[i] = 32;
 	else {
 		if(_addr_size_prefix)
 			_op_size[i] = 2;
@@ -227,6 +290,18 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	}
 	//if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
+			if(type == 64) {
+				/* mm */
+				return std::string(g_lut_mm[_rm]);
+			}
+			if(type == 128) {
+				/* xmm */
+				return std::string(g_lut_xmm[_rm]);
+			}
+			if(type == 256) {
+				/* ymm */
+				return std::string(g_lut_ymm[_rm]);
+			}
 			if(type == 8) {
 				return std::string(g_lut_registers8[_rm]);
 			}
@@ -613,6 +688,24 @@ void opcode_x86::decode() {
 				break;
 			case OPERAND_TYPE_MOFFSET32:
 				stream << ", " << "[0x"<< _disp << "]";
+				break;
+			case OPERAND_TYPE_XMM:
+				if(_op_size_prefix) {
+					stream << ", " << g_lut_xmm[_reg_ope];
+					_op_size[i] = 32;
+				}
+				else {
+					stream << ", " << g_lut_mm[_reg_ope];
+					_op_size[i] = 16;
+				}
+				break;
+			case OPERAND_TYPE_XMMM:
+				if(_op_size_prefix) {
+					stream << ", " << _format_modrm(128, i);
+				}
+				else {
+					stream << ", " << _format_modrm(64, i);
+				}
 				break;
 			default:
 				break;
