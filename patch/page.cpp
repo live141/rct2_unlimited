@@ -61,7 +61,7 @@ void page::change_permissions(int flags) {
 #endif
 }
 
-void page::change_permissions(void *addr, size_t size, int flags) {
+void page::change_permissions(const void *addr, size_t size, int flags) {
 	void *aligned_addr = (void*)((unsigned long) addr & ~(page::_page_size-1));
 	size_t prot_size = ((uint64_t) addr + size - (uint64_t) aligned_addr);
 	prot_size = prot_size/page::_page_size + (prot_size%page::_page_size)?1:0;

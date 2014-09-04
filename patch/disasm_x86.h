@@ -263,7 +263,7 @@ protected:
 	opcode_x86() {}
 
 public:
-	opcode_x86(void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _code(NULL), _size(0), _scale(0), _idx(0), _base(0),
+	opcode_x86(const void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _code(NULL), _size(0), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
 				_disp_size(0), _imm_size(0), _bitmode(bitmode), _prefix64(0),
@@ -375,6 +375,8 @@ public:
 			case 8:
 				*((int64_t*) ((uint8_t*) _addr+_offset_imm)) = (int64_t) _imm;
 				break;
+			default:
+				break;
 		}
 	}
 	
@@ -387,7 +389,7 @@ public:
 		return (optype(n) == OPERAND_TYPE_REG32 || optype(n) == OPERAND_TYPE_REG8 || optype(n) == OPERAND_TYPE_AL
                 || optype(n) == OPERAND_TYPE_AH || optype(n) == OPERAND_TYPE_AX || optype(n) == OPERAND_TYPE_EAX
                 || optype(n) == OPERAND_TYPE_RAX || optype(n) == OPERAND_TYPE_DX || optype(n) == OPERAND_TYPE_EDX
-                || optype(n) == OPERAND_TYPE_RDX);
+                || optype(n) == OPERAND_TYPE_RDX || optype(n) == OPERAND_TYPE_XMM);
 	}
 
 	bool is_cond_jump() const {

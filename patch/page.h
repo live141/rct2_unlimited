@@ -26,7 +26,7 @@ public:
 	~page();
 	void change_permissions(int flags);
 	static void init();
-	static void change_permissions(void *addr, size_t size, int flags);
+	static void change_permissions(const void *addr, size_t size, int flags);
 	static void* alloc();
 	static void* alloc(size_t size);
 	static void free(void *addr);
