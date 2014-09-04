@@ -125,10 +125,74 @@ union reg_t {
 	};
 };
 
-struct machine_context_x86_t {
-	reg_t *rax, *rbx, *rcx, *rdx, *rdi, *rsi, *rpb, *rsp;
+enum reg_size {
+	byte = 0,
+	word,
+	dword,
+	qword,
+	low,
+	high
+};
+
+class reg {
+protected:
+	reg_t *_reg;
+	reg_size _size;
+
+	reg();	
+public:
+	reg(reg_t *reg, reg_size size) : _reg(reg), _size(size) {}
+
+	int64_t get() const {
+		if(_size == word) {
+			return _reg->x;
+		}
+		if(_size == dword) {
+			return _reg->ex;
+		}
+		if(_size == qword) {
+			return _reg->rx;
+		}
+		if(_size == low) {
+			return _reg->low;
+		}
+		if(_size == high) {
+			return _reg->high;
+		}
+	}
+	
+	void set(int64_t val) {
+		if(_size == word) {
+			_reg->x = val;
+			return;
+		}
+		if(_size == dword) {
+			_reg->ex = val;
+			return;
+		}
+		if(_size == qword) {
+			_reg->rx = val;
+			return;
+		}
+		if(_size == low) {
+			_reg->low = val;
+			return;
+		}
+		if(_size == high) {
+			_reg->high = val;
+			return;
+		}
+	}
+};
+
+class machine_context_x86 {
+protected:
+public:
+	reg_t *rax, *rbx, *rcx, *rdx, *rdi, *rsi, *rbp, *rsp;
 	reg_t *r8, *r9, *r10, *r11, *r12, *r13, *r14, *r15;
 	reg_t *rip, *rflags, *cs, *fs, *gs;
+	
+	reg get(const char *name);
 };
 
 class opcode_x86 {
@@ -344,7 +408,7 @@ public:
 	}
 
 	//void execute_change_result(uint64_t result, machine_context_t *context);
-	//uint64_t execute(machine_context_x86_t *context);
+	//uint64_t execute(machine_context_x86 *context);
 };
 
 #endif

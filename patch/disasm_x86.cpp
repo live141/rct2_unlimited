@@ -88,6 +88,109 @@ char g_lut_registers64[][7] = {
 	"r15"
 };
 
+reg machine_context_x86::get(const char *name) {
+	int i, hash = 0;
+	enum reg_size size = byte;
+	char end = 0;
+	for(i = 0; name[i] != 0 && i < 7; ++i) {
+		hash += name[i];
+	}
+	end = name[i-1];
+
+	if(end == 'b' || end == 'h' || end == 'l')
+		size = byte;
+	else if(name[0] == 'e' || end == 'd')
+		size = dword;
+	else if(name[0] != 'r' || end == 'w' )
+		size = word;
+	else
+		size = qword;
+
+	if(size == byte) {
+		switch(hash) {
+			case 205: return reg(rax, low);
+			case 207: return reg(rcx, low);
+			case 208: return reg(rdx, low);
+			case 206: return reg(rbx, low);
+			case 201: return reg(rax, high);
+			case 203: return reg(rcx, high);
+			case 204: return reg(rdx, high);
+			case 202: return reg(rbx, high);
+			case 268: return reg(r8, low);
+			case 269: return reg(r9, low);
+			case 309: return reg(r10, low);
+			case 310: return reg(r11, low);
+			case 311: return reg(r12, low);
+			case 312: return reg(r13, low);
+			case 313: return reg(r14, low);
+			case 314: return reg(r15, low);
+		}
+	}
+
+	if(size == word) {
+		switch(hash) {
+			case 217: return reg(rax, word);
+			case 219: return reg(rcx, word);
+			case 220: return (name[0] == 'd')?reg(rdx, word):reg(rsi, word);
+			case 218: return reg(rbx, word);
+			case 227: return reg(rsp, word);
+			case 210: return reg(rbp, word);
+			//case 220: return reg(rsi, word);
+			case 205: return reg(rdi, word);
+			case 289: return reg(r8, word);
+			case 290: return reg(r9, word);
+			case 330: return reg(r10, word);
+			case 331: return reg(r11, word);
+			case 332: return reg(r12, word);
+			case 333: return reg(r13, word);
+			case 334: return reg(r14, word);
+			case 335: return reg(r15, word);
+		}
+	}
+
+	if(size == dword) {
+		switch(hash) {
+			case 318: return reg(rax, dword);
+			case 320: return reg(rcx, dword);
+			case 321: return (name[1] == 'd')?reg(rdx, dword):reg(rsi, dword);
+			case 319: return reg(rbx, dword);
+			case 328: return reg(rsp, dword);
+			case 311: return (name[1] == 'b')?reg(rbp, dword):reg(r10, dword);
+			//case 321: return reg(rsi, dword);
+			case 306: return reg(rdi, dword);
+			case 270: return reg(r8, dword);
+			case 271: return reg(r9, dword);
+			//case 311: return reg(r10, dword);
+			case 312: return reg(r11, dword);
+			case 313: return reg(r12, dword);
+			case 314: return reg(r13, dword);
+			case 315: return reg(r14, dword);
+			case 316: return reg(r15, dword);
+		}
+	}
+
+	if(size == qword) {
+		switch(hash) {
+			case 331: return reg(rax, qword);
+			case 333: return reg(rcx, qword);
+			case 334: return (name[1] == 'd')?reg(rdx, qword):reg(rsi, qword);
+			case 332: return reg(rbx, qword);
+			case 341: return reg(rsp, qword);
+			case 324: return reg(rbp, qword);
+			//case 334: return reg(rsi, qword);
+			case 319: return reg(rdi, qword);
+			case 170: return reg(r8, qword);
+			case 171: return reg(r9, qword);
+			case 211: return reg(r10, qword);
+			case 212: return reg(r11, qword);
+			case 213: return reg(r12, qword);
+			case 214: return reg(r13, qword);
+			case 215: return reg(r14, qword);
+			case 216: return reg(r15, qword);
+		}
+	}
+}
+
 void opcode_x86::_decode_modrm(uint8_t byte) {
 	_mod = byte >> 6;
 	_reg_ope = (byte >> 3) & 0x07;
