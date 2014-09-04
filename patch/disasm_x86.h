@@ -337,6 +337,12 @@ public:
 			|| _instr == INSTR_IRETD || _instr == INSTR_SYSRET);
 	}
 
+	bool is_compare() const {
+		return (_instr == INSTR_CMP || _instr == INSTR_CMPS || _instr == INSTR_CMPXCHG || _instr == INSTR_TEST ||
+			_instr == INSTR_CMPPS || _instr == INSTR_CMPSS || _instr == INSTR_CMPPD || _instr == INSTR_CMPSD || 
+			_instr == INSTR_CMPXCHG8B);
+	}
+
 	//void execute_change_result(uint64_t result, machine_context_t *context);
 	//uint64_t execute(machine_context_x86_t *context);
 };

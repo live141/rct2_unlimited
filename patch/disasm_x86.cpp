@@ -303,8 +303,6 @@ void opcode_x86::decode() {
 	++size;
 	++byte;
 
-	_instr = _code->type;
-	
 	if(_code->size_modrm == 1) {
 		_decode_modrm(*byte);
 		++byte;
@@ -324,6 +322,7 @@ void opcode_x86::decode() {
 	}
 
 	_name = _code->name;
+	_instr = _code->type;
 
 	/* check for SIB byte */
 	if(_sib) {
