@@ -76,8 +76,15 @@ void detour::jump_to_function() {
 	/* function begins at trampoline address */
 	if(_addr_tramp == NULL)
 		return;
+#if defined(linux) || defined(__APPLE__)
 	asm volatile("jmp (%0)"
 			:
 			: "r"(_addr_tramp)
 			:);
+#else
+		__asm {
+			mov eax, _addr_tramp
+			jmp eax
+		}
+#endif
 }

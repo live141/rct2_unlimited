@@ -179,7 +179,7 @@ void memcatch::init() {
 #endif
 }
 
-memcatch_action memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context) {
+void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context) {
 	memcatch_action action_req;
 	uint64_t val;
 #if 0

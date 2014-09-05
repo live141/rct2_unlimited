@@ -40,7 +40,7 @@ public:
 	void activate();
 	void deactivate();
 	static memcatch* find(void *addr);
-	memcatch_action callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context);
+	void callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context);
 
 	size_t size() const {
 		return _size;

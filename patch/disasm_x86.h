@@ -128,12 +128,12 @@ union reg_t {
 };
 
 enum reg_size {
-	byte = 0,
-	word,
-	dword,
-	qword,
-	low,
-	high
+	size_byte = 0,
+	size_word,
+	size_dword,
+	size_qword,
+	size_low,
+	size_high
 };
 
 class reg {
@@ -146,41 +146,41 @@ public:
 	reg(reg_t *reg, reg_size size) : _reg(reg), _size(size) {}
 
 	int64_t get() const {
-		if(_size == word) {
+		if(_size == size_word) {
 			return _reg->x;
 		}
-		if(_size == dword) {
+		if(_size == size_dword) {
 			return _reg->ex;
 		}
-		if(_size == qword) {
+		if(_size == size_qword) {
 			return _reg->rx;
 		}
-		if(_size == low) {
+		if(_size == size_low) {
 			return _reg->low;
 		}
-		if(_size == high) {
+		if(_size == size_high) {
 			return _reg->high;
 		}
 	}
 	
 	void set(int64_t val) {
-		if(_size == word) {
+		if(_size == size_word) {
 			_reg->x = val;
 			return;
 		}
-		if(_size == dword) {
+		if(_size == size_dword) {
 			_reg->ex = val;
 			return;
 		}
-		if(_size == qword) {
+		if(_size == size_qword) {
 			_reg->rx = val;
 			return;
 		}
-		if(_size == low) {
+		if(_size == size_low) {
 			_reg->low = val;
 			return;
 		}
-		if(_size == high) {
+		if(_size == size_high) {
 			_reg->high = val;
 			return;
 		}
