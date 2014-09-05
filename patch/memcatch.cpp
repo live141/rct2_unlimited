@@ -14,6 +14,8 @@
 #include <Windows.h>
 #endif
 
+// #define DEBUG
+
 std::map<void*, memcatch*> memcatch::_map;
 
 #if defined(linux) || defined(__APPLE__)
@@ -61,7 +63,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 }
 #else
 /* Windows */
-LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS * ExceptionInfo)
+LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
@@ -109,7 +111,65 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS * ExceptionInfo)
 			break;
 	}
 
-	return EXCEPTION_EXECUTE_HANDLER;
+	if(ExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION) {
+		std::cout << "Error: received exception" << std::endl;
+		return EXCEPTION_EXECUTE_HANDLER;
+	}
+
+	memcatch *mem;
+	void *addr = NULL;
+	machine_context_x86 context;
+	memcatch_action action;
+	PCONTEXT u = ExceptionInfo->ContextRecord;
+	opcode_x86 op((void*) u->Eip, mode_32);
+	op.decode();
+#ifdef DEBUG
+	std::cout << "Received SIGSEGV/SIGBUS caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
+		<< " for ";
+#endif
+	/* check if we are reading, when yes then first operand is a register */
+	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
+#ifdef DEBUG
+		std::cout << "reading from";
+#endif
+		action = memcatch_read;
+	}
+	else if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 1) {
+#ifdef DEBUG
+		std::cout << "writing to";
+#endif
+		action = memcatch_write;
+	}
+	else {
+		std::cout << std::endl << "Error: Execution prevention" << std::cout;
+	}
+	// addr = (void*) ExceptionInfo->ExceptionRecord->ExceptionAddress;
+	addr = (void*) ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
+#ifdef DEBUG
+	std::cout << " 0x" << addr << std::dec << std::endl;
+#endif
+	/* get corresponding memcatch and check if we caused this signal */
+	mem = memcatch::find(addr);
+	/* we did not caused it */
+	if(mem == NULL) {
+		// exit(-1);
+		return EXCEPTION_EXECUTE_HANDLER;
+	}
+	context.rax = (reg_t*)  &u->Eax;
+	context.rbx = (reg_t*)  &u->Ebx;
+	context.rcx = (reg_t*)  &u->Ecx;
+	context.rdx = (reg_t*)  &u->Edx;
+	context.rdi = (reg_t*)  &u->Edi;
+	context.rsi = (reg_t*)  &u->Esi;
+	context.rbp = (reg_t*)  &u->Ebp;
+	context.rsp = (reg_t*)  &u->Esp;
+	context.rip = (reg_t*)  &u->Eip;
+	context.rflags = (reg_t*)  &u->EFlags;
+	context.cs = (reg_t*)  &u->SegCs;
+	context.fs = (reg_t*)  &u->SegFs;
+	context.gs = (reg_t*)  &u->SegGs;
+	mem->callback(&op, addr, action, &context);
+	return EXCEPTION_CONTINUE_EXECUTION;
 }
 #endif
 
@@ -216,10 +276,12 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 			}
 			reg[j] = 0;
 #ifdef DEBUG
-			std::cout << "Using register: " << reg << std::endl;
+			std::cout << "Using register: " << reg << " = " << std::hex << context->get(reg).get() << std::dec << std::endl;
 #endif
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
-			
+#ifdef DEBUG
+			std::cout << "Redirected: " << reg << " = " << std::hex << context->get(reg).get() << std::dec << std::endl;;
+#endif
 		}
 		else if(action == memcatch_write) {
 			int i, j;
