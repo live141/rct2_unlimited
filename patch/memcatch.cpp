@@ -50,6 +50,11 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 	mem = memcatch::find(si->si_addr);
 	/* we did not caused it */
 	if(mem == NULL) {
+		/* check if sideeffect of chaning page permissions */
+		if(memcatch::find_page(si->si_addr)) {
+			u->uc_mcontext->__ss.__rip += op.size();
+			return;
+		}
 		exit(-1);
 	}
 	uint64_t *reg;
@@ -152,7 +157,12 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	mem = memcatch::find(addr);
 	/* we did not caused it */
 	if(mem == NULL) {
-		// exit(-1);
+		/* check if sideeffect of chaning page permissions */
+		if(memcatch::find_page(si->si_addr)) {
+			u->Eip += op.size();
+			return EXCEPTION_CONTINUE_EXECUTION;
+		}
+
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 	context.rax = (reg_t*)  &u->Eax;
@@ -195,6 +205,16 @@ memcatch* memcatch::find(void *addr) {
 			return it->second;
 	}
 	return NULL;
+}
+
+bool memcatch::find_page(void *addr) {
+	memcatch::iterator it;
+	for(it = memcatch::_map.begin(); it != memcatch::_map.end(); ++it) {
+		/* check if both points to same page */
+		if(((uint64_t) addr & ~(page::page_size()-1)) == ((uint64_t) it->second->addr() & ~(page::page_size()-1)))
+			return true;
+	}
+	return false;
 }
 
 void memcatch::activate() {
