@@ -11,6 +11,7 @@
 #define _XOPEN_SOURCE
 #include <ucontext.h>
 #else
+#include <Windows.h>
 #endif
 
 std::map<void*, memcatch*> memcatch::_map;
@@ -57,6 +58,58 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		dst[i] = (reg_t*) reg+i;
 	}
 	mem->callback(&op, si->si_addr, action, &context);
+}
+#else
+/* Windows */
+LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS * ExceptionInfo)
+{
+	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
+	{
+		case EXCEPTION_ACCESS_VIOLATION:
+			break;
+		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+			break;
+		case EXCEPTION_BREAKPOINT:
+			break;
+		case EXCEPTION_DATATYPE_MISALIGNMENT:
+			break;
+		case EXCEPTION_FLT_DENORMAL_OPERAND:
+			break;
+		case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+			break;
+		case EXCEPTION_FLT_INEXACT_RESULT:
+			break;
+		case EXCEPTION_FLT_INVALID_OPERATION:
+			break;
+		case EXCEPTION_FLT_OVERFLOW:
+			break;
+		case EXCEPTION_FLT_STACK_CHECK:
+			break;
+		case EXCEPTION_FLT_UNDERFLOW:
+			break;
+		case EXCEPTION_ILLEGAL_INSTRUCTION:
+			break;
+		case EXCEPTION_IN_PAGE_ERROR:
+			break;
+		case EXCEPTION_INT_DIVIDE_BY_ZERO:
+			break;
+		case EXCEPTION_INT_OVERFLOW:
+			break;
+		case EXCEPTION_INVALID_DISPOSITION:
+			break;
+		case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+			break;
+		case EXCEPTION_PRIV_INSTRUCTION:
+			break;
+		case EXCEPTION_SINGLE_STEP:
+			break;
+		case EXCEPTION_STACK_OVERFLOW:
+			break;
+		default:
+			break;
+	}
+
+	return EXCEPTION_EXECUTE_HANDLER;
 }
 #endif
 
@@ -122,7 +175,7 @@ void memcatch::init() {
 		std::cout << "Error: Could not set SIGBUS handler: " << errno << std::endl;
 
 #else
-#error "TODO"
+	SetUnhandledExceptionFilter(windows_exception_handler);
 #endif
 }
 
