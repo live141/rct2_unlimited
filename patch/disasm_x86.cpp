@@ -362,8 +362,15 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 }
 
 
+void opcode_x86::decode(void *addr, x86_bitmode bitmode) {
+	_addr = (uint8_t*) addr;
+	_bitmode = bitmode;
+	decode();
+}
 
 void opcode_x86::decode() {
+	if(_addr == NULL)
+		return;
 	std::stringstream stream;
 	uint8_t *byte = _addr;
 	uint8_t size = 0;

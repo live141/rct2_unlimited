@@ -259,10 +259,8 @@ protected:
 		_instr = INSTR_INVAL;
 	}
 
-	/* bitmode and addr are important, so don't allow standard constructor */
-	opcode_x86() {}
-
 public:
+	opcode_x86() : _addr(NULL) {}
 	opcode_x86(const void *addr, x86_bitmode bitmode) : _addr((uint8_t*) addr), _code(NULL), _size(0), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _imm(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
@@ -303,6 +301,7 @@ public:
 	}
 
 	void decode();
+	void decode(void *addr, x86_bitmode bitmode);
 
 	uint8_t size() const {
 		return _size;
