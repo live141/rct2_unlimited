@@ -66,6 +66,7 @@ void detour::hook() {
 	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
 		if(it->optype(0) == OPERAND_TYPE_REL32) {
 			opcode_x86 op(_addr_tramp+size, _bitmode);
+			op.decode();
 			op.set_imm(it->immediate());
 		}
 		size += it->size();
