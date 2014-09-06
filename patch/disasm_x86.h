@@ -302,6 +302,7 @@ public:
 
 	void decode();
 	void decode(void *addr, x86_bitmode bitmode);
+	void set_imm(int64_t val);
 
 	uint8_t size() const {
 		return _size;
@@ -355,30 +356,6 @@ public:
 		return _code->type_op[n%4];
 	}
 
-	void set_imm(int64_t val) {
-		_imm = val;
-		if(_code->type_op[0] == OPERAND_TYPE_REL8 || _code->type_op[0] == OPERAND_TYPE_REL32) {
-			_imm = (uint64_t) val - (uint64_t) _addr - _size;
-		}
-		
-		switch(_imm_size) {
-			case 1:
-				*((int8_t*) ((uint8_t*) _addr+_offset_imm)) = (int8_t) _imm;
-				break;
-			case 2:
-				*((int16_t*) ((uint8_t*) _addr+_offset_imm)) = (int16_t) _imm;
-				break;
-			case 4:
-				*((int32_t*) ((uint8_t*) _addr+_offset_imm)) = (int32_t) _imm;
-				break;
-			case 8:
-				*((int64_t*) ((uint8_t*) _addr+_offset_imm)) = (int64_t) _imm;
-				break;
-			default:
-				break;
-		}
-	}
-	
 	void next() {
 		_addr += size();
 		decode();

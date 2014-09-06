@@ -175,9 +175,10 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		std::cout << "Error: received exception" << std::endl;
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
+#ifdef
  	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
 		<< " for ";
-	
+#endif	
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
 #ifdef DEBUG

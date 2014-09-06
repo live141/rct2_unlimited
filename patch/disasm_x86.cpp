@@ -1,4 +1,5 @@
 #include "disasm_x86.h"
+#include "page.h"
 #include <stdio.h>
 #include <sstream>
 #include <algorithm>
@@ -144,6 +145,31 @@ char g_lut_ymm[][7] = {
 	"ymm14",
 	"ymm15"
 };
+
+void opcode_x86::set_imm(int64_t val) {
+	_imm = val;
+	if(_code->type_op[0] == OPERAND_TYPE_REL8 || _code->type_op[0] == OPERAND_TYPE_REL32) {
+		_imm = (uint64_t) val - (uint64_t) _addr - _size;
+	}
+	/* make page writeable */
+	page::change_permissions(((uint8_t*) _addr+_offset_imm), _imm_size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
+	switch(_imm_size) {
+		case 1:
+			*((int8_t*) ((uint8_t*) _addr+_offset_imm)) = (int8_t) _imm;
+			break;
+		case 2:
+			*((int16_t*) ((uint8_t*) _addr+_offset_imm)) = (int16_t) _imm;
+			break;
+		case 4:
+			*((int32_t*) ((uint8_t*) _addr+_offset_imm)) = (int32_t) _imm;
+			break;
+		case 8:
+			*((int64_t*) ((uint8_t*) _addr+_offset_imm)) = (int64_t) _imm;
+			break;
+		default:
+			break;
+	}
+}
 
 reg machine_context_x86::get(const char *name) {
 	int i, hash = 0;
