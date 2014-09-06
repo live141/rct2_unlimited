@@ -24,7 +24,9 @@ void detour::unhook() {
 		for(uint32_t i = 0; i < _size_replaced;) {
 			op.next();
 			if( op.optype(0) == OPERAND_TYPE_REL32 ) {
-				op.set_imm(opcode_x86(_addr_tramp+i, _bitmode).immediate());
+				opcode_x86 rel(_addr_tramp+i, _bitmode);
+				rel.decode();
+				op.set_imm(rel.immediate());
 			}
 			i += op.size();
 		}
