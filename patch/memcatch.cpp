@@ -15,7 +15,7 @@
 #include <Windows.h>
 #endif
 
-#define DEBUG
+//#define DEBUG
 
 std::map<void*, memcatch*> memcatch::_map;
 
@@ -41,6 +41,17 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 			std::cout << "SIGTRAP";
 			break;
 	};
+
+	std::cout << std::endl;
+
+	if(sig == SIGTRAP) {
+		if(last_mc != NULL) {
+			last_mc->activate();
+			last_mc = NULL;
+			u->uc_mcontext->__ss.__rflags &= ~((uint64_t)EFL_TF);
+		}
+		return;
+	}
 	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->uc_mcontext->__ss.__rip
 		<< " for ";
 #endif
@@ -60,14 +71,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 #ifdef DEBUG
 	std::cout << " 0x" << si->si_addr << std::dec << std::endl;
 #endif
-	if(sig == SIGTRAP) {
-		if(last_mc != NULL) {
-			last_mc->activate();
-			last_mc = NULL;
-			u->uc_mcontext->__ss.__rflags &= ~((uint64_t)EFL_TF);
-		}
-		return;
-	}
+	
 	/* get corresponding memcatch and check if we caused this signal */
 	mem = memcatch::find(si->si_addr);
 	/* we did not caused it */
@@ -97,9 +101,14 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 /* Windows */
 LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 {
-#ifdef DEBUG
-	std::cout << "Received ";
-#endif
+	static memcatch *last_mc = NULL;
+	memcatch *mem;
+	void *addr = NULL;
+	machine_context_x86 context;
+	memcatch_action action;
+	PCONTEXT u = ExceptionInfo->ContextRecord;
+	opcode_x86 op((void*) u->Eip, mode_32);
+	op.decode();
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
 		case EXCEPTION_ACCESS_VIOLATION:
@@ -152,22 +161,13 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 			break;
 	}
 
- 	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
-		<< " for ";
-	static memcatch *last_mc = NULL;
-	memcatch *mem;
-	void *addr = NULL;
-	machine_context_x86 context;
-	memcatch_action action;
-	PCONTEXT u = ExceptionInfo->ContextRecord;
-	opcode_x86 op((void*) u->Eip, mode_32);
-	op.decode();
-	
+	std::cout << std::endl;
+
 	if(ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_SINGLE_STEP) {
 		if(last_mc != NULL) {
 			last_mc->activate();
 			last_mc = NULL;
-			u->EFlags &= ~((uint64_t)EFL_TF);
+			u->EFlags &= ~((uint64_t)0x100);
 		}
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
@@ -175,6 +175,9 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		std::cout << "Error: received exception" << std::endl;
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
+ 	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
+		<< " for ";
+	
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
 #ifdef DEBUG
@@ -202,10 +205,10 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	/* we did not caused it */
 	if(mem == NULL) {
 		/* check if sideeffect of chaning page permissions */
-		mem = memcatch::find_page(si->si_addr);
+		mem = memcatch::find_page(addr);
 		if(mem != NULL) {
 			/* change permissions and trap */
-			u->EFlags |= EFL_TF;
+			u->EFlags |= 0x100;
 			last_mc = mem;
 			mem->deactivate();
 			return EXCEPTION_CONTINUE_EXECUTION;
