@@ -10,16 +10,18 @@
 #include <errno.h>
 #define _XOPEN_SOURCE
 #include <ucontext.h>
+#include <i386/eflags.h>
 #else
 #include <Windows.h>
 #endif
 
-// #define DEBUG
+#define DEBUG
 
 std::map<void*, memcatch*> memcatch::_map;
 
 #if defined(linux) || defined(__APPLE__)
 void sig_handler(int sig, siginfo_t *si, void *unused) {
+	static memcatch *last_mc = NULL;
 	memcatch *mem;
 	machine_context_x86 context;
 	memcatch_action action;
@@ -27,7 +29,19 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 	opcode_x86 op((void*) u->uc_mcontext->__ss.__rip, mode_64);
 	op.decode();
 #ifdef DEBUG
-	std::cout << "Received SIGSEGV/SIGBUS caused by \"" << op.expression() << "\" at 0x" << std::hex << u->uc_mcontext->__ss.__rip
+	std::cout << "Received ";
+	switch(sig) {
+		case SIGSEGV:
+			std::cout << "SIGSEGV";
+			break;
+		case SIGBUS:
+			std::cout << "SIGBUS";
+			break;
+		case SIGTRAP:
+			std::cout << "SIGTRAP";
+			break;
+	};
+	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->uc_mcontext->__ss.__rip
 		<< " for ";
 #endif
 	/* check if we are reading, when yes then first operand is a register */
@@ -46,13 +60,26 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 #ifdef DEBUG
 	std::cout << " 0x" << si->si_addr << std::dec << std::endl;
 #endif
+	if(sig == SIGTRAP) {
+		if(last_mc != NULL) {
+			last_mc->activate();
+			last_mc = NULL;
+			u->uc_mcontext->__ss.__rflags &= ~((uint64_t)EFL_TF);
+		}
+		return;
+	}
 	/* get corresponding memcatch and check if we caused this signal */
 	mem = memcatch::find(si->si_addr);
 	/* we did not caused it */
 	if(mem == NULL) {
 		/* check if sideeffect of chaning page permissions */
-		if(memcatch::find_page(si->si_addr)) {
-			u->uc_mcontext->__ss.__rip += op.size();
+		mem = memcatch::find_page(si->si_addr);
+		if(mem != NULL) {
+			//u->uc_mcontext->__ss.__rip += op.size();
+			/* change permissions and trap */
+			u->uc_mcontext->__ss.__rflags |= EFL_TF;
+			last_mc = mem;
+			mem->deactivate();
 			return;
 		}
 		exit(-1);
@@ -70,9 +97,15 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 /* Windows */
 LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 {
+#ifdef DEBUG
+	std::cout << "Received ";
+#endif
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
 		case EXCEPTION_ACCESS_VIOLATION:
+#ifdef DEBUG
+		std::cout << "SIGSEGV";
+#endif
 			break;
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 			break;
@@ -109,6 +142,9 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		case EXCEPTION_PRIV_INSTRUCTION:
 			break;
 		case EXCEPTION_SINGLE_STEP:
+#ifdef DEBUG
+		std::cout << "SIGTRAP";
+#endif
 			break;
 		case EXCEPTION_STACK_OVERFLOW:
 			break;
@@ -116,11 +152,9 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 			break;
 	}
 
-	if(ExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION) {
-		std::cout << "Error: received exception" << std::endl;
-		return EXCEPTION_EXECUTE_HANDLER;
-	}
-
+ 	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
+		<< " for ";
+	static memcatch *last_mc = NULL;
 	memcatch *mem;
 	void *addr = NULL;
 	machine_context_x86 context;
@@ -128,10 +162,19 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	PCONTEXT u = ExceptionInfo->ContextRecord;
 	opcode_x86 op((void*) u->Eip, mode_32);
 	op.decode();
-#ifdef DEBUG
-	std::cout << "Received SIGSEGV/SIGBUS caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
-		<< " for ";
-#endif
+	
+	if(ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_SINGLE_STEP) {
+		if(last_mc != NULL) {
+			last_mc->activate();
+			last_mc = NULL;
+			u->EFlags &= ~((uint64_t)EFL_TF);
+		}
+		return EXCEPTION_CONTINUE_EXECUTION;
+	}
+	if(ExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION) {
+		std::cout << "Error: received exception" << std::endl;
+		return EXCEPTION_EXECUTE_HANDLER;
+	}
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
 #ifdef DEBUG
@@ -148,6 +191,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	else {
 		std::cout << std::endl << "Error: Execution prevention" << std::cout;
 	}
+
 	// addr = (void*) ExceptionInfo->ExceptionRecord->ExceptionAddress;
 	addr = (void*) ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
 #ifdef DEBUG
@@ -158,11 +202,14 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	/* we did not caused it */
 	if(mem == NULL) {
 		/* check if sideeffect of chaning page permissions */
-		if(memcatch::find_page(si->si_addr)) {
-			u->Eip += op.size();
+		mem = memcatch::find_page(si->si_addr);
+		if(mem != NULL) {
+			/* change permissions and trap */
+			u->EFlags |= EFL_TF;
+			last_mc = mem;
+			mem->deactivate();
 			return EXCEPTION_CONTINUE_EXECUTION;
 		}
-
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
 	context.rax = (reg_t*)  &u->Eax;
@@ -207,14 +254,15 @@ memcatch* memcatch::find(void *addr) {
 	return NULL;
 }
 
-bool memcatch::find_page(void *addr) {
+memcatch* memcatch::find_page(void *addr) {
 	memcatch::iterator it;
 	for(it = memcatch::_map.begin(); it != memcatch::_map.end(); ++it) {
-		/* check if both points to same page */
-		if(((uint64_t) addr & ~(page::page_size()-1)) == ((uint64_t) it->second->addr() & ~(page::page_size()-1)))
-			return true;
+		/* check if is one of the pages */
+		if(((uint64_t) addr & ~(page::page_size()-1)) >= ((uint64_t) it->second->addr() & ~(page::page_size()-1)) && 
+			((uint64_t) addr & ~(page::page_size()-1)) <= (((uint64_t) it->second->addr()+it->second->size()) & ~(page::page_size()-1)))
+			return it->second;
 	}
-	return false;
+	return NULL;
 }
 
 void memcatch::activate() {
@@ -253,6 +301,9 @@ void memcatch::init() {
 	sigemptyset(&sa.sa_mask);
 	if (sigaction(SIGBUS, &sa, NULL) != 0)
 		std::cout << "Error: Could not set SIGBUS handler: " << errno << std::endl;
+	sigemptyset(&sa.sa_mask);
+	if (sigaction(SIGTRAP, &sa, NULL) != 0)
+		std::cout << "Error: Could not set SIGTRAP handler: " << errno << std::endl;
 
 #else
 	SetUnhandledExceptionFilter(windows_exception_handler);
@@ -262,24 +313,35 @@ void memcatch::init() {
 void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context) {
 	memcatch_action action_req;
 	uint64_t val;
-#if 0
-	printf("%d:\n", op->size());
-	for(int i = 0; i < op->size(); ++i) {
-		printf("%x ", *((uint8_t*) op->addr()+i));
-	}
-	printf("\n");
-#endif
+	char reg[7];
+
 	/* change page permission to allow callback to do stuff */
 	deactivate();
 	/* fill val with the value that the codes uses */
 	/* TODO */
 	if(action == memcatch_read) {
+		int i, j;
+		for(i = 0; op->expression()[i] != ','; ++i);
+		i += 3;
+		for(j = 0; op->expression()[i] != ']' && op->expression()[i] != '+' && op->expression()[i] != '*' && op->expression()[i] != '-'; ++i, ++j) {
+			reg[j] = op->expression()[i];
+		}
+		reg[j] = 0;
 
 	}
 	else if(action == memcatch_write) {
+		int i, j;
+		for(i = 0; op->expression()[i] != ' '; ++i);
+		i += 2;
+		for(j = 0; op->expression()[i] != ']' && op->expression()[i] != '+' && op->expression()[i] != '*' && op->expression()[i] != '-'; ++i, ++j) {
+			reg[j] = op->expression()[i];
+		}
+		reg[j] = 0;
 
 	}
-	
+#ifdef DEBUG
+	std::cout << "Using register: " << reg << std::endl;
+#endif
 	if(_callback != NULL)
 		action_req = _callback(this, addr, action, &val);
 	
@@ -287,34 +349,12 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 #if 1
 	if(_new_addr) {
 		if(action == memcatch_read) {
-			int i, j;
-			char reg[7];
-			for(i = 0; op->expression()[i] != ','; ++i);
-			i += 3;
-			for(j = 0; op->expression()[i] != ']' && op->expression()[i] != '+' && op->expression()[i] != '*' && op->expression()[i] != '-'; ++i, ++j) {
-				reg[j] = op->expression()[i];
-			}
-			reg[j] = 0;
-#ifdef DEBUG
-			std::cout << "Using register: " << reg << " = " << std::hex << context->get(reg).get() << std::dec << std::endl;
-#endif
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
 #ifdef DEBUG
 			std::cout << "Redirected: " << reg << " = " << std::hex << context->get(reg).get() << std::dec << std::endl;;
 #endif
 		}
 		else if(action == memcatch_write) {
-			int i, j;
-			char reg[7];
-			for(i = 0; op->expression()[i] != ' '; ++i);
-			i += 2;
-			for(j = 0; op->expression()[i] != ']' && op->expression()[i] != '+' && op->expression()[i] != '*' && op->expression()[i] != '-'; ++i, ++j) {
-				reg[j] = op->expression()[i];
-			}
-			reg[j] = 0;
-#ifdef DEBUG
-			std::cout << "Using register: " << reg << std::endl;
-#endif
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
 
 		}
