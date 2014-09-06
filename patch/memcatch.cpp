@@ -41,9 +41,8 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 			std::cout << "SIGTRAP";
 			break;
 	};
-
 	std::cout << std::endl;
-
+#endif
 	if(sig == SIGTRAP) {
 		if(last_mc != NULL) {
 			last_mc->activate();
@@ -52,6 +51,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		}
 		return;
 	}
+#ifdef DEBUG
 	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->uc_mcontext->__ss.__rip
 		<< " for ";
 #endif
