@@ -29,7 +29,7 @@ void page::init() {
 void page::change_permissions(int flags) {
 	void *aligned_addr = (void*)((unsigned long) _addr & ~(page::_page_size-1));
 	size_t prot_size = ((uint64_t) _addr + _size - (uint64_t) aligned_addr);
-	prot_size = prot_size/page::_page_size + (prot_size%page::_page_size)?1:0;
+	prot_size = prot_size/page::_page_size + ((prot_size%page::_page_size)?1:0);
 	prot_size *= page::_page_size;
 	_flags = flags;
 #if defined(__APPLE__) || defined(linux)
@@ -64,7 +64,7 @@ void page::change_permissions(int flags) {
 void page::change_permissions(const void *addr, size_t size, int flags) {
 	void *aligned_addr = (void*)((unsigned long) addr & ~(page::_page_size-1));
 	size_t prot_size = ((uint64_t) addr + size - (uint64_t) aligned_addr);
-	prot_size = prot_size/page::_page_size + (prot_size%page::_page_size)?1:0;
+	prot_size = prot_size/page::_page_size + ((prot_size%page::_page_size)?1:0);
 	prot_size *= page::_page_size;
 #if defined(__APPLE__) || defined(linux)
 	int prot = 0;
