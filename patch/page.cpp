@@ -129,7 +129,7 @@ void page::free(void *addr) {
 #if defined(__APPLE__) || defined(linux)
 		munmap(addr, page::_page_size);
 #else
-		free(addr);
+		_aligned_free(addr);
 #endif
 	}
 }
