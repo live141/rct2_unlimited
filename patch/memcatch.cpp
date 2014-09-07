@@ -317,31 +317,17 @@ void memcatch::init() {
 void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context) {
 	memcatch_action action_req;
 	uint64_t val;
-	char reg[7];
+	uint8_t reg;
 
 	/* change page permission to allow callback to do stuff */
 	deactivate();
 	/* fill val with the value that the codes uses */
 	/* TODO */
 	if(action == memcatch_read) {
-		int i, j;
-		for(i = 0; op->expression()[i] != ','; ++i);
-		i += 3;
-		for(j = 0; op->expression()[i] != ']' && op->expression()[i] != '+' && op->expression()[i] != '*' && op->expression()[i] != '-'; ++i, ++j) {
-			reg[j] = op->expression()[i];
-		}
-		reg[j] = 0;
-
+		reg = op->operand(1).base();
 	}
 	else if(action == memcatch_write) {
-		int i, j;
-		for(i = 0; op->expression()[i] != ' '; ++i);
-		i += 2;
-		for(j = 0; op->expression()[i] != ']' && op->expression()[i] != '+' && op->expression()[i] != '*' && op->expression()[i] != '-'; ++i, ++j) {
-			reg[j] = op->expression()[i];
-		}
-		reg[j] = 0;
-
+		reg = op->operand(0).base();
 	}
 #ifdef DEBUG
 	std::cout << "Using register: " << reg << std::endl;
@@ -350,7 +336,6 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 		action_req = _callback(this, addr, action, &val);
 	
 	/* TODO: change register content and opcode, if patching addresses */
-#if 1
 	if(_new_addr) {
 		if(action == memcatch_read) {
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
@@ -366,9 +351,7 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 	else {
 		context->rip->rx += op->size();
 	}
-#else
-	context->rip->rx += op->size();
-#endif
+	
 	/* give signal causing code a value or write to memory */
 	/* TODO */
 	if(action == memcatch_read) {

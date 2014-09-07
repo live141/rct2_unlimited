@@ -1,6 +1,7 @@
 #include "disasm_x86.h"
 #include "page.h"
 #include <stdio.h>
+#include <iostream>
 #include <sstream>
 #include <algorithm>
 
@@ -172,6 +173,32 @@ void opcode_x86::set_imm(int64_t val) {
 	}
 }
 
+reg machine_context_x86::get(uint8_t reg_num) {
+	if(reg_num == REG_EIP || reg_num == REG_RIP)
+		return reg(rip, MASK_REG_SIZE(reg_num));
+
+	switch(MASK_REG(reg_num)) {
+		case MASK_REG(REG_RAX): return reg(rax, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RBX): return reg(rbx, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RCX): return reg(rcx, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RDX): return reg(rdx, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RDI): return reg(rdi, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RSI): return reg(rsi, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RBP): return reg(rbp, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_RSP): return reg(rsp, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R8Q): return reg(r8, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R9Q): return reg(r9, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R10Q): return reg(r10, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R11Q): return reg(r11, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R12Q): return reg(r12, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R13Q): return reg(r13, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R14Q): return reg(r14, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REG_R15Q): return reg(r15, MASK_REG_SIZE(reg_num));
+		default:
+			std::cout << "Error: Invalid register number: " << reg_num << " MASK: " << MASK_REG(reg_num) << std::endl;
+	};
+}
+
 reg machine_context_x86::get(const char *name) {
 	int i, hash = 0;
 	enum reg_size size = size_byte;
@@ -319,56 +346,78 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 		if(_mod == MOD_REG_DIRECT) {
 			if(type == 64) {
 				/* mm */
+				_operand[i]._register = _rm | REG_SIZE_64;
 				return std::string(g_lut_mm[_rm]);
 			}
 			if(type == 128) {
 				/* xmm */
+				_operand[i]._register = _rm | REG_SIZE_128;
 				return std::string(g_lut_xmm[_rm]);
 			}
 			if(type == 256) {
 				/* ymm */
+				_operand[i]._register = _rm | REG_SIZE_256;
 				return std::string(g_lut_ymm[_rm]);
 			}
 			if(type == 8) {
+				_operand[i]._register = _rm | REG_SIZE_8;
 				return std::string(g_lut_registers8[_rm]);
 			}
 			else if(!_is_opsize64()) {
+				_operand[i]._register = _rm | REG_SIZE_32;
 				return std::string(g_lut_registers32[_rm]);
 			}
 			else {
+				_operand[i]._register = _rm | REG_SIZE_64;
 				return std::string(g_lut_registers64[_rm]);
 			}
 		}
 		else {
 			if(_rm == 0x04) {
 				/* sib */
-				if(_bitmode == mode_32 /*!_is_opsize64()*/)
+				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_base];
-				else
+					_operand[i]._register = _base | REG_SIZE_32;
+				}
+				else {
 					stream << "[" << g_lut_registers64[_base];
+					_operand[i]._register = _base | REG_SIZE_64;
+				}
 				if(_idx != 0x04) {
-					if(_bitmode == mode_32 /*!_is_opsize64()*/)
+					if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
-					else
+						_operand[i]._register = _idx | REG_SIZE_32;
+					}
+					else {
 						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
+						_operand[i]._register = _idx | REG_SIZE_64;
+					}
 				}
 			}
 			else if(_rm == 0x05 && _mod == MOD_REG_INDIRECT) {
 				/* disp32 */
 				stream << "[";
 				if(_bitmode == mode_64) {
-					if(_is_opsize64())
+					if(_is_opsize64()) {
 						stream << "rip";
-					else
+						_operand[i]._base = REG_RIP;
+					}
+					else {
 						stream << "eip";
+						_operand[i]._base = REG_EIP;
+					}
 				}
 				stream << std::dec << std::showpos << _disp;
 			}
 			else {
-				if(_bitmode == mode_32 /*!_is_opsize64()*/)
+				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_rm];
-				else
+					_operand[i]._base = _rm | REG_SIZE_32;
+				}
+				else {
 					stream << "[" << g_lut_registers64[_rm];
+					_operand[i]._base = _rm | REG_SIZE_64;
+				}
 			}
 			if(_mod != MOD_REG_INDIRECT) {
 				/* disp */
@@ -608,39 +657,48 @@ void opcode_x86::decode() {
 	//stream << _name << std::hex;
 	stream << std::hex;
 	for(int i = 0; i < 4; ++i) {
+		_operand[i].reset();
 		_operand[i].set_type(_code->type_op[i]);
 		switch(_code->type_op[i]) {
 			case OPERAND_TYPE_REG64:
 				stream << ", " << g_lut_registers64[_reg_ope];
 				_operand[i].set_size(8);
+				_operand[i]._register = _reg_ope | (REG_SIZE_64);
 				break;
 			case OPERAND_TYPE_REG32:
 				stream << ", ";
 				if(_op_size_prefix) {
 					_operand[i].set_size(2);
 					stream << g_lut_registers16[_reg_ope];
+					_operand[i]._register = _reg_ope | (REG_SIZE_16);
 				}
 				else if(!_is_opsize64()) {
 					stream << g_lut_registers32[_reg_ope];
 					_operand[i].set_size(4);
+					_operand[i]._register = _reg_ope | (REG_SIZE_32);
 				}
 				else {
 					stream << g_lut_registers64[_reg_ope];
 					_operand[i].set_size(8);
+					_operand[i]._register = _reg_ope | (REG_SIZE_64);
 				}
 				break;
 			case OPERAND_TYPE_REG8:
 				stream << ", " << g_lut_registers8[_reg_ope];
+				_operand[i]._register = _reg_ope | (REG_SIZE_8);
 				_operand[i].set_size(1);
 				break;
 			case OPERAND_TYPE_IMM32:
 				stream << ", 0x" << _imm;
-				if(_op_size_prefix)
+				if(_op_size_prefix) {
 					_operand[i].set_size(2);
-				else if(!_is_opsize64())
+				}
+				else if(!_is_opsize64()) {
 					_operand[i].set_size(4);
-				else
+				}
+				else {
 					_operand[i].set_size(8);
+				}
 				break;
 			case OPERAND_TYPE_IMM8:
 				stream << ", 0x" << _imm;
@@ -655,61 +713,74 @@ void opcode_x86::decode() {
 			case OPERAND_TYPE_AL:
 				stream << ", al";
 				_operand[i].set_size(1);
+				_operand[i]._register = REG_AL;
 				break;
 			case OPERAND_TYPE_AX:
 				stream << ", ax";
 				_operand[i].set_size(2);
+				_operand[i]._register = REG_AX;
 				break;
 			case OPERAND_TYPE_EAX:
 				if(!_op_size_prefix) {
 					stream << ", eax";
 					_operand[i].set_size(4);
+					_operand[i]._register = REG_EAX;
 				}
 				else {
 					stream << ", ax";
 					_operand[i].set_size(2);
+					_operand[i]._register = REG_AX;
 				}
 				break;
 			case OPERAND_TYPE_RAX:
 				if(_is_opsize64()) {
 					stream << ", rax";
 					_operand[i].set_size(8);
+					_operand[i]._register = REG_RAX;
 				}
 				else if(_op_size_prefix) {
 					stream << ", ax";
 					_operand[i].set_size(2);
+					_operand[i]._register = REG_AX;
 				}
 				else {
 					stream << ", eax";
 					_operand[i].set_size(4);
+					_operand[i]._register = REG_EAX;
 				}
 				break;
 			case OPERAND_TYPE_DX:
 				stream << ", dx";
 				_operand[i].set_size(2);
+				_operand[i]._register = REG_DX;
 				break;
 			case OPERAND_TYPE_EDX:
 				if(!_op_size_prefix) {
 					stream << ", edx";
 					_operand[i].set_size(4);
+					_operand[i]._register = REG_EDX;
 				}
 				else {
 					stream << ", dx";
 					_operand[i].set_size(2);
+					_operand[i]._register = REG_DX;
 				}
 				break;
 			case OPERAND_TYPE_RDX:
 				if(_is_opsize64()) {
 					stream << ", rdx";
 					_operand[i].set_size(8);
+					_operand[i]._register = REG_RDX;
 				}
 				else if(_op_size_prefix) {
 					stream << ", dx";
 					_operand[i].set_size(2);
+					_operand[i]._register = REG_DX;
 				}
 				else {
 					stream << ", edx";
 					_operand[i].set_size(4);
+					_operand[i]._register = REG_EDX;
 				}
 				break;
 			case OPERAND_TYPE_REL8:
@@ -728,10 +799,12 @@ void opcode_x86::decode() {
 				if(_op_size_prefix) {
 					stream << ", " << g_lut_xmm[_reg_ope];
 					_operand[i].set_size(32);
+					_operand[i]._register = _reg_ope | REG_SIZE_128;
 				}
 				else {
 					stream << ", " << g_lut_mm[_reg_ope];
 					_operand[i].set_size(16);
+					_operand[i]._register = _reg_ope | REG_SIZE_128;
 				}
 				break;
 			case OPERAND_TYPE_XMMM:
@@ -778,3 +851,4 @@ void opcode_x86::decode() {
 		}
 	}
 }
+
