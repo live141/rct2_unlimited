@@ -56,7 +56,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		<< " for ";
 #endif
 	/* check if we are reading, when yes then first operand is a register */
-	if(op.is_op_register(0)) {
+	if(op.operand(0).is_register()) {
 #ifdef DEBUG
 		std::cout << "reading from";
 #endif
@@ -175,7 +175,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		std::cout << "Error: received exception" << std::endl;
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-#ifdef
+#ifdef DEBUG
  	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
 		<< " for ";
 #endif	

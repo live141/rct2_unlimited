@@ -23,7 +23,7 @@ void detour::unhook() {
 		opcode_x86 op(_addr_target, _bitmode);
 		for(uint32_t i = 0; i < _size_replaced;) {
 			op.next();
-			if( op.optype(0) == OPERAND_TYPE_REL32 ) {
+			if( op.operand(0).type() == OPERAND_TYPE_REL32 ) {
 				opcode_x86 rel(_addr_tramp+i, _bitmode);
 				rel.decode();
 				op.set_imm(rel.immediate());
@@ -66,7 +66,7 @@ void detour::hook() {
 	std::vector<opcode_x86>::iterator it;
 	size_t size = 0;
 	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
-		if(it->optype(0) == OPERAND_TYPE_REL32) {
+		if(it->operand(0).type() == OPERAND_TYPE_REL32) {
 			opcode_x86 op(_addr_tramp+size, _bitmode);
 			op.decode();
 			op.set_imm(it->immediate());

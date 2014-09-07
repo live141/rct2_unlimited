@@ -197,6 +197,71 @@ public:
 	reg get(const char *name);
 };
 
+class operand_x86 {
+protected:
+	std::string _expr;
+	uint8_t _size;
+	uint8_t _type;
+
+public:
+	operand_x86& operator=(operand_x86& op) {
+		_expr = op._expr;
+		_size = op._size;
+		_type = op._type;
+	}
+
+	void set(std::string& expr, uint8_t size, uint8_t type) {
+		_expr = expr;
+		_size = size;
+		_type = type;
+	}
+
+	void reset() {
+		_expr = std::string("");
+		_size = 0;
+		_type = OPERAND_TYPE_INVAL;
+	}
+
+	void set_size(uint8_t size) {
+		_size = size;
+	}
+	
+	void set_type(uint8_t type) {
+		_type = type;
+	}
+
+	void set_expr(std::string& expr) {
+		_expr = expr;
+	}
+
+	uint8_t type() const {
+		return _type;
+	}
+
+	uint8_t size() const {
+		return _size;
+	}
+
+	const char* expression() {
+		return _expr.c_str();
+	}
+
+	bool is_register() const {
+		return (_type == OPERAND_TYPE_REG32 || _type == OPERAND_TYPE_REG8 || _type == OPERAND_TYPE_AL
+                || _type == OPERAND_TYPE_AH || _type == OPERAND_TYPE_AX || _type == OPERAND_TYPE_EAX
+                || _type == OPERAND_TYPE_RAX || _type == OPERAND_TYPE_DX || _type == OPERAND_TYPE_EDX
+                || _type == OPERAND_TYPE_RDX || _type == OPERAND_TYPE_XMM);
+	}
+
+	bool is_rel() const {
+		return (_type == OPERAND_TYPE_REL8 || _type == OPERAND_TYPE_REL32);
+	}
+
+	bool is_imm() const {
+		return (_type == OPERAND_TYPE_IMM8 || _type == OPERAND_TYPE_IMM32);
+	}
+};
+
 class opcode_x86 {
 protected:
 	uint8_t *_addr;
@@ -209,7 +274,8 @@ protected:
 	uint8_t _disp_size, _imm_size;
 	uint8_t _bitmode, _prefix64;
 	uint8_t _offset_imm, _offset_disp;
-	uint8_t _op_size[4];
+	//uint8_t _op_size[4];
+	operand_x86 _operand[4];
 	uint16_t _instr;
 	std::string _name, _expr;
 
@@ -252,10 +318,10 @@ protected:
 		_size = 0;
 		_offset_imm = 0;
 		_offset_disp = 0;
-		_op_size[0] = 0;
-		_op_size[1] = 0;
-		_op_size[2] = 0;
-		_op_size[3] = 0;
+		_operand[0].reset();
+		_operand[1].reset();
+		_operand[2].reset();
+		_operand[3].reset();
 		_instr = INSTR_INVAL;
 	}
 
@@ -291,10 +357,10 @@ public:
 		_offset_disp = op._offset_disp;
 		_name = op._name;
 		_expr = op._expr;
-		_op_size[0] = op._op_size[0];
-		_op_size[1] = op._op_size[1];
-		_op_size[2] = op._op_size[2];
-		_op_size[3] = op._op_size[3];
+		_operand[0] = op._operand[0];
+		_operand[1] = op._operand[1];
+		_operand[2] = op._operand[2];
+		_operand[3] = op._operand[3];
 		_instr = op._instr;
 
 		return *this;
@@ -350,22 +416,13 @@ public:
 		return _addr;
 	}
 
-	const uint8_t optype(uint8_t n) const {
-		if(_code == NULL)
-			return 0;
-		return _code->type_op[n%4];
-	}
-
 	void next() {
 		_addr += size();
 		decode();
 	}
 
-	bool is_op_register(uint8_t n) const {
-		return (optype(n) == OPERAND_TYPE_REG32 || optype(n) == OPERAND_TYPE_REG8 || optype(n) == OPERAND_TYPE_AL
-                || optype(n) == OPERAND_TYPE_AH || optype(n) == OPERAND_TYPE_AX || optype(n) == OPERAND_TYPE_EAX
-                || optype(n) == OPERAND_TYPE_RAX || optype(n) == OPERAND_TYPE_DX || optype(n) == OPERAND_TYPE_EDX
-                || optype(n) == OPERAND_TYPE_RDX || optype(n) == OPERAND_TYPE_XMM);
+	operand_x86& operand(uint8_t n) {
+		return _operand[n%4];
 	}
 
 	bool is_cond_jump() const {
