@@ -4,7 +4,7 @@
 */
 
 #if defined(linux) || defined(__APPLE__)
-#include <pthread>
+#include <pthread.h>
 #else
 #include <Windows.h>
 #include <Dbghelp.h>
@@ -17,7 +17,7 @@
 #include "detour.h"
 #include "addr.h"
 
-module_t g_rct2;
+module_t g_target;
 
 bool main_loop() {
 
@@ -55,22 +55,22 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 		GetModuleInformation(g_hProcess, GetModuleHandle("patch.dll"), &modinfo, sizeof(modinfo));
 		g_pBaseDll = modinfo.lpBaseOfDll;
 		g_dwSizeDll = modinfo.SizeOfImage;
-		g_rct2.module = GetModuleHandle("rct2.exe");
-		GetModuleInformation(g_hProcess, g_rct2.module, &modinfo, sizeof(modinfo));
+		g_target.module = GetModuleHandle("rct2.exe");
+		GetModuleInformation(g_hProcess, g_target.module, &modinfo, sizeof(modinfo));
 		g_pBaseExe = modinfo.lpBaseOfDll;
 		g_dwSizeExe = modinfo.SizeOfImage;
 
-		IMAGE_NT_HEADERS *pNtHeader = ImageNtHeader(g_rct2.module);
+		IMAGE_NT_HEADERS *pNtHeader = ImageNtHeader(g_target.module);
 		/* after NT header address of section table */
 		IMAGE_SECTION_HEADER *pSectionHeader = (IMAGE_SECTION_HEADER *) (pNtHeader + 1);
 		for (int i = 0; i < pNtHeader->FileHeader.NumberOfSections; i++) {
 			if( memcmp(pSectionHeader->Name, ".data", 5) == 0 ) {
-				g_rct2.section_data.addr = (uint8_t*) g_rct2.module + pSectionHeader->VirtualAddress;
-				g_rct2.section_data.size = pSectionHeader->Misc.VirtualSize;
+				g_target.section_data.addr = (uint8_t*) g_target.module + pSectionHeader->VirtualAddress;
+				g_target.section_data.size = pSectionHeader->Misc.VirtualSize;
 			}
 			else if( memcmp(pSectionHeader->Name, ".text", 5) == 0 ) {
-				g_rct2.section_text.addr = (uint8_t*) g_rct2.module + pSectionHeader->VirtualAddress;
-				g_rct2.section_text.size = pSectionHeader->Misc.VirtualSize;
+				g_target.section_text.addr = (uint8_t*) g_target.module + pSectionHeader->VirtualAddress;
+				g_target.section_text.size = pSectionHeader->Misc.VirtualSize;
 			}
 			++pSectionHeader;
 		}

@@ -274,7 +274,7 @@ public:
 	}
 #else
 	uint32_t flags() const {
-		rflags->ex;
+		return rflags->ex;
 	}
 
 	uint32_t pc() const {

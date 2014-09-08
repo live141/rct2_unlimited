@@ -6,7 +6,7 @@
 #include "signature.h"
 #include "addr.h"
 
-extern module_t g_rct2;
+extern module_t g_target;
 
 uint8_t signature::_compare(uint8_t *b1, uint8_t *b2, unsigned int size) {
 	/* ? is wildcard */
@@ -22,8 +22,8 @@ uint8_t signature::_compare(uint8_t *b1, uint8_t *b2, unsigned int size) {
 
 uint32_t signature::search() {
 	uint8_t *sig = (uint8_t*) _sig.c_str();
-	uint8_t *begin = g_rct2.section_text.addr;
-	unsigned long size = g_rct2.section_text.size;
+	uint8_t *begin = g_target.section_text.addr;
+	unsigned long size = g_target.section_text.size;
 	/* don't count terminating 0x00 */
 	unsigned int size_sig = _sig.length()-1;
 	/* adjust size with signature length */

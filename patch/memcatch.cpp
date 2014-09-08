@@ -22,6 +22,11 @@
 #endif
 
 std::map<void*, memcatch*> memcatch::_map;
+#ifdef BIT_64
+x86_bitmode g_bitmode = mode_64;
+#else
+x86_bitmode g_bitmode = mode_32;
+#endif
 
 #if defined(linux) || defined(__APPLE__)
 void sig_handler(int sig, siginfo_t *si, void *unused) {
@@ -29,7 +34,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 	memcatch *mem;
 	machine_context_x86 context(unused);
 	memcatch_action action;
-	opcode_x86 op((void*) context.pc(), mode_64);
+	opcode_x86 op((void*) context.pc(), g_bitmode);
 	op.decode();
 
 	debug_printf("Received ");
@@ -92,7 +97,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	void *addr = NULL;
 	machine_context_x86 context(ExceptionInfo->ContextRecord);
 	memcatch_action action;
-	opcode_x86 op((void*) context.pc(), mode_32);
+	opcode_x86 op((void*) context.pc(), g_bitmode);
 	op.decode();
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{

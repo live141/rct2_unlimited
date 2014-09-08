@@ -21,9 +21,9 @@ struct module_t {
 	void *module;
 #else
 	HMODULE module;
+#endif
 	section_t section_text;
 	section_t section_data;
 };
-#endif
 
 #endif

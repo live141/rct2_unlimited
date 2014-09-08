@@ -1,3 +1,5 @@
 *.o
 test.cpp
+decomp.cpp
+decomp.h
 fetch_disas.py
