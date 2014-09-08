@@ -14,6 +14,9 @@
 
 #if defined(linux) || defined(__APPLE__)
 int main(int argc, char **argv) {
+	std::cout << NAME << " "VERSION << " by " << AUTHOR << std::endl;
+	std::cout << "Enter the name of the target: ";
+	std::cin >> target;
 
 	return 0;
 }
@@ -26,14 +29,17 @@ int main(int argc, char **argv) {
 	HANDLE hThread;
 	void *pLibRemote;
 	HMODULE hKernel32;
+	std::string target;
 
-	std::cout << NAME << " "VERSION << " by " << AUTHOR << std::endl;;
+	std::cout << NAME << " "VERSION << " by " << AUTHOR << std::endl;
+	std::cout << "Enter the name of the target: ";
+	std::cin >> target;
 
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
 	ZeroMemory( &pi, sizeof(pi) );
 
-	if( !CreateProcess( TEXT(NAME_RCT2_EXE),   // No module name (use command line)
+	if( !CreateProcess( TEXT(target.c_str()),   // No module name (use command line)
 				NULL,			// Command line
 				NULL,           // Process handle not inheritable
 				NULL,           // Thread handle not inheritable
@@ -44,7 +50,7 @@ int main(int argc, char **argv) {
 				&si,            // Pointer to STARTUPINFO structure
 				&pi )           // Pointer to PROCESS_INFORMATION structure
 	  ) {
-		std::cout << "Error " << GetLastError() << ": Could not launch " << NAME_RCT2_EXE << std::endl;
+		std::cout << "Error " << GetLastError() << ": Could not launch " << target << std::endl;
 	}
 
 	/* inject our dll */
