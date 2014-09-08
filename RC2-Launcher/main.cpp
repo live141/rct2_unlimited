@@ -1,8 +1,24 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
+#if defined(linux) || defined(__APPLE__)
+#else
 #include <Windows.h>
-#include <iostream>
 #include <direct.h>
+#endif
+#include <iostream>
 #include "parameters.h"
 
+
+#if defined(linux) || defined(__APPLE__)
+int main(int argc, char **argv) {
+
+	return 0;
+}
+#else
+/* Windows */
 int main(int argc, char **argv) {
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
@@ -11,9 +27,7 @@ int main(int argc, char **argv) {
 	void *pLibRemote;
 	HMODULE hKernel32;
 
-	std::cout << "Rollercoaster Tycoon 2 Launcher - Version: " << VERSION << " by " << AUTHOR << std::endl;
-	std::cout << "Launching rct2.exe..." << std::endl;
-	std::cout << "This could take a while..." << std::endl;
+	std::cout << NAME << " "VERSION << " by " << AUTHOR << std::endl;;
 
 	ZeroMemory( &si, sizeof(si) );
 	si.cb = sizeof(si);
@@ -50,3 +64,4 @@ int main(int argc, char **argv) {
 	system("pause");
 	return 0;
 }
+#endif

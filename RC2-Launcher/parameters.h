@@ -1,10 +1,21 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #ifndef _PARAMETERS_H_
 #define _PARAMETERS_H_
 
-#define AUTHOR "Live and lenny"
-#define VERSION "0.1a"
+#define AUTHOR "Fabian Fischer"
+#define VERSION "0.1"
 
-#define NAME_RCT2_EXE "rct2.exe"
+#define NAME "WORKING TITLE"
+#if defined(linux)
+#define NAME_DLL "patch.so"
+#elif defined(__APPLE__)
+#define NAME_DLL "patch.dylib"
+#else
 #define NAME_DLL "patch.dll"
+#endif
 
 #endif

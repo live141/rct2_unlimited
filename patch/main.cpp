@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #if defined(linux) || defined(__APPLE__)
 #include <pthread>
 #else
