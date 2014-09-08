@@ -1,4 +1,5 @@
 #include "page.h"
+#include "defines.h"
 #include <stdint.h>
 #include <iostream>
 #ifdef WIN32
@@ -40,9 +41,8 @@ void page::change_permissions(int flags) {
 		prot |= PROT_WRITE;
 	if(flags & PAGE_EXEC)
 		prot |= PROT_EXEC;
-	if(mprotect(_addr, _size, prot ) != 0) {
-		std::cout << "Error: Could not change page permissions: " << errno << std::endl; 
-	}
+	prot = mprotect(_addr, _size, prot);
+	assert(prot == 0);
 #else
 	DWORD old_prot, prot = PAGE_NOACCESS;
 	if(flags & PAGE_READ && flags & PAGE_WRITE && flags & PAGE_EXEC)
@@ -55,9 +55,8 @@ void page::change_permissions(int flags) {
 		prot = PAGE_READONLY;
 	else if(flags & PAGE_WRITE)
 		prot = PAGE_WRITECOPY;
-	
-	if(!VirtualProtect(_addr, _size, prot, &old_prot))
-		std::cout << "Error: Could not change page permissions" << std::endl; 
+	prot = VirtualProtect(_addr, _size, prot, &old_prot);
+	assert(prot == 0);
 #endif
 }
 
@@ -74,9 +73,8 @@ void page::change_permissions(const void *addr, size_t size, int flags) {
 		prot |= PROT_WRITE;
 	if(flags & PAGE_EXEC)
 		prot |= PROT_EXEC;
-	if(mprotect(aligned_addr, prot_size, prot ) != 0) {
-		std::cout << "Error: Could not change page permissions: " << errno << std::endl; 
-	}
+	prot = mprotect(aligned_addr, prot_size, prot);
+	assert(prot == 0);
 #else
 	DWORD old_prot, prot = PAGE_NOACCESS;
 	if(flags & PAGE_READ && flags & PAGE_WRITE && flags & PAGE_EXEC)
@@ -90,9 +88,8 @@ void page::change_permissions(const void *addr, size_t size, int flags) {
 	else if(flags & PAGE_WRITE)
 		prot = PAGE_WRITECOPY;
 	
-	if(!VirtualProtect(aligned_addr, prot_size, prot, &old_prot))
-		std::cout << "Error: Could not change page permissions" << std::endl; 
-
+	prot = VirtualProtect(aligned_addr, prot_size, prot, &old_prot);
+	assert(prot == 0);
 #endif
 }
 
@@ -101,7 +98,8 @@ void* page::alloc() {
 #if defined(__APPLE__) || defined(linux)
 	if((addr = mmap(NULL, page::_page_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
 		addr = NULL;
-		std::cout << "Error: Could not map memory: " << errno << std::endl;
+		debug_printf("Error: Could not map memory: %d", errno);
+		assert(addr != NULL);
 	}
 #else
 	addr = _aligned_malloc(page::_page_size, page::_page_size);
@@ -114,7 +112,8 @@ void* page::alloc(size_t size) {
 	void *addr = NULL;
 #if defined(__APPLE__) || defined(linux)
 	if((addr = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
-		std::cout << "Error: Could not map memory: " << errno << std::endl;
+		debug_printf("Error: Could not map memory: %d", errno);
+		assert(addr != NULL);
 		return NULL;
 	}
 #else

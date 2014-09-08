@@ -1,6 +1,7 @@
 #include "memcatch.h"
 #include "page.h"
 #include "disasm_x86.h"
+#include "defines.h"
 #include <stdint.h>
 #include <iostream>
 #include <sstream>
@@ -15,8 +16,6 @@
 #include <Windows.h>
 #endif
 
-//#define DEBUG
-
 std::map<void*, memcatch*> memcatch::_map;
 
 #if defined(linux) || defined(__APPLE__)
@@ -28,21 +27,20 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 	ucontext_t *u = (ucontext_t *) unused;
 	opcode_x86 op((void*) u->uc_mcontext->__ss.__rip, mode_64);
 	op.decode();
-#ifdef DEBUG
-	std::cout << "Received ";
+
+	debug_printf("Received ");
 	switch(sig) {
 		case SIGSEGV:
-			std::cout << "SIGSEGV";
+			debug_printf("SIGSEGV");
 			break;
 		case SIGBUS:
-			std::cout << "SIGBUS";
+			debug_printf("SIGBUS");
 			break;
 		case SIGTRAP:
-			std::cout << "SIGTRAP";
+			debug_printf("SIGTRAP");
 			break;
 	};
-	std::cout << std::endl;
-#endif
+
 	if(sig == SIGTRAP) {
 		if(last_mc != NULL) {
 			last_mc->activate();
@@ -51,26 +49,17 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		}
 		return;
 	}
-#ifdef DEBUG
-	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->uc_mcontext->__ss.__rip
-		<< " for ";
-#endif
+	debug_printf(" caused by \"%s\" at 0x%llx, for ", op.expression(), u->uc_mcontext->__ss.__rip);
 	/* check if we are reading, when yes then first operand is a register */
 	if(op.operand(0).is_register()) {
-#ifdef DEBUG
-		std::cout << "reading from";
-#endif
+		debug_printf("reading from");
 		action = memcatch_read;
 	}
 	else {
-#ifdef DEBUG
-		std::cout << "writing to";
-#endif
+		debug_printf("writing to");
 		action = memcatch_write;
 	}
-#ifdef DEBUG
-	std::cout << " 0x" << si->si_addr << std::dec << std::endl;
-#endif
+	debug_printf(" 0x%llx\n", si->si_addr);
 	
 	/* get corresponding memcatch and check if we caused this signal */
 	mem = memcatch::find(si->si_addr);
@@ -112,9 +101,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
 		case EXCEPTION_ACCESS_VIOLATION:
-#ifdef DEBUG
-		std::cout << "SIGSEGV";
-#endif
+			debug_printf("SIGSEGV");
 			break;
 		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
 			break;
@@ -151,9 +138,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		case EXCEPTION_PRIV_INSTRUCTION:
 			break;
 		case EXCEPTION_SINGLE_STEP:
-#ifdef DEBUG
-		std::cout << "SIGTRAP";
-#endif
+			debug_printf("SIGTRAP");
 			break;
 		case EXCEPTION_STACK_OVERFLOW:
 			break;
@@ -172,35 +157,27 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
 	if(ExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION) {
-		std::cout << "Error: received exception" << std::endl;
+		//std::cout << "Error: received exception" << std::endl;
+		debug_printf("Error: received exception\n");
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-#ifdef DEBUG
- 	std::cout << " caused by \"" << op.expression() << "\" at 0x" << std::hex << u->Eip
-		<< " for ";
-#endif	
+	debug_printf(" caused by \"%s\" at 0x%x for ", op.expression(), u->Eip);
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
-#ifdef DEBUG
-		std::cout << "reading from";
-#endif
+		debug_printf("reading from");
 		action = memcatch_read;
 	}
 	else if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 1) {
-#ifdef DEBUG
-		std::cout << "writing to";
-#endif
+		debug_printf("writing to");
 		action = memcatch_write;
 	}
 	else {
-		std::cout << std::endl << "Error: Execution prevention" << std::cout;
+		debug_printf("\nError: Execution prevention\n");
 	}
 
-	// addr = (void*) ExceptionInfo->ExceptionRecord->ExceptionAddress;
 	addr = (void*) ExceptionInfo->ExceptionRecord->ExceptionInformation[1];
-#ifdef DEBUG
-	std::cout << " 0x" << addr << std::dec << std::endl;
-#endif
+	debug_printf(" 0x%x\n", addr);
+	
 	/* get corresponding memcatch and check if we caused this signal */
 	mem = memcatch::find(addr);
 	/* we did not caused it */
@@ -241,7 +218,8 @@ memcatch::~memcatch() {
 memcatch::memcatch(void *addr, size_t size, memcatch_action type, memcatch_callback callback) : _addr(addr), _new_addr(NULL), _size(size),
 	_saved_flags(0), _type(type), _callback(callback) {
 	if(memcatch::find(addr) != NULL) {
-		std::cout << "Error: trying to catch 0x" << std::hex << addr << std::dec << "twice." << std::endl;
+		debug_printf("Error: trying to catch 0x%llx twice\n", (uint64_t) addr);
+		assert(false);
 		exit(-1);
 		return;
 	}
@@ -329,9 +307,8 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 	else if(action == memcatch_write) {
 		reg = op->operand(0).base();
 	}
-#ifdef DEBUG
-	std::cout << "Using register: " << reg << std::endl;
-#endif
+	debug_printf("Using register: %d", reg);
+	
 	if(_callback != NULL)
 		action_req = _callback(this, addr, action, &val);
 	
@@ -339,9 +316,7 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 	if(_new_addr) {
 		if(action == memcatch_read) {
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
-#ifdef DEBUG
-			std::cout << "Redirected: " << reg << " = " << std::hex << context->get(reg).get() << std::dec << std::endl;;
-#endif
+			debug_printf("Redirected: %d = 0x%llx\n", reg, context->get(reg).get());
 		}
 		else if(action == memcatch_write) {
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));

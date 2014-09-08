@@ -80,7 +80,7 @@ void detour::jump_to_function() {
 	if(_addr_tramp == NULL)
 		return;
 #if defined(linux) || defined(__APPLE__)
-	asm volatile("jmp (%0)"
+	asm volatile("jmp *(%0)"
 			:
 			: "r"(_addr_tramp)
 			:);

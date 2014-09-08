@@ -1,5 +1,6 @@
 #include "disasm_x86.h"
 #include "page.h"
+#include "defines.h"
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
@@ -195,7 +196,7 @@ reg machine_context_x86::get(uint8_t reg_num) {
 		case MASK_REG(REG_R14Q): return reg(r14, MASK_REG_SIZE(reg_num));
 		case MASK_REG(REG_R15Q): return reg(r15, MASK_REG_SIZE(reg_num));
 		default:
-			std::cout << "Error: Invalid register number: " << reg_num << " MASK: " << MASK_REG(reg_num) << std::endl;
+			debug_printf("Error: Invalid register number: %d\n", reg_num);
 	};
 }
 
@@ -592,16 +593,6 @@ void opcode_x86::decode() {
 		++size;
 	}
 
-#if 0
-	if(/*code->size_sib == 1 &&*/ _mod != MOD_REG_DIRECT && _rm == 0x04) {
-		/* check if it is only displacement */
-		if((addr_size_div == 2 && _rm != 0x06) || (addr_size_div == 1 && _rm != 0x05)) {
-			_decode_sib(*byte);
-			++byte;
-			++size;
-		}
-	}
-#endif
 	if(_code->size_displacement == 1 || _mod == MOD_REG_INDIRECT_DISP8) {
 		_disp = *((int8_t*) byte);
 		_disp_size = 1;
