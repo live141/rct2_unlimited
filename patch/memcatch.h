@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #ifndef _MEMCATCH_H_
 #define _MEMCATCH_H_
 

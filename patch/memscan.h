@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #ifndef _MEMSCAN_H_
 #define _MEMSCAN_H_
 

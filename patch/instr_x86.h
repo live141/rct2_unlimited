@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #ifndef _INSTR_x86_H_
 #define _INSTR_x86_H_
 

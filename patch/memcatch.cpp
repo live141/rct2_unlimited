@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #include "memcatch.h"
 #include "page.h"
 #include "disasm_x86.h"
@@ -309,10 +314,6 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 	}
 	debug_printf("Using register: %d", reg);
 	
-	if(_callback != NULL)
-		action_req = _callback(this, addr, action, &val);
-	
-	/* TODO: change register content and opcode, if patching addresses */
 	if(_new_addr) {
 		if(action == memcatch_read) {
 			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
@@ -326,6 +327,9 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 	else {
 		context->rip->rx += op->size();
 	}
+	
+	if(_callback != NULL)
+		action_req = _callback(this, addr, action, &val);
 	
 	/* give signal causing code a value or write to memory */
 	/* TODO */

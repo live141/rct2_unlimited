@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #ifndef _DISASM_X86_H_
 #define _DISASM_X86_H_
 

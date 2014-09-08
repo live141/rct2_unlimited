@@ -1,3 +1,8 @@
+/*
+* WORKING TITLE
+* Copyright (c) 2014 Fabian Fischer
+*/
+
 #include "disasm_x86.h"
 #include "page.h"
 #include "defines.h"
