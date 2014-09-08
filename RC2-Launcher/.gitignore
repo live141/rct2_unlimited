@@ -1,0 +1,5 @@
+*.o
+.dep
+launcher
+loader_64
+loader_32

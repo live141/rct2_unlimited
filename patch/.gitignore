@@ -1,4 +1,9 @@
 *.o
+.dep
+*.so
+*.dylib
+*.dll
+test
 test.cpp
 decomp.cpp
 decomp.h

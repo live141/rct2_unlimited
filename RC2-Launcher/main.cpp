@@ -14,6 +14,8 @@
 
 #if defined(linux) || defined(__APPLE__)
 int main(int argc, char **argv) {
+	std::string target;
+
 	std::cout << NAME << " "VERSION << " by " << AUTHOR << std::endl;
 	std::cout << "Enter the name of the target: ";
 	std::cin >> target;
