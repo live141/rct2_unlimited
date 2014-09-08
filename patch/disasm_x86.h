@@ -252,8 +252,43 @@ public:
 	reg_t *r8, *r9, *r10, *r11, *r12, *r13, *r14, *r15;
 	reg_t *rip, *rflags, *cs, *fs, *gs;
 	
+	machine_context_x86(const void *cntx);	
 	reg get(const char *name);
 	reg get(uint8_t reg_num);
+
+#ifdef BIT_64
+	uint64_t flags() const {
+		return rflags->rx;
+	}
+	
+	uint64_t pc() const {
+		return rip->rx;
+	}
+
+	void set_flags(uint64_t flags) {
+		rflags->rx = flags;
+	}
+
+	void set_pc(uint64_t pc) {
+		rip->rx = pc;
+	}
+#else
+	uint32_t flags() const {
+		rflags->ex;
+	}
+
+	uint32_t pc() const {
+		return rip->ex;
+	}
+	
+	void set_flags(uint32_t flags) {
+		rflags->ex = flags;
+	}
+
+	void set_pc(uint32_t pc) {
+		rip->ex = pc;
+	}
+#endif
 };
 
 class opcode_x86;

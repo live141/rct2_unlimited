@@ -179,6 +179,102 @@ void opcode_x86::set_imm(int64_t val) {
 	}
 }
 
+machine_context_x86::machine_context_x86(const void *cntx) {
+#if defined(__APPLE__)
+/* APPLE */
+	ucontext_t *u = (ucontext_t *) cntx;
+#ifdef BIT_64
+/* 64 bit */
+	rax = (reg_t*)  &u->uc_mcontext->__ss.__rax;
+	rbx = (reg_t*)  &u->uc_mcontext->__ss.__rbx;
+	rcx = (reg_t*)  &u->uc_mcontext->__ss.__rcx;
+	rdx = (reg_t*)  &u->uc_mcontext->__ss.__rdx;
+	rdi = (reg_t*)  &u->uc_mcontext->__ss.__rdi;
+	rsi = (reg_t*)  &u->uc_mcontext->__ss.__rsi;
+	rbp = (reg_t*)  &u->uc_mcontext->__ss.__rbp;
+	rsp = (reg_t*)  &u->uc_mcontext->__ss.__rsp;
+	rip = (reg_t*)  &u->uc_mcontext->__ss.__rip;
+	r8 = (reg_t*) &u->uc_mcontext->__ss.__r8;
+	r9 = (reg_t*) &u->uc_mcontext->__ss.__r9;
+	r10 = (reg_t*) &u->uc_mcontext->__ss.__r10;
+	r11 = (reg_t*) &u->uc_mcontext->__ss.__r11;
+	r12 = (reg_t*) &u->uc_mcontext->__ss.__r12;
+	r13 = (reg_t*) &u->uc_mcontext->__ss.__r13;
+	r14 = (reg_t*) &u->uc_mcontext->__ss.__r14;
+	r15 = (reg_t*) &u->uc_mcontext->__ss.__r15;
+	rflags = (reg_t*)  &u->uc_mcontext->__ss.__rflags;
+	cs = (reg_t*)  &u->uc_mcontext->__ss.__cs;
+	fs = (reg_t*)  &u->uc_mcontext->__ss.__fs;
+	gs = (reg_t*)  &u->uc_mcontext->__ss.__gs;
+#else
+/* 32 bit */
+	rax = (reg_t*)  &u->uc_mcontext->__ss.__eax;
+	rbx = (reg_t*)  &u->uc_mcontext->__ss.__ebx;
+	rcx = (reg_t*)  &u->uc_mcontext->__ss.__ecx;
+	rdx = (reg_t*)  &u->uc_mcontext->__ss.__edx;
+	rdi = (reg_t*)  &u->uc_mcontext->__ss.__edi;
+	rsi = (reg_t*)  &u->uc_mcontext->__ss.__esi;
+	rbp = (reg_t*)  &u->uc_mcontext->__ss.__ebp;
+	rsp = (reg_t*)  &u->uc_mcontext->__ss.__esp;
+	rip = (reg_t*)  &u->uc_mcontext->__ss.__eip;
+	rflags = (reg_t*)  &u->uc_mcontext->__ss.__eflags;
+	cs = (reg_t*)  &u->uc_mcontext->__ss.__cs;
+	fs = (reg_t*)  &u->uc_mcontext->__ss.__fs;
+	gs = (reg_t*)  &u->uc_mcontext->__ss.__gs;
+#endif
+#elif defined(linux)
+/* LINUX */
+#error "TODO"
+#ifdef BIT_64
+/* 64 bit */
+#else
+/* 32 bit */
+#endif
+#else
+/* WINDOWS */
+	PCONTEXT u = (PCONTEXT) cntx;
+#ifdef BIT_64
+/* 64 bit */
+	rax = (reg_t*)  &u->Rax;
+	rbx = (reg_t*)  &u->Rbx;
+	rcx = (reg_t*)  &u->Rcx;
+	rdx = (reg_t*)  &u->Rdx;
+	rdi = (reg_t*)  &u->Rdi;
+	rsi = (reg_t*)  &u->Rsi;
+	rbp = (reg_t*)  &u->Rbp;
+	rsp = (reg_t*)  &u->Rsp;
+	rip = (reg_t*)  &u->Rip;
+	r8 = (reg_t*)  &u->R8;
+	r9 = (reg_t*)  &u->R9;
+	r10 = (reg_t*)  &u->R10;
+	r11 = (reg_t*)  &u->R11;
+	r12 = (reg_t*)  &u->R12;
+	r13 = (reg_t*)  &u->R13;
+	r14 = (reg_t*)  &u->R14;
+	r15 = (reg_t*)  &u->R15;
+	rflags = (reg_t*)  &u->EFlags;
+	cs = (reg_t*)  &u->SegCs;
+	fs = (reg_t*)  &u->SegFs;
+	gs = (reg_t*)  &u->SegGs;
+#else
+/* 32 bit */
+	rax = (reg_t*)  &u->Eax;
+	rbx = (reg_t*)  &u->Ebx;
+	rcx = (reg_t*)  &u->Ecx;
+	rdx = (reg_t*)  &u->Edx;
+	rdi = (reg_t*)  &u->Edi;
+	rsi = (reg_t*)  &u->Esi;
+	rbp = (reg_t*)  &u->Ebp;
+	rsp = (reg_t*)  &u->Esp;
+	rip = (reg_t*)  &u->Eip;
+	rflags = (reg_t*)  &u->EFlags;
+	cs = (reg_t*)  &u->SegCs;
+	fs = (reg_t*)  &u->SegFs;
+	gs = (reg_t*)  &u->SegGs;
+#endif
+#endif
+}
+
 reg machine_context_x86::get(uint8_t reg_num) {
 	if(reg_num == REG_EIP || reg_num == REG_RIP)
 		return reg(rip, MASK_REG_SIZE(reg_num));

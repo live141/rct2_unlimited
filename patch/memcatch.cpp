@@ -27,10 +27,9 @@ std::map<void*, memcatch*> memcatch::_map;
 void sig_handler(int sig, siginfo_t *si, void *unused) {
 	static memcatch *last_mc = NULL;
 	memcatch *mem;
-	machine_context_x86 context;
+	machine_context_x86 context(unused);
 	memcatch_action action;
-	ucontext_t *u = (ucontext_t *) unused;
-	opcode_x86 op((void*) u->uc_mcontext->__ss.__rip, mode_64);
+	opcode_x86 op((void*) context.pc(), mode_64);
 	op.decode();
 
 	debug_printf("Received ");
@@ -50,11 +49,11 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		if(last_mc != NULL) {
 			last_mc->activate();
 			last_mc = NULL;
-			u->uc_mcontext->__ss.__rflags &= ~((uint64_t)EFL_TF);
+			context.set_flags(context.flags() & ~((uint64_t)EFL_TF));
 		}
 		return;
 	}
-	debug_printf(" caused by \"%s\" at 0x%llx, for ", op.expression(), u->uc_mcontext->__ss.__rip);
+	debug_printf(" caused by \"%s\" at 0x%llx, for ", op.expression(), (uint64_t) context.pc());
 	/* check if we are reading, when yes then first operand is a register */
 	if(op.operand(0).is_register()) {
 		debug_printf("reading from");
@@ -75,19 +74,12 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		if(mem != NULL) {
 			//u->uc_mcontext->__ss.__rip += op.size();
 			/* change permissions and trap */
-			u->uc_mcontext->__ss.__rflags |= EFL_TF;
+			context.set_flags(context.flags() | EFL_TF);
 			last_mc = mem;
 			mem->deactivate();
 			return;
 		}
 		exit(-1);
-	}
-	uint64_t *reg;
-	reg_t **dst;
-	reg = &u->uc_mcontext->__ss.__rax;
-	dst = &context.rax;
-	for(int i = 0; i < sizeof(machine_context_x86)/sizeof(uint64_t); ++i) {
-		dst[i] = (reg_t*) reg+i;
 	}
 	mem->callback(&op, si->si_addr, action, &context);
 }
@@ -98,10 +90,9 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	static memcatch *last_mc = NULL;
 	memcatch *mem;
 	void *addr = NULL;
-	machine_context_x86 context;
+	machine_context_x86 context(ExceptionInfo->ContextRecord);
 	memcatch_action action;
-	PCONTEXT u = ExceptionInfo->ContextRecord;
-	opcode_x86 op((void*) u->Eip, mode_32);
+	opcode_x86 op((void*) context.pc(), mode_32);
 	op.decode();
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
@@ -157,7 +148,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		if(last_mc != NULL) {
 			last_mc->activate();
 			last_mc = NULL;
-			u->EFlags &= ~((uint64_t)0x100);
+			context.set_flags(context.flags() & ~((uint64_t)0x100));
 		}
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
@@ -166,7 +157,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		debug_printf("Error: received exception\n");
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-	debug_printf(" caused by \"%s\" at 0x%x for ", op.expression(), u->Eip);
+	debug_printf(" caused by \"%s\" at 0x%llx for ", op.expression(), (uint64_t) context.pc());
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
 		debug_printf("reading from");
@@ -191,26 +182,13 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		mem = memcatch::find_page(addr);
 		if(mem != NULL) {
 			/* change permissions and trap */
-			u->EFlags |= 0x100;
+			context.set_flags(context.flags() | ((uint64_t)0x100));
 			last_mc = mem;
 			mem->deactivate();
 			return EXCEPTION_CONTINUE_EXECUTION;
 		}
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-	context.rax = (reg_t*)  &u->Eax;
-	context.rbx = (reg_t*)  &u->Ebx;
-	context.rcx = (reg_t*)  &u->Ecx;
-	context.rdx = (reg_t*)  &u->Edx;
-	context.rdi = (reg_t*)  &u->Edi;
-	context.rsi = (reg_t*)  &u->Esi;
-	context.rbp = (reg_t*)  &u->Ebp;
-	context.rsp = (reg_t*)  &u->Esp;
-	context.rip = (reg_t*)  &u->Eip;
-	context.rflags = (reg_t*)  &u->EFlags;
-	context.cs = (reg_t*)  &u->SegCs;
-	context.fs = (reg_t*)  &u->SegFs;
-	context.gs = (reg_t*)  &u->SegGs;
 	mem->callback(&op, addr, action, &context);
 	return EXCEPTION_CONTINUE_EXECUTION;
 }
