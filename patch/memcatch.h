@@ -6,7 +6,7 @@
 #ifndef _MEMCATCH_H_
 #define _MEMCATCH_H_
 
-#include "disasm_x86.h"
+#include "disasm.h"
 #include <stdlib.h>
 #include <map>
 #include <limits>
@@ -46,7 +46,7 @@ public:
 	void deactivate();
 	static memcatch* find(void *addr);
 	static memcatch* find_page(void *addr);
-	void callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context);
+	void callback(opcode *op, void *addr, memcatch_action action, machine_context *context);
 
 	size_t size() const {
 		return _size;

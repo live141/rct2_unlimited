@@ -25,28 +25,36 @@ void detour::unhook() {
 	if(_addr_tramp != NULL) {
 		memcpy(_addr_target, _addr_tramp, _size_replaced);
 		/* fix rel. addresses */
-		opcode_x86 op(_addr_target, _bitmode);
+		opcode *op = opcode::create(_addr_target, _arch);
 		for(uint32_t i = 0; i < _size_replaced;) {
-			op.next();
-			if( op.operand(0).type() == OPERAND_TYPE_REL32 ) {
-				opcode_x86 rel(_addr_tramp+i, _bitmode);
-				rel.decode();
-				op.set_imm(rel.immediate());
+			op->next();
+			if( op->get_operand(0)->is_rel() ) {
+				opcode *rel = opcode::create(_addr_tramp+i, _arch);
+				rel->decode();
+				op->set_imm(rel->immediate());
+				delete rel;
 			}
-			i += op.size();
+			i += op->size();
 		}
 		page::free(_addr_tramp);
 		_addr_tramp = NULL;
 	}
+
+	std::vector<opcode*>::iterator it;
+	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
+		delete *it;
+	}
+	_vec_opcode.clear();
 }
 
 void detour::hook() {
 	uint8_t code[8];
 	_size_replaced = 0;
-	opcode_x86 op(_addr_target, _bitmode);
+	//opcode_x86 op(_addr_target, _bitmode);
 	while(_size_replaced < 5) {
-		op.next();
-		_size_replaced += op.size();
+		opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
+		op->decode();
+		_size_replaced += op->size();
 		_vec_opcode.push_back(op);
 	}
 	
@@ -68,15 +76,17 @@ void detour::hook() {
 	memcpy(_addr_target, code, 5);
 
 	/* TODO: extend opcode in case we just have 1 or 2 bytes for rel. address */
-	std::vector<opcode_x86>::iterator it;
+	std::vector<opcode*>::iterator it;
 	size_t size = 0;
 	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
-		if(it->operand(0).type() == OPERAND_TYPE_REL32) {
-			opcode_x86 op(_addr_tramp+size, _bitmode);
-			op.decode();
-			op.set_imm(it->immediate());
+		if((*it)->get_operand(0)->is_rel()) {
+			//opcode_x86 op(_addr_tramp+size, _bitmode);
+			opcode *op = opcode::create(_addr_tramp+size, _arch);
+			op->decode();
+			op->set_imm((*it)->immediate());
+			delete op;
 		}
-		size += it->size();
+		size += (*it)->size();
 	}
 }
 

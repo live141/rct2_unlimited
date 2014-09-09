@@ -7,6 +7,7 @@
 #include "page.h"
 #include "disasm_x86.h"
 #include "defines.h"
+#include <memory>
 #include <stdint.h>
 #include <iostream>
 #include <sstream>
@@ -22,20 +23,20 @@
 #endif
 
 std::map<void*, memcatch*> memcatch::_map;
-#ifdef BIT_64
-x86_bitmode g_bitmode = mode_64;
-#else
-x86_bitmode g_bitmode = mode_32;
-#endif
 
 #if defined(linux) || defined(__APPLE__)
 void sig_handler(int sig, siginfo_t *si, void *unused) {
 	static memcatch *last_mc = NULL;
 	memcatch *mem;
-	machine_context_x86 context(unused);
+	//machine_context_x86 context(unused);
+	std::shared_ptr<machine_context> context(machine_context::create(unused, ARCH));
+	//machine_context *context = machine_context::create(unused, ARCH);
 	memcatch_action action;
-	opcode_x86 op((void*) context.pc(), g_bitmode);
-	op.decode();
+	//opcode_x86 op((void*) context.pc(), g_bitmode);
+	//op.decode();
+	//opcode *op = opcode::create((void*) context->pc(), ARCH);
+	std::shared_ptr<opcode> op(opcode::create((void*) context->pc(), ARCH));
+	op->decode();
 
 	debug_printf("Received ");
 	switch(sig) {
@@ -54,13 +55,13 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		if(last_mc != NULL) {
 			last_mc->activate();
 			last_mc = NULL;
-			context.set_flags(context.flags() & ~((uint64_t)EFL_TF));
+			context->clear_trapflag();
 		}
 		return;
 	}
-	debug_printf(" caused by \"%s\" at 0x%llx, for ", op.expression(), (uint64_t) context.pc());
+	debug_printf(" caused by \"%s\" at 0x%llx, for ", op->expression(), (uint64_t) context->pc());
 	/* check if we are reading, when yes then first operand is a register */
-	if(op.operand(0).is_register()) {
+	if(op->get_operand(0)->is_register()) {
 		debug_printf("reading from");
 		action = memcatch_read;
 	}
@@ -79,14 +80,14 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		if(mem != NULL) {
 			//u->uc_mcontext->__ss.__rip += op.size();
 			/* change permissions and trap */
-			context.set_flags(context.flags() | EFL_TF);
+			context->set_trapflag();
 			last_mc = mem;
 			mem->deactivate();
 			return;
 		}
 		exit(-1);
 	}
-	mem->callback(&op, si->si_addr, action, &context);
+	mem->callback(op.get(), si->si_addr, action, context.get());
 }
 #else
 /* Windows */
@@ -95,10 +96,10 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	static memcatch *last_mc = NULL;
 	memcatch *mem;
 	void *addr = NULL;
-	machine_context_x86 context(ExceptionInfo->ContextRecord);
+	std::shared_ptr<machine_context> context(machine_context::create(ExceptionInfo->ContextRecord, ARCH));
 	memcatch_action action;
-	opcode_x86 op((void*) context.pc(), g_bitmode);
-	op.decode();
+	std::shared_ptr<opcode> op(opcode::create((void*) context.pc(), ARCH));
+	op->decode();
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
 		case EXCEPTION_ACCESS_VIOLATION:
@@ -153,8 +154,10 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		if(last_mc != NULL) {
 			last_mc->activate();
 			last_mc = NULL;
-			context.set_flags(context.flags() & ~((uint64_t)0x100));
+			context->clear_trapflag();
 		}
+		delete op;
+		delete context;
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
 	if(ExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION) {
@@ -162,7 +165,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		debug_printf("Error: received exception\n");
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-	debug_printf(" caused by \"%s\" at 0x%llx for ", op.expression(), (uint64_t) context.pc());
+	debug_printf(" caused by \"%s\" at 0x%llx for ", op->expression(), (uint64_t) context->pc());
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
 		debug_printf("reading from");
@@ -187,14 +190,14 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		mem = memcatch::find_page(addr);
 		if(mem != NULL) {
 			/* change permissions and trap */
-			context.set_flags(context.flags() | ((uint64_t)0x100));
+			context->set_trapflag();
 			last_mc = mem;
 			mem->deactivate();
 			return EXCEPTION_CONTINUE_EXECUTION;
 		}
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-	mem->callback(&op, addr, action, &context);
+	mem->callback(op.get(), addr, action, context.get());
 	return EXCEPTION_CONTINUE_EXECUTION;
 }
 #endif
@@ -280,7 +283,7 @@ void memcatch::init() {
 #endif
 }
 
-void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, machine_context_x86 *context) {
+void memcatch::callback(opcode *op, void *addr, memcatch_action action, machine_context *context) {
 	memcatch_action action_req;
 	uint64_t val;
 	uint8_t reg;
@@ -290,10 +293,10 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 	/* fill val with the value that the codes uses */
 	/* TODO */
 	if(action == memcatch_read) {
-		reg = op->operand(1).base();
+		reg = op->get_operand(1)->base();
 	}
 	else if(action == memcatch_write) {
-		reg = op->operand(0).base();
+		reg = op->get_operand(0)->base();
 	}
 	debug_printf("Using register: %d", reg);
 	
@@ -308,7 +311,8 @@ void memcatch::callback(opcode_x86 *op, void *addr, memcatch_action action, mach
 		}
 	}
 	else {
-		context->rip->rx += op->size();
+		//context->rip->rx += op->size();
+		context->set_pc(context->pc() + op->size());
 	}
 	
 	if(_callback != NULL)

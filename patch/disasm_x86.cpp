@@ -10,6 +10,11 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#if defined(__APPLE__) || defined(linux)
+#define _XOPEN_SOURCE
+#include <ucontext.h>
+#include <i386/eflags.h>
+#endif
 
 extern opcode_x86_t g_opcode_32_1b[];
 extern opcode_x86_t g_opcode_32_2b[];
@@ -155,8 +160,7 @@ char g_lut_ymm[][7] = {
 
 void opcode_x86::set_imm(int64_t val) {
 	_imm = val;
-	//if(_code->type_op[0] == OPERAND_TYPE_REL8 || _code->type_op[0] == OPERAND_TYPE_REL32) {
-	if(_operand[0].type() == OPERAND_TYPE_REL8 || _operand[0].type() == OPERAND_TYPE_REL32) {
+	if(_operand[0]->type() == OPERAND_TYPE_REL8 || _operand[0]->type() == OPERAND_TYPE_REL32) {
 		_imm = (uint64_t) val - (uint64_t) _addr - _size;
 	}
 	/* make page writeable */
@@ -404,6 +408,28 @@ reg machine_context_x86::get(const char *name) {
 	}
 }
 
+void machine_context_x86::set_trapflag() {
+#if defined(__APPLE__)
+	set_flags(flags() | ((unsigned long)EFL_TF));
+#elif defined(linux)
+#error "TODO"
+#else
+/* Windows */
+	set_flags(flags() | ((unsigned long)0x100));
+#endif
+}
+
+void machine_context_x86::clear_trapflag() {
+#if defined(__APPLE__)
+	set_flags(flags() & ~((unsigned long)EFL_TF));
+#elif defined(linux)
+#error "TODO"
+#else
+/* Windows */
+	set_flags(flags() & ~((unsigned long)0x100));
+#endif
+}
+
 void opcode_x86::_decode_modrm(uint8_t byte) {
 	_mod = byte >> 6;
 	_reg_ope = (byte >> 3) & 0x07;
@@ -429,48 +455,48 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	stream << std::hex;
 	/* determin operand size */
 	if(type == 8)
-		_operand[i].set_size(1);
+		_operand[i]->set_size(1);
 	else if(type == 64)
-		_operand[i].set_size(8);
+		_operand[i]->set_size(8);
 	else if(type == 128)
-		_operand[i].set_size(16);
+		_operand[i]->set_size(16);
 	else if(type == 256)
-		_operand[i].set_size(32);
+		_operand[i]->set_size(32);
 	else {
 		if(_addr_size_prefix)
-			_operand[i].set_size(2);
+			_operand[i]->set_size(2);
 		else if(_is_opsize64())
-			_operand[i].set_size(8);
+			_operand[i]->set_size(8);
 		else
-			_operand[i].set_size(4);
+			_operand[i]->set_size(4);
 	}
 	//if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
 			if(type == 64) {
 				/* mm */
-				_operand[i]._register = _rm | REG_SIZE_64;
+				_operand[i]->set_register(_rm | REG_SIZE_64);
 				return std::string(g_lut_mm[_rm]);
 			}
 			if(type == 128) {
 				/* xmm */
-				_operand[i]._register = _rm | REG_SIZE_128;
+				_operand[i]->set_register(_rm | REG_SIZE_128);
 				return std::string(g_lut_xmm[_rm]);
 			}
 			if(type == 256) {
 				/* ymm */
-				_operand[i]._register = _rm | REG_SIZE_256;
+				_operand[i]->set_register(_rm | REG_SIZE_256);
 				return std::string(g_lut_ymm[_rm]);
 			}
 			if(type == 8) {
-				_operand[i]._register = _rm | REG_SIZE_8;
+				_operand[i]->set_register(_rm | REG_SIZE_8);
 				return std::string(g_lut_registers8[_rm]);
 			}
 			else if(!_is_opsize64()) {
-				_operand[i]._register = _rm | REG_SIZE_32;
+				_operand[i]->set_register(_rm | REG_SIZE_32);
 				return std::string(g_lut_registers32[_rm]);
 			}
 			else {
-				_operand[i]._register = _rm | REG_SIZE_64;
+				_operand[i]->set_register(_rm | REG_SIZE_64);
 				return std::string(g_lut_registers64[_rm]);
 			}
 		}
@@ -479,20 +505,20 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				/* sib */
 				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_base];
-					_operand[i]._register = _base | REG_SIZE_32;
+					_operand[i]->set_register(_base | REG_SIZE_32);
 				}
 				else {
 					stream << "[" << g_lut_registers64[_base];
-					_operand[i]._register = _base | REG_SIZE_64;
+					_operand[i]->set_register(_base | REG_SIZE_64);
 				}
 				if(_idx != 0x04) {
 					if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
-						_operand[i]._register = _idx | REG_SIZE_32;
+						_operand[i]->set_register(_idx | REG_SIZE_32);
 					}
 					else {
 						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
-						_operand[i]._register = _idx | REG_SIZE_64;
+						_operand[i]->set_register(_idx | REG_SIZE_64);
 					}
 				}
 			}
@@ -502,11 +528,11 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				if(_bitmode == mode_64) {
 					if(_is_opsize64()) {
 						stream << "rip";
-						_operand[i]._base = REG_RIP;
+						_operand[i]->set_base(REG_RIP);
 					}
 					else {
 						stream << "eip";
-						_operand[i]._base = REG_EIP;
+						_operand[i]->set_base(REG_EIP);
 					}
 				}
 				stream << std::dec << std::showpos << _disp;
@@ -514,11 +540,11 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 			else {
 				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_rm];
-					_operand[i]._base = _rm | REG_SIZE_32;
+					_operand[i]->set_base(_rm | REG_SIZE_32);
 				}
 				else {
 					stream << "[" << g_lut_registers64[_rm];
-					_operand[i]._base = _rm | REG_SIZE_64;
+					_operand[i]->set_base(_rm | REG_SIZE_64);
 				}
 			}
 			if(_mod != MOD_REG_INDIRECT) {
@@ -749,52 +775,52 @@ void opcode_x86::decode() {
 	//stream << _name << std::hex;
 	stream << std::hex;
 	for(int i = 0; i < 4; ++i) {
-		_operand[i].reset();
-		_operand[i].set_type(_code->type_op[i]);
+		_operand[i]->reset();
+		_operand[i]->set_type(_code->type_op[i]);
 		switch(_code->type_op[i]) {
 			case OPERAND_TYPE_REG64:
 				stream << ", " << g_lut_registers64[_reg_ope];
-				_operand[i].set_size(8);
-				_operand[i]._register = _reg_ope | (REG_SIZE_64);
+				_operand[i]->set_size(8);
+				_operand[i]->set_register(_reg_ope | (REG_SIZE_64));
 				break;
 			case OPERAND_TYPE_REG32:
 				stream << ", ";
 				if(_op_size_prefix) {
-					_operand[i].set_size(2);
+					_operand[i]->set_size(2);
 					stream << g_lut_registers16[_reg_ope];
-					_operand[i]._register = _reg_ope | (REG_SIZE_16);
+					_operand[i]->set_register(_reg_ope | (REG_SIZE_16));
 				}
 				else if(!_is_opsize64()) {
 					stream << g_lut_registers32[_reg_ope];
-					_operand[i].set_size(4);
-					_operand[i]._register = _reg_ope | (REG_SIZE_32);
+					_operand[i]->set_size(4);
+					_operand[i]->set_register(_reg_ope | (REG_SIZE_32));
 				}
 				else {
 					stream << g_lut_registers64[_reg_ope];
-					_operand[i].set_size(8);
-					_operand[i]._register = _reg_ope | (REG_SIZE_64);
+					_operand[i]->set_size(8);
+					_operand[i]->set_register(_reg_ope | (REG_SIZE_64));
 				}
 				break;
 			case OPERAND_TYPE_REG8:
 				stream << ", " << g_lut_registers8[_reg_ope];
-				_operand[i]._register = _reg_ope | (REG_SIZE_8);
-				_operand[i].set_size(1);
+				_operand[i]->set_register(_reg_ope | (REG_SIZE_8));
+				_operand[i]->set_size(1);
 				break;
 			case OPERAND_TYPE_IMM32:
 				stream << ", 0x" << _imm;
 				if(_op_size_prefix) {
-					_operand[i].set_size(2);
+					_operand[i]->set_size(2);
 				}
 				else if(!_is_opsize64()) {
-					_operand[i].set_size(4);
+					_operand[i]->set_size(4);
 				}
 				else {
-					_operand[i].set_size(8);
+					_operand[i]->set_size(8);
 				}
 				break;
 			case OPERAND_TYPE_IMM8:
 				stream << ", 0x" << _imm;
-				_operand[i].set_size(1);
+				_operand[i]->set_size(1);
 				break;
 			case OPERAND_TYPE_RM8:
 				stream << ", " << _format_modrm(8, i);
@@ -804,75 +830,75 @@ void opcode_x86::decode() {
 				break;
 			case OPERAND_TYPE_AL:
 				stream << ", al";
-				_operand[i].set_size(1);
-				_operand[i]._register = REG_AL;
+				_operand[i]->set_size(1);
+				_operand[i]->set_register(REG_AL);
 				break;
 			case OPERAND_TYPE_AX:
 				stream << ", ax";
-				_operand[i].set_size(2);
-				_operand[i]._register = REG_AX;
+				_operand[i]->set_size(2);
+				_operand[i]->set_register(REG_AX);
 				break;
 			case OPERAND_TYPE_EAX:
 				if(!_op_size_prefix) {
 					stream << ", eax";
-					_operand[i].set_size(4);
-					_operand[i]._register = REG_EAX;
+					_operand[i]->set_size(4);
+					_operand[i]->set_register(REG_EAX);
 				}
 				else {
 					stream << ", ax";
-					_operand[i].set_size(2);
-					_operand[i]._register = REG_AX;
+					_operand[i]->set_size(2);
+					_operand[i]->set_register(REG_AX);
 				}
 				break;
 			case OPERAND_TYPE_RAX:
 				if(_is_opsize64()) {
 					stream << ", rax";
-					_operand[i].set_size(8);
-					_operand[i]._register = REG_RAX;
+					_operand[i]->set_size(8);
+					_operand[i]->set_register(REG_RAX);
 				}
 				else if(_op_size_prefix) {
 					stream << ", ax";
-					_operand[i].set_size(2);
-					_operand[i]._register = REG_AX;
+					_operand[i]->set_size(2);
+					_operand[i]->set_register(REG_AX);
 				}
 				else {
 					stream << ", eax";
-					_operand[i].set_size(4);
-					_operand[i]._register = REG_EAX;
+					_operand[i]->set_size(4);
+					_operand[i]->set_register(REG_EAX);
 				}
 				break;
 			case OPERAND_TYPE_DX:
 				stream << ", dx";
-				_operand[i].set_size(2);
-				_operand[i]._register = REG_DX;
+				_operand[i]->set_size(2);
+				_operand[i]->set_register(REG_DX);
 				break;
 			case OPERAND_TYPE_EDX:
 				if(!_op_size_prefix) {
 					stream << ", edx";
-					_operand[i].set_size(4);
-					_operand[i]._register = REG_EDX;
+					_operand[i]->set_size(4);
+					_operand[i]->set_register(REG_EDX);
 				}
 				else {
 					stream << ", dx";
-					_operand[i].set_size(2);
-					_operand[i]._register = REG_DX;
+					_operand[i]->set_size(2);
+					_operand[i]->set_register(REG_DX);
 				}
 				break;
 			case OPERAND_TYPE_RDX:
 				if(_is_opsize64()) {
 					stream << ", rdx";
-					_operand[i].set_size(8);
-					_operand[i]._register = REG_RDX;
+					_operand[i]->set_size(8);
+					_operand[i]->set_register(REG_RDX);
 				}
 				else if(_op_size_prefix) {
 					stream << ", dx";
-					_operand[i].set_size(2);
-					_operand[i]._register = REG_DX;
+					_operand[i]->set_size(2);
+					_operand[i]->set_register(REG_DX);
 				}
 				else {
 					stream << ", edx";
-					_operand[i].set_size(4);
-					_operand[i]._register = REG_EDX;
+					_operand[i]->set_size(4);
+					_operand[i]->set_register(REG_EDX);
 				}
 				break;
 			case OPERAND_TYPE_REL8:
@@ -890,13 +916,13 @@ void opcode_x86::decode() {
 			case OPERAND_TYPE_XMM:
 				if(_op_size_prefix) {
 					stream << ", " << g_lut_xmm[_reg_ope];
-					_operand[i].set_size(32);
-					_operand[i]._register = _reg_ope | REG_SIZE_128;
+					_operand[i]->set_size(32);
+					_operand[i]->set_register(_reg_ope | REG_SIZE_128);
 				}
 				else {
 					stream << ", " << g_lut_mm[_reg_ope];
-					_operand[i].set_size(16);
-					_operand[i]._register = _reg_ope | REG_SIZE_128;
+					_operand[i]->set_size(16);
+					_operand[i]->set_register(_reg_ope | REG_SIZE_128);
 				}
 				break;
 			case OPERAND_TYPE_XMMM:
@@ -913,13 +939,13 @@ void opcode_x86::decode() {
 	}
 
 	for(int i = 0; i < 1; ++i) {
-		if(_operand[i].size() == 8)
+		if(_operand[i]->size() == 8)
 			_name.append("q");
-		if(_operand[i].size() == 4)
+		if(_operand[i]->size() == 4)
 			_name.append("l");
-		if(_operand[i].size() == 2)
+		if(_operand[i]->size() == 2)
 			_name.append("w");
-		if(_operand[i].size() == 1)
+		if(_operand[i]->size() == 1)
 			_name.append("b");
 	}
 
@@ -937,7 +963,7 @@ void opcode_x86::decode() {
 		if(stream.str().c_str()[i] == ',' || stream.str().c_str()[i] == '\0') {
 			tmp += '\0';
 			if(j != -1)
-				_operand[j].set_expr(tmp);
+				_operand[j]->set_expr(tmp);
 			tmp = std::string();
 			++j;
 		}
