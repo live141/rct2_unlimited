@@ -175,11 +175,11 @@ public:
 	virtual void clear_trapflag();
 
 	virtual unsigned long flags() const {
-		*((unsigned long*) rflags);
+		return *((unsigned long*) rflags);
 	}
 	
 	virtual unsigned long pc() const {
-		return rip->rx;
+		return *((unsigned long*) rip);
 	}
 
 	virtual void set_flags(unsigned long flags) {
@@ -203,6 +203,7 @@ public:
 		operand::operator=(op);
 		_index = op._index;
 		_scale = op._scale;
+		return *this;
 	}
 
 	uint8_t index() const {

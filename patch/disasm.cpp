@@ -12,7 +12,7 @@ opcode* opcode::create(const void *addr, architecture arch) {
 		case arch_x64: return new opcode_x86(addr, mode_64);
 		case arch_arm: return NULL;
 		case arch_ppc: return NULL;
-		deault: return NULL;
+		default: return NULL;
 	};
 }
 
@@ -22,6 +22,6 @@ machine_context* machine_context::create(const void *cntx, architecture arch) {
 		case arch_x64: return new machine_context_x86(cntx);
 		case arch_arm: return NULL;
 		case arch_ppc: return NULL;
-		deault: return NULL;
+		default: return NULL;
 	};
 }
