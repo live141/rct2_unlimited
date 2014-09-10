@@ -194,9 +194,11 @@ protected:
 	//uint8_t _op_size[4];
 	operand *_operand[4];
 	uint16_t _instr;
+	architecture _arch;
 	std::string _name, _expr;
 
 	virtual void _init() = 0;
+	virtual void _decode() = 0;
 	virtual void _reset() {
 		_imm = 0;
 		_imm_size = 0;
@@ -210,8 +212,8 @@ protected:
 		_expr = std::string();
 		_instr = INSTR_INVAL;
 	}
-	opcode(const void *addr) : _addr((uint8_t*) addr), _size(0), _imm(0),
-		_imm_size(0), _offset_imm(0), _instr(INSTR_INVAL) {
+	opcode(const void *addr, architecture arch) : _addr((uint8_t*) addr), _size(0), _imm(0),
+		_imm_size(0), _offset_imm(0), _instr(INSTR_INVAL), _arch(arch) {
 		_operand[0] = NULL;
 		_operand[1] = NULL;
 		_operand[2] = NULL;
@@ -243,7 +245,6 @@ public:
 		return *this;
 	}
 
-	virtual void decode() = 0;
 	virtual void set_imm(int64_t val) = 0;
 	virtual const int64_t immediate() const = 0;
 	virtual bool is_cond_jump() const  = 0;
@@ -277,9 +278,15 @@ public:
 		return _addr;
 	}
 
-	void next() {
+	void decode() {
 		_addr += size();
-		decode();
+		_decode();
+	}
+
+	opcode* next() {
+		opcode *op = create(_addr + _size, _arch);
+		op->_decode();
+		return op;
 	}
 
 	operand* get_operand(uint8_t n) {

@@ -27,7 +27,7 @@ void detour::unhook() {
 		/* fix rel. addresses */
 		opcode *op = opcode::create(_addr_target, _arch);
 		for(uint32_t i = 0; i < _size_replaced;) {
-			op->next();
+			op->decode();
 			if( op->get_operand(0)->is_rel() ) {
 				opcode *rel = opcode::create(_addr_tramp+i, _arch);
 				rel->decode();
@@ -50,10 +50,11 @@ void detour::unhook() {
 void detour::hook() {
 	uint8_t code[8];
 	_size_replaced = 0;
-	//opcode_x86 op(_addr_target, _bitmode);
+	opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
+	op->decode();
+	_size_replaced += op->size();
 	while(_size_replaced < 5) {
-		opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
-		op->decode();
+		op = op->next();
 		_size_replaced += op->size();
 		_vec_opcode.push_back(op);
 	}
