@@ -8,7 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <errno.h>
@@ -94,7 +94,7 @@ void detour::jump_to_function() {
 	/* function begins at trampoline address */
 	if(_addr_tramp == NULL)
 		return;
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 	asm volatile("jmp *(%0)"
 			:
 			: "r"(_addr_tramp)

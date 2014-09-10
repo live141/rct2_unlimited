@@ -6,7 +6,7 @@
 #ifndef _ADDR_H_
 #define _ADDR_H_
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #else
 #include <Windows.h>
 #endif
@@ -17,7 +17,7 @@ struct section_t {
 };
 
 struct module_t {
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 	void *module;
 #else
 	HMODULE module;

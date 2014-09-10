@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 #define _XOPEN_SOURCE
 #include <ucontext.h>
 #if defined(__APPLE__)
@@ -230,7 +230,7 @@ machine_context_x86::machine_context_x86(const void *cntx) {
 	fs = (reg_t*)  &u->uc_mcontext->__ss.__fs;
 	gs = (reg_t*)  &u->uc_mcontext->__ss.__gs;
 #endif
-#elif defined(linux)
+#elif defined(__linux__)
 /* LINUX */
 	ucontext *u = (ucontext*) cntx;
 #ifdef BIT_64
@@ -441,7 +441,7 @@ reg machine_context_x86::get(const char *name) {
 void machine_context_x86::set_trapflag() {
 #if defined(__APPLE__)
 	set_flags(flags() | ((unsigned long)EFL_TF));
-#elif defined(linux)
+#elif defined(__linux__)
 	set_flags(flags() | ((unsigned long)X86_EFLAGS_TF));
 #else
 /* Windows */
@@ -452,7 +452,7 @@ void machine_context_x86::set_trapflag() {
 void machine_context_x86::clear_trapflag() {
 #if defined(__APPLE__)
 	set_flags(flags() & ~((unsigned long)EFL_TF));
-#elif defined(linux)
+#elif defined(__linux__)
 	set_flags(flags() & ~((unsigned long)X86_EFLAGS_TF));
 #else
 /* Windows */

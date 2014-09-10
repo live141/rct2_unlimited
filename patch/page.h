@@ -6,7 +6,7 @@
 #ifndef _PAGE_H_
 #define _PAGE_H
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <sys/mman.h>
 #include <errno.h>
 #include <unistd.h>

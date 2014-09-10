@@ -3,7 +3,7 @@
 * Copyright (c) 2014 Fabian Fischer
 */
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <pthread.h>
 #else
 #include <Windows.h>
@@ -24,7 +24,7 @@ bool main_loop() {
 	return true;
 }
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 void* unix_thread(void *args) {
 	while(main_loop());
 	return 0;

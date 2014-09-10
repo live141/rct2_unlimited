@@ -11,7 +11,7 @@
 #include <limits>
 #include <stdlib.h>
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 /* SSE */
 #define CHECK_BYTE(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -337,7 +337,7 @@ enum search_type {
 template<class T>
 class memscan {
 protected:
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 	T _val[16/sizeof(T)] __attribute__((aligned(16)));
 #else
 	__declspec(align(16)) T _val[16/sizeof(T)];

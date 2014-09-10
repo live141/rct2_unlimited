@@ -23,7 +23,7 @@ page::page() : _addr(NULL), _size(0), _flags(0) {
 }
 
 void page::init() {
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 	page::_page_size = getpagesize();
 #else
 	SYSTEM_INFO sys_info;
@@ -38,7 +38,7 @@ void page::change_permissions(int flags) {
 	prot_size = prot_size/page::_page_size + ((prot_size%page::_page_size)?1:0);
 	prot_size *= page::_page_size;
 	_flags = flags;
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 	int prot = 0;
 	if(flags & PAGE_READ)
 		prot |= PROT_READ;
@@ -70,7 +70,7 @@ void page::change_permissions(const void *addr, size_t size, int flags) {
 	size_t prot_size = ((uint64_t) addr + size - (uint64_t) aligned_addr);
 	prot_size = prot_size/page::_page_size + ((prot_size%page::_page_size)?1:0);
 	prot_size *= page::_page_size;
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 	int prot = 0;
 	if(flags & PAGE_READ)
 		prot |= PROT_READ;
@@ -100,7 +100,7 @@ void page::change_permissions(const void *addr, size_t size, int flags) {
 
 void* page::alloc() {
 	void *addr = NULL;
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 	if((addr = mmap(NULL, page::_page_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
 		addr = NULL;
 		debug_printf("Error: Could not map memory: %d", errno);
@@ -115,7 +115,7 @@ void* page::alloc() {
 
 void* page::alloc(size_t size) {
 	void *addr = NULL;
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 	if((addr = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) {
 		debug_printf("Error: Could not map memory: %d", errno);
 		assert(addr != NULL);
@@ -130,7 +130,7 @@ void* page::alloc(size_t size) {
 
 void page::free(void *addr) {
 	if(addr != NULL) {
-#if defined(__APPLE__) || defined(linux)
+#if defined(__APPLE__) || defined(__linux__)
 		munmap(addr, page::_page_size);
 #else
 		_aligned_free(addr);

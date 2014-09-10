@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <iostream>
 #include <sstream>
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #include <signal.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -21,7 +21,7 @@
 
 std::map<void*, memcatch*> memcatch::_map;
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 void sig_handler(int sig, siginfo_t *si, void *unused) {
 	static memcatch *last_mc = NULL;
 	memcatch *mem;
@@ -255,7 +255,7 @@ void memcatch::deactivate() {
 }
 
 void memcatch::init() {
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 	struct sigaction sa;
 	sa.sa_flags = SA_SIGINFO;
 	sigemptyset(&sa.sa_mask);
