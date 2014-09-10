@@ -536,10 +536,12 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_base];
 					_operand[i]->set_register(_base | REG_SIZE_32);
+					_operand[i]->set_base(_base | REG_SIZE_32);
 				}
 				else {
 					stream << "[" << g_lut_registers64[_base];
 					_operand[i]->set_register(_base | REG_SIZE_64);
+					_operand[i]->set_base(_base | REG_SIZE_64);
 				}
 				if(_idx != 0x04) {
 					if(_bitmode == mode_32 /*!_is_opsize64()*/) {

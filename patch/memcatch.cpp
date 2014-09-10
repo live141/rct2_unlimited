@@ -287,17 +287,16 @@ void memcatch::callback(opcode *op, void *addr, memcatch_action action, machine_
 	else if(action == memcatch_write) {
 		reg = op->get_operand(0)->base();
 	}
-	debug_printf("Using register: %d", reg);
+	debug_printf("Using register: %d\n", reg);
 	
 	if(_new_addr) {
 		if(action == memcatch_read) {
 			context->get(reg).set((unsigned long)_new_addr+(context->get(reg).get()-(unsigned long)_addr));
-			debug_printf("Redirected: %d = 0x%lx\n", reg, context->get(reg).get());
 		}
 		else if(action == memcatch_write) {
 			context->get(reg).set((unsigned long)_new_addr+(context->get(reg).get()-(unsigned long)_addr));
-
 		}
+		debug_printf("Redirected: %d = 0x%lx\n", reg, context->get(reg).get());
 	}
 	else {
 		//context->rip->rx += op->size();
