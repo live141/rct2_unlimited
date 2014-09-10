@@ -29,6 +29,10 @@ ifeq ($(ARCH), x86)
 	ARCH = arch_x86
 endif
 
+ifeq ($(ARCH), i386)
+	ARCH = arch_x86
+endif
+
 CXXFLAGS += -DARCH=$(ARCH)
 
 default: all

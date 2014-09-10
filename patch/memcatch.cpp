@@ -15,9 +15,6 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <errno.h>
-#define _XOPEN_SOURCE
-#include <ucontext.h>
-#include <i386/eflags.h>
 #else
 #include <Windows.h>
 #endif
@@ -28,13 +25,8 @@ std::map<void*, memcatch*> memcatch::_map;
 void sig_handler(int sig, siginfo_t *si, void *unused) {
 	static memcatch *last_mc = NULL;
 	memcatch *mem;
-	//machine_context_x86 context(unused);
 	std::shared_ptr<machine_context> context(machine_context::create(unused, ARCH));
-	//machine_context *context = machine_context::create(unused, ARCH);
 	memcatch_action action;
-	//opcode_x86 op((void*) context.pc(), g_bitmode);
-	//op.decode();
-	//opcode *op = opcode::create((void*) context->pc(), ARCH);
 	std::shared_ptr<opcode> op(opcode::create((void*) context->pc(), ARCH));
 	op->decode();
 
@@ -78,7 +70,6 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		/* check if sideeffect of chaning page permissions */
 		mem = memcatch::find_page(si->si_addr);
 		if(mem != NULL) {
-			//u->uc_mcontext->__ss.__rip += op.size();
 			/* change permissions and trap */
 			context->set_trapflag();
 			last_mc = mem;
