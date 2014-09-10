@@ -3,16 +3,17 @@
 * Copyright (c) 2014 Fabian Fischer
 */
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 #else
 #include <Windows.h>
 #include <direct.h>
 #endif
 #include <iostream>
+#include <string>
 #include "parameters.h"
 
 
-#if defined(linux) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__)
 int main(int argc, char **argv) {
 	std::string target;
 
