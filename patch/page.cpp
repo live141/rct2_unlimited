@@ -94,7 +94,7 @@ void page::change_permissions(const void *addr, size_t size, int flags) {
 		prot = PAGE_WRITECOPY;
 	
 	prot = VirtualProtect(aligned_addr, prot_size, prot, &old_prot);
-	assert(prot == 0);
+	assert(prot != 0);
 #endif
 }
 
