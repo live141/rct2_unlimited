@@ -51,7 +51,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		}
 		return;
 	}
-	debug_printf(" caused by \"%s\" at 0x%llx, for ", op->expression(), (uint64_t) context->pc());
+	debug_printf(" caused by \"%s\" at 0x%lx, for ", op->expression(), context->pc());
 	/* check if we are reading, when yes then first operand is a register */
 	if(op->get_operand(0)->is_register()) {
 		debug_printf("reading from");
@@ -61,7 +61,7 @@ void sig_handler(int sig, siginfo_t *si, void *unused) {
 		debug_printf("writing to");
 		action = memcatch_write;
 	}
-	debug_printf(" 0x%llx\n", si->si_addr);
+	debug_printf(" 0x%lx\n", (unsigned long) si->si_addr);
 	
 	/* get corresponding memcatch and check if we caused this signal */
 	mem = memcatch::find(si->si_addr);
@@ -154,7 +154,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 		debug_printf("Error: received exception\n");
 		return EXCEPTION_EXECUTE_HANDLER;
 	}
-	debug_printf(" caused by \"%s\" at 0x%llx for ", op->expression(), (uint64_t) context->pc());
+	debug_printf(" caused by \"%s\" at 0x%lx for ", op->expression(), context->pc());
 	/* check if we are reading, when yes then first operand is a register */
 	if(ExceptionInfo->ExceptionRecord->ExceptionInformation[0] == 0) {
 		debug_printf("reading from");
@@ -198,7 +198,7 @@ memcatch::~memcatch() {
 memcatch::memcatch(void *addr, size_t size, memcatch_action type, memcatch_callback callback) : _addr(addr), _new_addr(NULL), _size(size),
 	_saved_flags(0), _type(type), _callback(callback) {
 	if(memcatch::find(addr) != NULL) {
-		debug_printf("Error: trying to catch 0x%llx twice\n", (uint64_t) addr);
+		debug_printf("Error: trying to catch 0x%lx twice\n", (unsigned long) addr);
 		assert(false);
 		exit(-1);
 		return;
@@ -210,7 +210,7 @@ memcatch::memcatch(void *addr, size_t size, memcatch_action type, memcatch_callb
 memcatch* memcatch::find(void *addr) {
 	memcatch::iterator it;
 	for(it = memcatch::_map.begin(); it != memcatch::_map.end(); ++it) {
-		if(addr >= it->second->addr() && (uint64_t) addr < (uint64_t) it->second->addr() + it->second->size())
+		if(addr >= it->second->addr() && (unsigned long) addr < (unsigned long) it->second->addr() + it->second->size())
 			return it->second;
 	}
 	return NULL;
@@ -220,8 +220,8 @@ memcatch* memcatch::find_page(void *addr) {
 	memcatch::iterator it;
 	for(it = memcatch::_map.begin(); it != memcatch::_map.end(); ++it) {
 		/* check if is one of the pages */
-		if(((uint64_t) addr & ~(page::page_size()-1)) >= ((uint64_t) it->second->addr() & ~(page::page_size()-1)) && 
-			((uint64_t) addr & ~(page::page_size()-1)) <= (((uint64_t) it->second->addr()+it->second->size()) & ~(page::page_size()-1)))
+		if(((unsigned long) addr & ~(page::page_size()-1)) >= ((unsigned long) it->second->addr() & ~(page::page_size()-1)) && 
+			((unsigned long) addr & ~(page::page_size()-1)) <= (((unsigned long) it->second->addr()+it->second->size()) & ~(page::page_size()-1)))
 			return it->second;
 	}
 	return NULL;
@@ -291,11 +291,11 @@ void memcatch::callback(opcode *op, void *addr, memcatch_action action, machine_
 	
 	if(_new_addr) {
 		if(action == memcatch_read) {
-			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
-			debug_printf("Redirected: %d = 0x%llx\n", reg, context->get(reg).get());
+			context->get(reg).set((unsigned long)_new_addr+(context->get(reg).get()-(unsigned long)_addr));
+			debug_printf("Redirected: %d = 0x%lx\n", reg, context->get(reg).get());
 		}
 		else if(action == memcatch_write) {
-			context->get(reg).set((uint64_t)_new_addr+(context->get(reg).get()-(uint64_t)_addr));
+			context->get(reg).set((unsigned long)_new_addr+(context->get(reg).get()-(unsigned long)_addr));
 
 		}
 	}

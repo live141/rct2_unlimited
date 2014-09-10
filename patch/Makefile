@@ -1,8 +1,8 @@
 SRC = disasm_x86.cpp instr_x86.cpp detour.cpp memcatch.cpp page.cpp decomp.cpp signature.cpp main.cpp disasm.cpp
 EXTRA_FLAGS = 
 CXX = g++
-CXXFLAGS = -O0 $(EXTRA_FLAGS) -std=c++0x
-LDFLAGS =  -fPIC
+CXXFLAGS = -O0 $(EXTRA_FLAGS) -std=c++0x -fPIC
+LDFLAGS =  -fPIC -pthread
 BINARY = patch
 
 ARCH = $(shell uname -m)
@@ -42,7 +42,11 @@ CXXFLAGS += -DARCH=$(ARCH)
 
 default: all
 
-all: .dep 64
+all: .dep
+	make clean
+	make 64
+	make clean
+	make 32
 
 64: $(BINARY)_64 test_64
 
@@ -70,7 +74,7 @@ debug-test_64:
 	make test EXTRA_FLAGS="-DDEBUG -DBIT_64 -g" BITMODE="_64"
 
 debug-test_32:
-	make test EXTRA_FLAGS="-m32 -DDEBUG" BITMODE="_32"
+	make test EXTRA_FLAGS="-m32 -DDEBUG -g" BITMODE="_32"
 
 .dep:
 	@$(CXX) $(CXXFLAGS) -MM $(SRC) > .dep

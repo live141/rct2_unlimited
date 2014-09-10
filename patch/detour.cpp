@@ -62,7 +62,7 @@ void detour::hook() {
 	memcpy(_addr_tramp, _addr_target, _size_replaced);
 	/* create jumpback */
 	code[0] = 0xE9;
-	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((int64_t) _addr_target + _size_replaced - ((int64_t)_addr_tramp+_size_replaced)-5);
+	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((long) _addr_target + _size_replaced - ((long)_addr_tramp+_size_replaced)-5);
 	memcpy((uint8_t*) _addr_tramp+_size_replaced, code, 5);
 
 	/* replace target code */
@@ -71,7 +71,7 @@ void detour::hook() {
 	memset(_addr_target, 0x90, _size_replaced);
 	/* jump to our function */
 	code[0] = 0xE9;
-	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((int64_t) (_addr_new - _addr_target - 5));
+	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((long) (_addr_new - _addr_target - 5));
 	memcpy(_addr_target, code, 5);
 
 	/* TODO: extend opcode in case we just have 1 or 2 bytes for rel. address */

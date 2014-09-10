@@ -21,8 +21,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_WORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -33,8 +33,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_DWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -45,8 +45,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_QWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -57,8 +57,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 #define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -68,8 +68,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -80,8 +80,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -92,8 +92,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -104,8 +104,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 #define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -115,8 +115,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 #define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -126,8 +126,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
@@ -138,8 +138,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
@@ -150,8 +150,8 @@
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 #define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -163,8 +163,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -177,8 +177,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -191,8 +191,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
@@ -205,8 +205,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 #define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -218,8 +218,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 #define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -231,8 +231,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
@@ -245,8 +245,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 #define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
@@ -259,8 +259,8 @@
 		"pand %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
-		: "=m"(flag) \
-		: "r"(dst), "m"(src) \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
 		: "xmm0", "xmm1", "xmm3")
 
 /* AVX 256 */
@@ -272,7 +272,7 @@
 		"vpshufd $0xee, %%ymm1, %%ymm3\n\t" \
 		"vorpd %%ymm1, %%ymm3, %%ymm3\n\t" \
 		"vpextrq $0, %%xmm3, %0\n\t" \
-		: "=m"(flag) \
+		: "=rm"(flag) \
 		: "r"(dst), "r"(src) \
 		: "ymm0", "ymm1", "ymm3")
 

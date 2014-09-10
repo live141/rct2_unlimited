@@ -333,7 +333,7 @@ public:
 	
 	virtual const int64_t immediate() const {
 		if(_code->type_op[0] == OPERAND_TYPE_REL8 || _code->type_op[0] == OPERAND_TYPE_REL32)
-			return _size + _imm + (uint64_t) _addr;
+			return _size + _imm + (unsigned long) _addr;
 		return _imm;
 	}
 

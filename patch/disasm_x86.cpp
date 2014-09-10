@@ -165,7 +165,7 @@ char g_lut_ymm[][7] = {
 void opcode_x86::set_imm(int64_t val) {
 	_imm = val;
 	if(_operand[0]->type() == OPERAND_TYPE_REL8 || _operand[0]->type() == OPERAND_TYPE_REL32) {
-		_imm = (uint64_t) val - (uint64_t) _addr - _size;
+		_imm = (unsigned long) val - (unsigned long) _addr - _size;
 	}
 	/* make page writeable */
 	page::change_permissions(((uint8_t*) _addr+_offset_imm), _imm_size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
@@ -235,34 +235,34 @@ machine_context_x86::machine_context_x86(const void *cntx) {
 	ucontext *u = (ucontext*) cntx;
 #ifdef BIT_64
 /* 64 bit */
-	rax = (reg_t*) u->uc_mcontext.gregs[REG_RAX];
-	rbx = (reg_t*) u->uc_mcontext.gregs[REG_RBX];
-	rcx = (reg_t*) u->uc_mcontext.gregs[REG_RCX];
-	rdx = (reg_t*) u->uc_mcontext.gregs[REG_RDX];
-	rdi = (reg_t*) u->uc_mcontext.gregs[REG_RDI];
-	rsi = (reg_t*) u->uc_mcontext.gregs[REG_RSI];
-	rbp = (reg_t*) u->uc_mcontext.gregs[REG_RBP];
-	rsp = (reg_t*) u->uc_mcontext.gregs[REG_RSP];
-	rip = (reg_t*) u->uc_mcontext.gregs[REG_RIP];
-	rflags = (reg_t*) u->uc_mcontext.gregs[REG_RFL];
-	cs = (reg_t*) u->uc_mcontext.gregs[REG_CS];
-	fs = (reg_t*) u->uc_mcontext.gregs[REG_FS];
-	gs = (reg_t*) u->uc_mcontext.gregs[REG_GS];
+	rax = (reg_t*) &u->uc_mcontext.gregs[REG_RAX];
+	rbx = (reg_t*) &u->uc_mcontext.gregs[REG_RBX];
+	rcx = (reg_t*) &u->uc_mcontext.gregs[REG_RCX];
+	rdx = (reg_t*) &u->uc_mcontext.gregs[REG_RDX];
+	rdi = (reg_t*) &u->uc_mcontext.gregs[REG_RDI];
+	rsi = (reg_t*) &u->uc_mcontext.gregs[REG_RSI];
+	rbp = (reg_t*) &u->uc_mcontext.gregs[REG_RBP];
+	rsp = (reg_t*) &u->uc_mcontext.gregs[REG_RSP];
+	rip = (reg_t*) &u->uc_mcontext.gregs[REG_RIP];
+	rflags = (reg_t*) &u->uc_mcontext.gregs[REG_RFL];
+	cs = (reg_t*) &u->uc_mcontext.gregs[REG_CS];
+	fs = (reg_t*) &u->uc_mcontext.gregs[REG_FS];
+	gs = (reg_t*) &u->uc_mcontext.gregs[REG_GS];
 #else
 /* 32 bit */
-	rax = (reg_t*) u->uc_mcontext.gregs[REG_EAX];
-	rbx = (reg_t*) u->uc_mcontext.gregs[REG_EBX];
-	rcx = (reg_t*) u->uc_mcontext.gregs[REG_ECX];
-	rdx = (reg_t*) u->uc_mcontext.gregs[REG_EDX];
-	rdi = (reg_t*) u->uc_mcontext.gregs[REG_EDI];
-	rsi = (reg_t*) u->uc_mcontext.gregs[REG_ESI];
-	rbp = (reg_t*) u->uc_mcontext.gregs[REG_EBP];
-	rsp = (reg_t*) u->uc_mcontext.gregs[REG_ESP];
-	rip = (reg_t*) u->uc_mcontext.gregs[REG_EIP];
-	rflags = (reg_t*) u->uc_mcontext.gregs[REG_EFL];
-	cs = (reg_t*) u->uc_mcontext.gregs[REG_CS];
-	fs = (reg_t*) u->uc_mcontext.gregs[REG_FS];
-	gs = (reg_t*) u->uc_mcontext.gregs[REG_GS];
+	rax = (reg_t*) &u->uc_mcontext.gregs[REG_EAX];
+	rbx = (reg_t*) &u->uc_mcontext.gregs[REG_EBX];
+	rcx = (reg_t*) &u->uc_mcontext.gregs[REG_ECX];
+	rdx = (reg_t*) &u->uc_mcontext.gregs[REG_EDX];
+	rdi = (reg_t*) &u->uc_mcontext.gregs[REG_EDI];
+	rsi = (reg_t*) &u->uc_mcontext.gregs[REG_ESI];
+	rbp = (reg_t*) &u->uc_mcontext.gregs[REG_EBP];
+	rsp = (reg_t*) &u->uc_mcontext.gregs[REG_ESP];
+	rip = (reg_t*) &u->uc_mcontext.gregs[REG_EIP];
+	rflags = (reg_t*) &u->uc_mcontext.gregs[REG_EFL];
+	cs = (reg_t*) &u->uc_mcontext.gregs[REG_CS];
+	fs = (reg_t*) &u->uc_mcontext.gregs[REG_FS];
+	gs = (reg_t*) &u->uc_mcontext.gregs[REG_GS];
 #endif
 #else
 /* WINDOWS */
