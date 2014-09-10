@@ -248,6 +248,7 @@ protected:
 	uint8_t _offset_disp;
 
 	void _decode_modrm(uint8_t byte);
+	virtual void _decode();
 	std::string _format_modrm(uint8_t type, uint8_t i);
 
 	void _decode_sib(uint8_t sib) {
@@ -293,8 +294,7 @@ protected:
 	}
 
 public:
-	opcode_x86() : opcode(NULL) { _init(); }
-	opcode_x86(const void *addr, x86_bitmode bitmode) : opcode((uint8_t*) addr), _code(NULL), _scale(0), _idx(0), _base(0),
+	opcode_x86(const void *addr, architecture arch, x86_bitmode bitmode) : opcode((uint8_t*) addr, arch), _code(NULL), _scale(0), _idx(0), _base(0),
 				_mod(0), _reg_ope(0), _rm(0), _disp(0), _segment(0), 
 				_addr_size_prefix(0), _op_size_prefix(0), _sib(0),
 				_disp_size(0), _bitmode(bitmode), _prefix64(0),
@@ -324,8 +324,6 @@ public:
 		return *this;
 	}
 
-	virtual void decode();
-	virtual void decode(void *addr, x86_bitmode bitmode);
 	virtual void set_imm(int64_t val);
 
 	const int64_t displacement() const {
