@@ -961,6 +961,31 @@ void opcode_x86::_decode() {
 				break;
 			default:
 				break;
+
+			case OPERAND_TYPE_ESI:
+				if(_bitmode == mode_64) {
+					stream << ", " << "[rsi]";
+					_operand[i]->set_register(REGISTER_RSI);
+					_operand[i]->set_base(REGISTER_RSI);
+				}
+				else {
+					stream << ", " << "[esi]";
+					_operand[i]->set_register(REGISTER_ESI);
+					_operand[i]->set_base(REGISTER_ESI);
+				}
+				break;
+			case OPERAND_TYPE_EDI:
+				if(_bitmode == mode_64) {
+					stream << ", " << "[rdi]";
+					_operand[i]->set_register(REGISTER_RDI);
+					_operand[i]->set_base(REGISTER_RDI);
+				}
+				else {
+					stream << ", " << "[edi]";
+					_operand[i]->set_register(REGISTER_EDI);
+					_operand[i]->set_base(REGISTER_EDI);
+				}
+				break;
 		}
 	}
 
