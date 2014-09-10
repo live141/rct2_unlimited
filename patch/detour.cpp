@@ -50,11 +50,9 @@ void detour::unhook() {
 void detour::hook() {
 	uint8_t code[8];
 	_size_replaced = 0;
-	opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
-	op->decode();
-	_size_replaced += op->size();
 	while(_size_replaced < 5) {
-		op = op->next();
+		opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
+		op->decode();
 		_size_replaced += op->size();
 		_vec_opcode.push_back(op);
 	}
