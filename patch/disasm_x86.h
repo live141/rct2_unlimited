@@ -55,82 +55,82 @@
 #define MASK_REG(x) (x & (0x0f))
 #define MASK_REG_SIZE(x) ((reg_size)(((unsigned)x & (0xf0))>>4))
 
-#define REG_AL 0
-#define REG_CL 1
-#define REG_DL 2
-#define REG_BL 3
-#define REG_AH 4
-#define REG_CH 5
-#define REG_DH 6
-#define REG_BH 7
+#define REGISTER_AL 0
+#define REGISTER_CL 1
+#define REGISTER_DL 2
+#define REGISTER_BL 3
+#define REGISTER_AH 4
+#define REGISTER_CH 5
+#define REGISTER_DH 6
+#define REGISTER_BH 7
 
-#define REG_AX (0 | REG_SIZE_16)
-#define REG_CX (1 | REG_SIZE_16)
-#define REG_DX (2 | REG_SIZE_16)
-#define REG_BX (3 | REG_SIZE_16)
-#define REG_SP (4 | REG_SIZE_16)
-#define REG_BP (5 | REG_SIZE_16)
-#define REG_SI (6 | REG_SIZE_16)
-#define REG_DI (7 | REG_SIZE_16)
+#define REGISTER_AX (0 | REG_SIZE_16)
+#define REGISTER_CX (1 | REG_SIZE_16)
+#define REGISTER_DX (2 | REG_SIZE_16)
+#define REGISTER_BX (3 | REG_SIZE_16)
+#define REGISTER_SP (4 | REG_SIZE_16)
+#define REGISTER_BP (5 | REG_SIZE_16)
+#define REGISTER_SI (6 | REG_SIZE_16)
+#define REGISTER_DI (7 | REG_SIZE_16)
 
-#define REG_EAX (0 | REG_SIZE_32)
-#define REG_ECX (1 | REG_SIZE_32)
-#define REG_EDX (2 | REG_SIZE_32)
-#define REG_EBX (3 | REG_SIZE_32)
-#define REG_ESP (4 | REG_SIZE_32)
-#define REG_EBP (5 | REG_SIZE_32)
-#define REG_ESI (6 | REG_SIZE_32)
-#define REG_EDI (7 | REG_SIZE_32)
+#define REGISTER_EAX (0 | REG_SIZE_32)
+#define REGISTER_ECX (1 | REG_SIZE_32)
+#define REGISTER_EDX (2 | REG_SIZE_32)
+#define REGISTER_EBX (3 | REG_SIZE_32)
+#define REGISTER_ESP (4 | REG_SIZE_32)
+#define REGISTER_EBP (5 | REG_SIZE_32)
+#define REGISTER_ESI (6 | REG_SIZE_32)
+#define REGISTER_EDI (7 | REG_SIZE_32)
 
-#define REG_RAX (0 | REG_SIZE_64)
-#define REG_RCX (1 | REG_SIZE_64)
-#define REG_RDX (2 | REG_SIZE_64)
-#define REG_RBX (3 | REG_SIZE_64)
-#define REG_RSP (4 | REG_SIZE_64)
-#define REG_RBP (5 | REG_SIZE_64)
-#define REG_RSI (6 | REG_SIZE_64)
-#define REG_RDI (7 | REG_SIZE_64)
+#define REGISTER_RAX (0 | REG_SIZE_64)
+#define REGISTER_RCX (1 | REG_SIZE_64)
+#define REGISTER_RDX (2 | REG_SIZE_64)
+#define REGISTER_RBX (3 | REG_SIZE_64)
+#define REGISTER_RSP (4 | REG_SIZE_64)
+#define REGISTER_RBP (5 | REG_SIZE_64)
+#define REGISTER_RSI (6 | REG_SIZE_64)
+#define REGISTER_RDI (7 | REG_SIZE_64)
 
-#define REG_R8B 8
-#define REG_R9B 9
-#define REG_R10B 10
-#define REG_R11B 11
-#define REG_R12B 12
-#define REG_R13B 13
-#define REG_R14B 14
-#define REG_R15B 15
+#define REGISTER_R8B 8
+#define REGISTER_R9B 9
+#define REGISTER_R10B 10
+#define REGISTER_R11B 11
+#define REGISTER_R12B 12
+#define REGISTER_R13B 13
+#define REGISTER_R14B 14
+#define REGISTER_R15B 15
 
-#define REG_R8W (8 | REG_SIZE_16)
-#define REG_R9W (9 | REG_SIZE_16)
-#define REG_R10W (10 | REG_SIZE_16)
-#define REG_R11W (11 | REG_SIZE_16)
-#define REG_R12W (12 | REG_SIZE_16)
-#define REG_R13W (13 | REG_SIZE_16)
-#define REG_R14W (14 | REG_SIZE_16)
-#define REG_R15W (15 | REG_SIZE_16)
+#define REGISTER_R8W (8 | REG_SIZE_16)
+#define REGISTER_R9W (9 | REG_SIZE_16)
+#define REGISTER_R10W (10 | REG_SIZE_16)
+#define REGISTER_R11W (11 | REG_SIZE_16)
+#define REGISTER_R12W (12 | REG_SIZE_16)
+#define REGISTER_R13W (13 | REG_SIZE_16)
+#define REGISTER_R14W (14 | REG_SIZE_16)
+#define REGISTER_R15W (15 | REG_SIZE_16)
 
-#define REG_R8D (8 | REG_SIZE_32)
-#define REG_R9D (9 | REG_SIZE_32)
-#define REG_R10D (10 | REG_SIZE_32)
-#define REG_R11D (11 | REG_SIZE_32)
-#define REG_R12D (12 | REG_SIZE_32)
-#define REG_R13D (13 | REG_SIZE_32)
-#define REG_R14D (14 | REG_SIZE_32)
-#define REG_R15D (15 | REG_SIZE_32)
+#define REGISTER_R8D (8 | REG_SIZE_32)
+#define REGISTER_R9D (9 | REG_SIZE_32)
+#define REGISTER_R10D (10 | REG_SIZE_32)
+#define REGISTER_R11D (11 | REG_SIZE_32)
+#define REGISTER_R12D (12 | REG_SIZE_32)
+#define REGISTER_R13D (13 | REG_SIZE_32)
+#define REGISTER_R14D (14 | REG_SIZE_32)
+#define REGISTER_R15D (15 | REG_SIZE_32)
 
-#define REG_R8Q (8 | REG_SIZE_64)
-#define REG_R9Q (9 | REG_SIZE_64)
-#define REG_R10Q (10 | REG_SIZE_64)
-#define REG_R11Q (11 | REG_SIZE_64)
-#define REG_R12Q (12 | REG_SIZE_64)
-#define REG_R13Q (13 | REG_SIZE_64)
-#define REG_R14Q (14 | REG_SIZE_64)
-#define REG_R15Q (15 | REG_SIZE_64)
+#define REGISTER_R8Q (8 | REG_SIZE_64)
+#define REGISTER_R9Q (9 | REG_SIZE_64)
+#define REGISTER_R10Q (10 | REG_SIZE_64)
+#define REGISTER_R11Q (11 | REG_SIZE_64)
+#define REGISTER_R12Q (12 | REG_SIZE_64)
+#define REGISTER_R13Q (13 | REG_SIZE_64)
+#define REGISTER_R14Q (14 | REG_SIZE_64)
+#define REGISTER_R15Q (15 | REG_SIZE_64)
 
-#define REG_EIP (0xF0)
-#define REG_RIP (0xF1)
+#define REGISTER_EIP (0xF0)
+#define REGISTER_RIP (0xF1)
 
-#define REG_INVAL (0xff)
+#define REGISTER_INVAL (0xff)
 
 /* Operand types */
 #define OPERAND_TYPE_INVAL 0xff
@@ -334,9 +334,9 @@ public:
 		_expr = std::string("");
 		_size = 0;
 		_type = OPERAND_TYPE_INVAL;
-		_register = REG_INVAL;
-		_base = REG_INVAL;
-		_index = REG_INVAL;
+		_register = REGISTER_INVAL;
+		_base = REGISTER_INVAL;
+		_index = REGISTER_INVAL;
 		_scale = 0;
 	}
 
