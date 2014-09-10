@@ -8,8 +8,8 @@
 
 opcode* opcode::create(const void *addr, architecture arch) {
 	switch(arch) {
-		case arch_x86: return new opcode_x86(addr, mode_32);
-		case arch_x64: return new opcode_x86(addr, mode_64);
+		case arch_x86: return new opcode_x86(addr, arch, mode_32);
+		case arch_x64: return new opcode_x86(addr, arch, mode_64);
 		case arch_arm: return NULL;
 		case arch_ppc: return NULL;
 		deault: return NULL;
