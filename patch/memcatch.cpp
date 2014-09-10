@@ -89,7 +89,7 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 	void *addr = NULL;
 	std::shared_ptr<machine_context> context(machine_context::create(ExceptionInfo->ContextRecord, ARCH));
 	memcatch_action action;
-	std::shared_ptr<opcode> op(opcode::create((void*) context.pc(), ARCH));
+	std::shared_ptr<opcode> op(opcode::create((void*) context->pc(), ARCH));
 	op->decode();
 	switch(ExceptionInfo->ExceptionRecord->ExceptionCode)
 	{
@@ -147,8 +147,6 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 			last_mc = NULL;
 			context->clear_trapflag();
 		}
-		delete op;
-		delete context;
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
 	if(ExceptionInfo->ExceptionRecord->ExceptionCode != EXCEPTION_ACCESS_VIOLATION) {
