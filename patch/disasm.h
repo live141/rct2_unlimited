@@ -21,7 +21,7 @@
 #define MASK_REG(x) (x & (0x0f))
 #define MASK_REG_SIZE(x) ((reg_size)(((unsigned)x & (0xf0))>>4))
 
-#define REG_INVAL (0xff)
+#define REGISTER_INVAL (0xff)
 #define OPERAND_TYPE_INVAL 0xff
 #define INSTR_INVAL 0
 
@@ -143,8 +143,8 @@ public:
 		_expr = std::string("");
 		_size = 0;
 		_type = OPERAND_TYPE_INVAL;
-		_register = REG_INVAL;
-		_base = REG_INVAL;
+		_register = REGISTER_INVAL;
+		_base = REGISTER_INVAL;
 	}
 
 	void set_type(uint8_t type) {

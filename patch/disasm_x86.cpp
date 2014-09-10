@@ -13,7 +13,11 @@
 #if defined(__APPLE__) || defined(linux)
 #define _XOPEN_SOURCE
 #include <ucontext.h>
+#if defined(__APPLE__)
 #include <i386/eflags.h>
+#else
+#include <asm/processor-flags.h>
+#endif
 #endif
 
 extern opcode_x86_t g_opcode_32_1b[];
@@ -228,11 +232,37 @@ machine_context_x86::machine_context_x86(const void *cntx) {
 #endif
 #elif defined(linux)
 /* LINUX */
-#error "TODO"
+	ucontext *u = (ucontext*) cntx;
 #ifdef BIT_64
 /* 64 bit */
+	rax = (reg_t*) u->uc_mcontext.gregs[REG_RAX];
+	rbx = (reg_t*) u->uc_mcontext.gregs[REG_RBX];
+	rcx = (reg_t*) u->uc_mcontext.gregs[REG_RCX];
+	rdx = (reg_t*) u->uc_mcontext.gregs[REG_RDX];
+	rdi = (reg_t*) u->uc_mcontext.gregs[REG_RDI];
+	rsi = (reg_t*) u->uc_mcontext.gregs[REG_RSI];
+	rbp = (reg_t*) u->uc_mcontext.gregs[REG_RBP];
+	rsp = (reg_t*) u->uc_mcontext.gregs[REG_RSP];
+	rip = (reg_t*) u->uc_mcontext.gregs[REG_RIP];
+	rflags = (reg_t*) u->uc_mcontext.gregs[REG_RFL];
+	cs = (reg_t*) u->uc_mcontext.gregs[REG_CS];
+	fs = (reg_t*) u->uc_mcontext.gregs[REG_FS];
+	gs = (reg_t*) u->uc_mcontext.gregs[REG_GS];
 #else
 /* 32 bit */
+	rax = (reg_t*) u->uc_mcontext.gregs[REG_EAX];
+	rbx = (reg_t*) u->uc_mcontext.gregs[REG_EBX];
+	rcx = (reg_t*) u->uc_mcontext.gregs[REG_ECX];
+	rdx = (reg_t*) u->uc_mcontext.gregs[REG_EDX];
+	rdi = (reg_t*) u->uc_mcontext.gregs[REG_EDI];
+	rsi = (reg_t*) u->uc_mcontext.gregs[REG_ESI];
+	rbp = (reg_t*) u->uc_mcontext.gregs[REG_EBP];
+	rsp = (reg_t*) u->uc_mcontext.gregs[REG_ESP];
+	rip = (reg_t*) u->uc_mcontext.gregs[REG_EIP];
+	rflags = (reg_t*) u->uc_mcontext.gregs[REG_EFL];
+	cs = (reg_t*) u->uc_mcontext.gregs[REG_CS];
+	fs = (reg_t*) u->uc_mcontext.gregs[REG_FS];
+	gs = (reg_t*) u->uc_mcontext.gregs[REG_GS];
 #endif
 #else
 /* WINDOWS */
@@ -280,26 +310,26 @@ machine_context_x86::machine_context_x86(const void *cntx) {
 }
 
 reg machine_context_x86::get(uint8_t reg_num) {
-	if(reg_num == REG_EIP || reg_num == REG_RIP)
+	if(reg_num == REGISTER_EIP || reg_num == REGISTER_RIP)
 		return reg(rip, MASK_REG_SIZE(reg_num));
 
 	switch(MASK_REG(reg_num)) {
-		case MASK_REG(REG_RAX): return reg(rax, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RBX): return reg(rbx, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RCX): return reg(rcx, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RDX): return reg(rdx, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RDI): return reg(rdi, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RSI): return reg(rsi, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RBP): return reg(rbp, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_RSP): return reg(rsp, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R8Q): return reg(r8, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R9Q): return reg(r9, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R10Q): return reg(r10, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R11Q): return reg(r11, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R12Q): return reg(r12, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R13Q): return reg(r13, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R14Q): return reg(r14, MASK_REG_SIZE(reg_num));
-		case MASK_REG(REG_R15Q): return reg(r15, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RAX): return reg(rax, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RBX): return reg(rbx, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RCX): return reg(rcx, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RDX): return reg(rdx, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RDI): return reg(rdi, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RSI): return reg(rsi, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RBP): return reg(rbp, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_RSP): return reg(rsp, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R8Q): return reg(r8, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R9Q): return reg(r9, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R10Q): return reg(r10, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R11Q): return reg(r11, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R12Q): return reg(r12, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R13Q): return reg(r13, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R14Q): return reg(r14, MASK_REG_SIZE(reg_num));
+		case MASK_REG(REGISTER_R15Q): return reg(r15, MASK_REG_SIZE(reg_num));
 		default:
 			debug_printf("Error: Invalid register number: %d\n", reg_num);
 	};
@@ -412,7 +442,7 @@ void machine_context_x86::set_trapflag() {
 #if defined(__APPLE__)
 	set_flags(flags() | ((unsigned long)EFL_TF));
 #elif defined(linux)
-#error "TODO"
+	set_flags(flags() | ((unsigned long)X86_EFLAGS_TF));
 #else
 /* Windows */
 	set_flags(flags() | ((unsigned long)0x100));
@@ -423,7 +453,7 @@ void machine_context_x86::clear_trapflag() {
 #if defined(__APPLE__)
 	set_flags(flags() & ~((unsigned long)EFL_TF));
 #elif defined(linux)
-#error "TODO"
+	set_flags(flags() & ~((unsigned long)X86_EFLAGS_TF));
 #else
 /* Windows */
 	set_flags(flags() & ~((unsigned long)0x100));
@@ -528,11 +558,11 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				if(_bitmode == mode_64) {
 					if(_is_opsize64()) {
 						stream << "rip";
-						_operand[i]->set_base(REG_RIP);
+						_operand[i]->set_base(REGISTER_RIP);
 					}
 					else {
 						stream << "eip";
-						_operand[i]->set_base(REG_EIP);
+						_operand[i]->set_base(REGISTER_EIP);
 					}
 				}
 				stream << std::dec << std::showpos << _disp;
@@ -831,74 +861,74 @@ void opcode_x86::decode() {
 			case OPERAND_TYPE_AL:
 				stream << ", al";
 				_operand[i]->set_size(1);
-				_operand[i]->set_register(REG_AL);
+				_operand[i]->set_register(REGISTER_AL);
 				break;
 			case OPERAND_TYPE_AX:
 				stream << ", ax";
 				_operand[i]->set_size(2);
-				_operand[i]->set_register(REG_AX);
+				_operand[i]->set_register(REGISTER_AX);
 				break;
 			case OPERAND_TYPE_EAX:
 				if(!_op_size_prefix) {
 					stream << ", eax";
 					_operand[i]->set_size(4);
-					_operand[i]->set_register(REG_EAX);
+					_operand[i]->set_register(REGISTER_EAX);
 				}
 				else {
 					stream << ", ax";
 					_operand[i]->set_size(2);
-					_operand[i]->set_register(REG_AX);
+					_operand[i]->set_register(REGISTER_AX);
 				}
 				break;
 			case OPERAND_TYPE_RAX:
 				if(_is_opsize64()) {
 					stream << ", rax";
 					_operand[i]->set_size(8);
-					_operand[i]->set_register(REG_RAX);
+					_operand[i]->set_register(REGISTER_RAX);
 				}
 				else if(_op_size_prefix) {
 					stream << ", ax";
 					_operand[i]->set_size(2);
-					_operand[i]->set_register(REG_AX);
+					_operand[i]->set_register(REGISTER_AX);
 				}
 				else {
 					stream << ", eax";
 					_operand[i]->set_size(4);
-					_operand[i]->set_register(REG_EAX);
+					_operand[i]->set_register(REGISTER_EAX);
 				}
 				break;
 			case OPERAND_TYPE_DX:
 				stream << ", dx";
 				_operand[i]->set_size(2);
-				_operand[i]->set_register(REG_DX);
+				_operand[i]->set_register(REGISTER_DX);
 				break;
 			case OPERAND_TYPE_EDX:
 				if(!_op_size_prefix) {
 					stream << ", edx";
 					_operand[i]->set_size(4);
-					_operand[i]->set_register(REG_EDX);
+					_operand[i]->set_register(REGISTER_EDX);
 				}
 				else {
 					stream << ", dx";
 					_operand[i]->set_size(2);
-					_operand[i]->set_register(REG_DX);
+					_operand[i]->set_register(REGISTER_DX);
 				}
 				break;
 			case OPERAND_TYPE_RDX:
 				if(_is_opsize64()) {
 					stream << ", rdx";
 					_operand[i]->set_size(8);
-					_operand[i]->set_register(REG_RDX);
+					_operand[i]->set_register(REGISTER_RDX);
 				}
 				else if(_op_size_prefix) {
 					stream << ", dx";
 					_operand[i]->set_size(2);
-					_operand[i]->set_register(REG_DX);
+					_operand[i]->set_register(REGISTER_DX);
 				}
 				else {
 					stream << ", edx";
 					_operand[i]->set_size(4);
-					_operand[i]->set_register(REG_EDX);
+					_operand[i]->set_register(REGISTER_EDX);
 				}
 				break;
 			case OPERAND_TYPE_REL8:

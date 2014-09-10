@@ -1,10 +1,11 @@
-SRC = disasm_x86.cpp instr_x86.cpp detour.cpp memcatch.cpp page.cpp decomp.cpp signature.cpp main.cpp
+SRC = disasm_x86.cpp instr_x86.cpp detour.cpp memcatch.cpp page.cpp decomp.cpp signature.cpp main.cpp disasm.cpp
 EXTRA_FLAGS = 
 CXX = g++
-CXXFLAGS = -O0 $(EXTRA_FLAGS)
+CXXFLAGS = -O0 $(EXTRA_FLAGS) -std=c++0x
 LDFLAGS =  -fPIC
 BINARY = patch
 
+ARCH = $(shell uname -m)
 EXTENSION =
 BITMODE = _64
 PLATFORM = $(shell uname)
@@ -15,6 +16,20 @@ else
 	EXTENSION = .so
 endif
 OUT = $(BINARY)$(BITMODE)$(EXTENSION)
+
+ifeq ($(ARCH), x86_64)
+	ifeq ($(BITMODE), _64)
+		ARCH = arch_x64
+	else
+		ARCH = arch_x86
+	endif
+endif
+
+ifeq ($(ARCH), x86)
+	ARCH = arch_x86
+endif
+
+CXXFLAGS += -DARCH=$(ARCH)
 
 default: all
 
@@ -43,7 +58,7 @@ test_32:
 	make test EXTRA_FLAGS="-m32" BITMODE="_32"
 
 debug-test_64:
-	make test EXTRA_FLAGS="-DDEBUG -DBIT_64" BITMODE="_64"
+	make test EXTRA_FLAGS="-DDEBUG -DBIT_64 -g" BITMODE="_64"
 
 debug-test_32:
 	make test EXTRA_FLAGS="-m32 -DDEBUG" BITMODE="_32"
