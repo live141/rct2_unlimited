@@ -23,7 +23,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_WORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -34,7 +34,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -45,7 +45,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -56,7 +56,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -66,7 +66,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -77,7 +77,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -88,7 +88,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -99,7 +99,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -109,7 +109,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -119,7 +119,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -130,7 +130,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -141,7 +141,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -153,7 +153,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -166,7 +166,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -179,7 +179,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -192,7 +192,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -204,7 +204,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -216,7 +216,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -229,7 +229,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -242,7 +242,7 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #else
 /* 32 bit */
@@ -256,7 +256,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_WORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -269,7 +269,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -282,7 +282,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -295,7 +295,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -307,7 +307,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -320,7 +320,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -333,7 +333,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -346,7 +346,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -358,7 +358,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -370,7 +370,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -383,7 +383,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -396,7 +396,7 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -410,7 +410,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -425,7 +425,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -440,7 +440,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
@@ -455,7 +455,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
@@ -469,7 +469,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
@@ -483,7 +483,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -498,7 +498,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 
 #define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
@@ -513,7 +513,7 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: )
 #endif
 /* AVX 256 */
@@ -526,7 +526,7 @@
 		"vorpd %%ymm1, %%ymm3, %%ymm3\n\t" \
 		"vpextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "r"(dst), "r"(src) \
+		: "r"(dst), "rm"(src) \
 		: "ymm0", "ymm1", "ymm3")
 
 #else
@@ -535,47 +535,47 @@
 #endif
 
 #define SEARCH_ALIGNED(val, begin, end, vector_cmp, cmp) do { \
-			uint64_t found; \
-			uint8_t *i; \
-			for(i = (uint8_t*) begin; i < (uint8_t*) end-15; i += 16) { \
-					vector_cmp(i, val, found); \
-				if( found != 0 ) { \
-					/* where exactly? */ \
-					for(uint8_t k = 0; k < 17-sizeof(T); k += sizeof(T)) { \
-						if(*((T*) ((uint8_t*)i+k)) cmp val[0]) \
-							_vec_results.push_back((T*) ((uint8_t*)i+k)); \
-					} \
-				} \
-			} \
-			/* check also the rest */ \
-			for(uint8_t k = 0; k < (uint8_t*) end-i; k += sizeof(T)) { \
-				if(*((T*) ((uint8_t*)i+k)) cmp val[0]) \
-					_vec_results.push_back((T*) ((uint8_t*)i+k)); \
-			} \
-		} while(0)
-
-#define SEARCH_UNALIGNED(val, begin, end, vector_cmp, cmp) do { \
-	uint64_t found; \
+	unsigned long found; \
 	uint8_t *i; \
 	for(i = (uint8_t*) begin; i < (uint8_t*) end-15; i += 16) { \
-				/* check against every possible alignment */ \
-				for(uint8_t j = 0; j < sizeof(T) && j+i+16 < (uint8_t*) end-sizeof(T); ++j) { \
-					vector_cmp(i+j, val, found); \
-					if( found != 0 ) { \
-						/* where exactly? */ \
-						for(uint8_t k = 0; k < 17-sizeof(T); k += sizeof(T)) { \
-							if(*((T*) ((uint8_t*)i+j+k)) cmp val[0]) \
-								_vec_results.push_back((T*) ((uint8_t*)i+j+k)); \
-						} \
-					} \
+		vector_cmp(i, val, found); \
+		if( found != 0 ) { \
+			/* where exactly? */ \
+			for(uint8_t k = 0; k < 17-sizeof(T); k += sizeof(T)) { \
+				if(*((T*) ((uint8_t*)i+k)) cmp val[0]) \
+				_vec_results.push_back((T*) ((uint8_t*)i+k)); \
+			} \
+		} \
+	} \
+	/* check also the rest */ \
+	for(uint8_t k = 0; k < (uint8_t*) end-i; k += sizeof(T)) { \
+		if(*((T*) ((uint8_t*)i+k)) cmp val[0]) \
+		_vec_results.push_back((T*) ((uint8_t*)i+k)); \
+	} \
+} while(0)
+
+#define SEARCH_UNALIGNED(val, begin, end, vector_cmp, cmp) do { \
+	unsigned long found; \
+	uint8_t *i; \
+	for(i = (uint8_t*) begin; i < (uint8_t*) end-15; i += 16) { \
+		/* check against every possible alignment */ \
+		for(uint8_t j = 0; j < sizeof(T) && j+i+16 < (uint8_t*) end-sizeof(T); ++j) { \
+			vector_cmp(i+j, val, found); \
+			if( found != 0 ) { \
+				/* where exactly? */ \
+				for(uint8_t k = 0; k < 17-sizeof(T); k += sizeof(T)) { \
+					if(*((T*) ((uint8_t*)i+j+k)) cmp val[0]) \
+					_vec_results.push_back((T*) ((uint8_t*)i+j+k)); \
 				} \
 			} \
-			/* check also the rest */ \
-			for(uint8_t k = 0; k < (uint8_t*) end-i; k += sizeof(T)) { \
-				if(*((T*) ((uint8_t*)i+k)) cmp val[0]) \
-					_vec_results.push_back((T*) ((uint8_t*)i+k)); \
-			} \
-		} while(0)
+		} \
+	} \
+	/* check also the rest */ \
+	for(uint8_t k = 0; k < (uint8_t*) end-i; k += sizeof(T)) { \
+		if(*((T*) ((uint8_t*)i+k)) cmp val[0]) \
+		_vec_results.push_back((T*) ((uint8_t*)i+k)); \
+	} \
+} while(0)
 
 enum search_type {
 	search_equal = 0,
