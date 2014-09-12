@@ -15,137 +15,137 @@
 /* SSE */
 #ifdef BIT_64
 /* 64 bit */
-#define CHECK_BYTE(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_WORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxub %%xmm0, %%xmm1\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -153,12 +153,12 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxuw %%xmm0, %%xmm1\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -166,12 +166,12 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxud %%xmm0, %%xmm1\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -179,12 +179,12 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxuq %%xmm0, %%xmm1\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -192,11 +192,11 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminub %%xmm0, %%xmm1\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -204,11 +204,11 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminuw %%xmm0, %%xmm1\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -216,12 +216,12 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminud %%xmm0, %%xmm1\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -229,12 +229,12 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminuq %%xmm0, %%xmm1\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -242,13 +242,13 @@
 		"pextrq $0, %%xmm3, %0\n\t" \
 		"notq %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 #else
 /* 32 bit */
-#define CHECK_BYTE(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -256,12 +256,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_WORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -269,12 +269,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -282,12 +282,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -295,11 +295,11 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -307,12 +307,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -320,12 +320,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -333,12 +333,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -346,11 +346,11 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -358,11 +358,11 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -370,12 +370,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -383,12 +383,12 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pcmpgtq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
 		"orpd %%xmm1, %%xmm3\n\t" \
@@ -396,11 +396,11 @@
 		"orpd %%xmm1, %%xmm3\n\t" \
 		"pextrd $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxub %%xmm0, %%xmm1\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -410,12 +410,12 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxuw %%xmm0, %%xmm1\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -425,12 +425,12 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxud %%xmm0, %%xmm1\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -440,12 +440,12 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pmaxuq %%xmm0, %%xmm1\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -455,11 +455,11 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminub %%xmm0, %%xmm1\n\t" \
 		"pcmpeqb %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -469,11 +469,11 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
-#define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm0\n\t" \
-		"movups %1, %%xmm1\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_WORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminuw %%xmm0, %%xmm1\n\t" \
 		"pcmpeqw %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -483,12 +483,12 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_DWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminud %%xmm0, %%xmm1\n\t" \
 		"pcmpeqd %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -498,12 +498,12 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 
-#define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps %2, %%xmm1\n\t" \
-		"movups %1, %%xmm0\n\t" \
-		"prefetch 0x10%1\n\t" \
+#define CHECK_QWORD_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
 		"pminuq %%xmm0, %%xmm1\n\t" \
 		"pcmpeqq %%xmm0, %%xmm1\n\t" \
 		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
@@ -513,20 +513,20 @@
 		"pextrd $0, %%xmm3, %0\n\t" \
 		"notl %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: )
 #endif
 /* AVX 256 */
-#define CHECK_BYTE_AVX(dst,src,flag) asm volatile("vmovaps %2, %%ymm0\n\t" \
-		"vmovups %1, %%ymm1\n\t" \
-		"prefetch 0x20%1\n\t" \
+#define CHECK_BYTE_AVX(dst,src,flag) asm volatile("vmovaps (%2), %%ymm0\n\t" \
+		"vmovups (%1), %%ymm1\n\t" \
+		"prefetch 0x20(%1)\n\t" \
 		"vpcmpeqb %%ymm0, %%ymm1, %%ymm1\n\t" \
 		"vmovaps %%ymm1, %%ymm3\n\t" \
 		"vpshufd $0xee, %%ymm1, %%ymm3\n\t" \
 		"vorpd %%ymm1, %%ymm3, %%ymm3\n\t" \
 		"vpextrq $0, %%xmm3, %0\n\t" \
 		: "=rm"(flag) \
-		: "rm"(dst), "rm"(src) \
+		: "r"(dst), "r"(src) \
 		: "ymm0", "ymm1", "ymm3")
 
 #else
