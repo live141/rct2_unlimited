@@ -117,6 +117,10 @@ public:
 	virtual void set_trapflag() = 0;
 	virtual void clear_trapflag() = 0;
 	static machine_context* create(const void *cntx, architecture arch);
+
+	void free() {
+		delete this;
+	}
 };
 
 class operand {
@@ -130,6 +134,7 @@ public:
 	virtual bool is_register() const  = 0;
 	virtual bool is_rel() const  = 0;
 	virtual bool is_imm() const  = 0;
+	virtual bool is_sp() const  = 0;
 	virtual operand& operator=(operand& op) {
 		_expr = op._expr;
 		_size = op._size;
@@ -181,6 +186,10 @@ public:
 
 	const char* expression() {
 		return _expr.c_str();
+	}
+	
+	std::string& str() {
+		return _expr;
 	}
 };
 
@@ -253,6 +262,9 @@ public:
 	virtual bool is_compare() const = 0;
 	static opcode* create(const void *addr, enum architecture);
 
+	void free() {
+		delete this;
+	}
 
 	uint8_t size() const {
 		return _size;
@@ -268,6 +280,10 @@ public:
 	
 	const char* expression() const {
 		return _expr.c_str();
+	}
+
+	std::string& str() {
+		return _expr;
 	}
 
 	const uint8_t size_imm() const {

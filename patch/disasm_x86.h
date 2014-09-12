@@ -237,6 +237,10 @@ public:
 	virtual bool is_imm() const {
 		return (_type == OPERAND_TYPE_IMM8 || _type == OPERAND_TYPE_IMM32);
 	}
+	
+	virtual bool is_sp() const {
+		return (MASK_REG(_register) == MASK_REG(REGISTER_RSP));
+	}
 };
 
 class opcode_x86 : public opcode {

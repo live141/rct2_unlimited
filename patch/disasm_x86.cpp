@@ -493,7 +493,7 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	else if(type == 256)
 		_operand[i]->set_size(32);
 	else {
-		if(_addr_size_prefix)
+		if(_op_size_prefix)
 			_operand[i]->set_size(2);
 		else if(_is_opsize64())
 			_operand[i]->set_size(8);
@@ -523,6 +523,10 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 			}
 			else if(!_is_opsize64()) {
 				_operand[i]->set_register(_rm | REG_SIZE_32);
+				return std::string(g_lut_registers32[_rm]);
+			}
+			else if(_op_size_prefix) {
+				_operand[i]->set_register(_rm | REG_SIZE_16);
 				return std::string(g_lut_registers32[_rm]);
 			}
 			else {
@@ -1010,14 +1014,15 @@ void opcode_x86::_decode() {
 	for(int i = 0, j = -1; i < stream.str().size()+1; ++i) {
 		if(stream.str().c_str()[i] == ' ')
 			continue;
-		tmp += stream.str().c_str()[i];
 		if(stream.str().c_str()[i] == ',' || stream.str().c_str()[i] == '\0') {
-			tmp += '\0';
+			//tmp += '\0';
 			if(j != -1)
 				_operand[j]->set_expr(tmp);
 			tmp = std::string();
 			++j;
 		}
+		else
+			tmp += stream.str().c_str()[i];
 	}
 }
 
