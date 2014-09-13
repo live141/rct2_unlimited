@@ -139,8 +139,6 @@ LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS *ExceptionInfo)
 			break;
 	}
 
-	std::cout << std::endl;
-
 	if(ExceptionInfo->ExceptionRecord->ExceptionCode == EXCEPTION_SINGLE_STEP) {
 		if(last_mc != NULL) {
 			last_mc->activate();
