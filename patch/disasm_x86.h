@@ -198,7 +198,7 @@ class opcode_x86;
 class operand_x86 : public operand {
 protected:
 	friend class opcode_x86;
-	uint8_t _base, _index, _scale;
+	uint8_t _index, _scale;
 
 public:
 	virtual operand_x86& operator=(operand_x86& op) {

@@ -126,6 +126,7 @@ public:
 class operand {
 protected:
 	std::string _expr;
+	long _disp;
 	uint8_t _size;
 	uint8_t _type;
 	uint8_t _register, _base;
@@ -141,6 +142,7 @@ public:
 		_type = op._type;
 		_register = op._register;
 		_base = op._base;
+		_disp = op._disp;
 		return *this;
 	}
 
@@ -150,6 +152,7 @@ public:
 		_type = OPERAND_TYPE_INVAL;
 		_register = REGISTER_INVAL;
 		_base = REGISTER_INVAL;
+		_disp = 0;
 	}
 
 	void set_type(uint8_t type) {
@@ -172,6 +175,10 @@ public:
 		_base = reg;
 	}
 
+	void set_disp(long disp) {
+		_disp = disp;
+	}
+
 	uint8_t base() const {
 		return _base;
 	}
@@ -182,6 +189,10 @@ public:
 
 	uint8_t size() const {
 		return _size;
+	}
+
+	long disp() const {
+		return _disp;
 	}
 
 	const char* expression() {

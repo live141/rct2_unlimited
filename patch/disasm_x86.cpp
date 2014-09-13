@@ -572,6 +572,7 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 					}
 				}
 				stream << std::dec << std::showpos << _disp;
+				_operand[i]->set_disp(_disp);
 			}
 			else {
 				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
@@ -586,6 +587,7 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 			if(_mod != MOD_REG_INDIRECT) {
 				/* disp */
 				stream << std::dec << std::showpos << _disp << "]";
+				_operand[i]->set_disp(_disp);
 			}
 			else {
 				/* no disp */
@@ -939,9 +941,11 @@ void opcode_x86::_decode() {
 				break;
 			case OPERAND_TYPE_MOFFSET8:
 				stream << ", [0x" << _disp << "]";
+				_operand[i]->set_disp(_disp);
 				break;
 			case OPERAND_TYPE_MOFFSET32:
 				stream << ", " << "[0x"<< _disp << "]";
+				_operand[i]->set_disp(_disp);
 				break;
 			case OPERAND_TYPE_XMM:
 				if(_op_size_prefix) {
