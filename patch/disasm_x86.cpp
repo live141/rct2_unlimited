@@ -483,54 +483,55 @@ void opcode_x86::_decode_modrm(uint8_t byte) {
 std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 	std::stringstream stream;
 	stream << std::hex;
+	operand_x86 *op = (operand_x86*) _operand[i];
 	/* determin operand size */
 	if(type == 8)
-		_operand[i]->set_size(1);
+		op->set_size(1);
 	else if(type == 64)
-		_operand[i]->set_size(8);
+		op->set_size(8);
 	else if(type == 128)
-		_operand[i]->set_size(16);
+		op->set_size(16);
 	else if(type == 256)
-		_operand[i]->set_size(32);
+		op->set_size(32);
 	else {
 		if(_op_size_prefix)
-			_operand[i]->set_size(2);
+			op->set_size(2);
 		else if(_is_opsize64())
-			_operand[i]->set_size(8);
+			op->set_size(8);
 		else
-			_operand[i]->set_size(4);
+			op->set_size(4);
 	}
 	//if(!_addr_size_prefix) {
 		if(_mod == MOD_REG_DIRECT) {
 			if(type == 64) {
 				/* mm */
-				_operand[i]->set_register(_rm | REG_SIZE_64);
+				op->set_register(_rm | REG_SIZE_64);
 				return std::string(g_lut_mm[_rm]);
 			}
 			if(type == 128) {
 				/* xmm */
-				_operand[i]->set_register(_rm | REG_SIZE_128);
+				op->set_register(_rm | REG_SIZE_128);
 				return std::string(g_lut_xmm[_rm]);
 			}
 			if(type == 256) {
 				/* ymm */
-				_operand[i]->set_register(_rm | REG_SIZE_256);
+				op->set_register(_rm | REG_SIZE_256);
 				return std::string(g_lut_ymm[_rm]);
 			}
 			if(type == 8) {
-				_operand[i]->set_register(_rm | REG_SIZE_8);
+				op->set_register(_rm | REG_SIZE_8);
 				return std::string(g_lut_registers8[_rm]);
 			}
 			else if(!_is_opsize64()) {
-				_operand[i]->set_register(_rm | REG_SIZE_32);
+				op->set_register(_rm | REG_SIZE_32);
 				return std::string(g_lut_registers32[_rm]);
 			}
 			else if(_op_size_prefix) {
-				_operand[i]->set_register(_rm | REG_SIZE_16);
+				op->set_register(_rm | REG_SIZE_16);
 				return std::string(g_lut_registers32[_rm]);
 			}
 			else {
-				_operand[i]->set_register(_rm | REG_SIZE_64);
+				op->set_register(_rm | REG_SIZE_64);
 				return std::string(g_lut_registers64[_rm]);
 			}
 		}
@@ -539,22 +540,24 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				/* sib */
 				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_base];
-					_operand[i]->set_register(_base | REG_SIZE_32);
-					_operand[i]->set_base(_base | REG_SIZE_32);
+					//op->set_register(_base | REG_SIZE_32);
+					op->set_base(_base | REG_SIZE_32);
 				}
 				else {
 					stream << "[" << g_lut_registers64[_base];
-					_operand[i]->set_register(_base | REG_SIZE_64);
-					_operand[i]->set_base(_base | REG_SIZE_64);
+					//op->set_register(_base | REG_SIZE_64);
+					op->set_base(_base | REG_SIZE_64);
 				}
 				if(_idx != 0x04) {
 					if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 						stream << "+" << g_lut_registers32[_idx] << "*" << (int) _scale;
-						_operand[i]->set_register(_idx | REG_SIZE_32);
+						op->set_index(_idx | REG_SIZE_32);
+						op->set_scale(_scale);
 					}
 					else {
 						stream << "+" << g_lut_registers64[_idx] << "*" << (int) _scale;
-						_operand[i]->set_register(_idx | REG_SIZE_64);
+						op->set_index(_idx | REG_SIZE_64);
+						op->set_scale(_scale);
 					}
 				}
 			}
@@ -564,30 +567,30 @@ std::string opcode_x86::_format_modrm(uint8_t type, uint8_t i) {
 				if(_bitmode == mode_64) {
 					if(_is_opsize64()) {
 						stream << "rip";
-						_operand[i]->set_base(REGISTER_RIP);
+						op->set_base(REGISTER_RIP);
 					}
 					else {
 						stream << "eip";
-						_operand[i]->set_base(REGISTER_EIP);
+						op->set_base(REGISTER_EIP);
 					}
 				}
 				stream << std::dec << std::showpos << _disp;
-				_operand[i]->set_disp(_disp);
+				op->set_disp(_disp);
 			}
 			else {
 				if(_bitmode == mode_32 /*!_is_opsize64()*/) {
 					stream << "[" << g_lut_registers32[_rm];
-					_operand[i]->set_base(_rm | REG_SIZE_32);
+					op->set_base(_rm | REG_SIZE_32);
 				}
 				else {
 					stream << "[" << g_lut_registers64[_rm];
-					_operand[i]->set_base(_rm | REG_SIZE_64);
+					op->set_base(_rm | REG_SIZE_64);
 				}
 			}
 			if(_mod != MOD_REG_INDIRECT) {
 				/* disp */
 				stream << std::dec << std::showpos << _disp << "]";
-				_operand[i]->set_disp(_disp);
+				op->set_disp(_disp);
 			}
 			else {
 				/* no disp */
@@ -973,24 +976,24 @@ void opcode_x86::_decode() {
 			case OPERAND_TYPE_ESI:
 				if(_bitmode == mode_64) {
 					stream << ", " << "[rsi]";
-					_operand[i]->set_register(REGISTER_RSI);
+					//_operand[i]->set_register(REGISTER_RSI);
 					_operand[i]->set_base(REGISTER_RSI);
 				}
 				else {
 					stream << ", " << "[esi]";
-					_operand[i]->set_register(REGISTER_ESI);
+					//_operand[i]->set_register(REGISTER_ESI);
 					_operand[i]->set_base(REGISTER_ESI);
 				}
 				break;
 			case OPERAND_TYPE_EDI:
 				if(_bitmode == mode_64) {
 					stream << ", " << "[rdi]";
-					_operand[i]->set_register(REGISTER_RDI);
+					//_operand[i]->set_register(REGISTER_RDI);
 					_operand[i]->set_base(REGISTER_RDI);
 				}
 				else {
 					stream << ", " << "[edi]";
-					_operand[i]->set_register(REGISTER_EDI);
+					//_operand[i]->set_register(REGISTER_EDI);
 					_operand[i]->set_base(REGISTER_EDI);
 				}
 				break;

@@ -212,6 +212,14 @@ public:
 		return _index;
 	}
 
+	void set_index(uint8_t idx) {
+		_index = idx;
+	}
+	
+	void set_scale(uint8_t scale) {
+		_scale = scale;
+	}
+
 	uint8_t scale() const {
 		return _scale;
 	}

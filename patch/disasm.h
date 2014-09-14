@@ -182,6 +182,10 @@ public:
 	uint8_t base() const {
 		return _base;
 	}
+	
+	uint8_t reg() const {
+		return _register;
+	}
 
 	uint8_t type() const {
 		return _type;

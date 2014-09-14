@@ -33,6 +33,7 @@ public:
 
 	bool is_reachable(node *n) {
 		node *k;
+		reset();
 		while((k = next()) != NULL) {
 			if(k == n)
 				return true;
