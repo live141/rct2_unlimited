@@ -22,7 +22,7 @@ enum memcatch_action {
 	memcatch_overwrite
 };
 
-typedef memcatch_action (*memcatch_callback)(memcatch *mem, void *addr, memcatch_action action, uint64_t *val);
+typedef memcatch_action (*memcatch_callback)(memcatch *mem, void *addr, memcatch_action action, uint64_t *val, void *pc);
 
 class memcatch {
 protected:

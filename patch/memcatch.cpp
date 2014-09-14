@@ -302,7 +302,7 @@ void memcatch::callback(opcode *op, void *addr, memcatch_action action, machine_
 	}
 	
 	if(_callback != NULL)
-		action_req = _callback(this, addr, action, &val);
+		action_req = _callback(this, addr, action, &val, (void*) context->pc());
 	
 	/* give signal causing code a value or write to memory */
 	/* TODO */
