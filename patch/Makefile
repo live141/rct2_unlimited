@@ -1,4 +1,4 @@
-SRC = disasm_x86.cpp instr_x86.cpp detour.cpp memcatch.cpp page.cpp decomp.cpp signature.cpp main.cpp disasm.cpp func.cpp func_x86.cpp
+SRC = disasm_x86.cpp instr_x86.cpp detour.cpp memcatch.cpp page.cpp decomp.cpp signature.cpp main.cpp disasm.cpp func.cpp func_x86.cpp graph.cpp
 EXTRA_FLAGS = 
 CXX = g++
 CXXFLAGS = -O0 $(EXTRA_FLAGS) -std=c++0x -fPIC

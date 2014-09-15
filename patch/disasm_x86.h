@@ -249,6 +249,10 @@ public:
 	virtual bool is_sp() const {
 		return (MASK_REG(_register) == MASK_REG(REGISTER_RSP));
 	}
+	
+	virtual bool uses_pc() const {
+		return (MASK_REG(_base) == MASK_REG(REGISTER_RIP));
+	}
 };
 
 class opcode_x86 : public opcode {

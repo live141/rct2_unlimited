@@ -136,6 +136,7 @@ public:
 	virtual bool is_rel() const  = 0;
 	virtual bool is_imm() const  = 0;
 	virtual bool is_sp() const  = 0;
+	virtual bool uses_pc() const = 0;
 	virtual operand& operator=(operand& op) {
 		_expr = op._expr;
 		_size = op._size;
