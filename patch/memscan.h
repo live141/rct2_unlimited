@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <stdint.h>
+#include <typeinfo>
 #include <limits>
 #include <stdlib.h>
 
@@ -58,6 +59,29 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
+#define CHECK_FLOAT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpeqps %%xmm0, %%xmm1\n\t" \
+		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrq $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
+#define CHECK_DOUBLE(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpeqpd %%xmm0, %%xmm1\n\t" \
+		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrq $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
 #define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -101,6 +125,29 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
+#define CHECK_FLOAT_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltps %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pextrq $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
+#define CHECK_DOUBLE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltpd %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pextrq $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
 #define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -143,6 +190,29 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
+#define CHECK_FLOAT_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltps %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pextrq $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
+#define CHECK_DOUBLE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltpd %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pextrq $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
 #define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -194,6 +264,7 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
 #define CHECK_BYTE_UNSIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -297,6 +368,32 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
+#define CHECK_FLOAT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpeqps %%xmm0, %%xmm1\n\t" \
+		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pshufd $0x11, %%xmm3, %%xmm1\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrd $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
+#define CHECK_DOUBLE(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpeqpd %%xmm0, %%xmm1\n\t" \
+		"pshufd $0xee, %%xmm1, %%xmm3\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pshufd $0x11, %%xmm3, %%xmm1\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrd $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
 #define CHECK_BYTE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -348,6 +445,33 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
+#define CHECK_FLOAT_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltps %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pshufd $0x11, %%xmm3, %%xmm1\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrd $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
+#define CHECK_DOUBLE_SIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
+		"movups (%1), %%xmm1\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltpd %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pshufd $0x11, %%xmm3, %%xmm1\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrd $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
 #define CHECK_BYTE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
 		"movups (%1), %%xmm0\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -398,6 +522,33 @@
 		: "=rm"(flag) \
 		: "r"(dst), "rm"(src) \
 		: )
+
+#define CHECK_FLOAT_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltps %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pshufd $0x11, %%xmm3, %%xmm1\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrd $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
+#define CHECK_DOUBLE_SIGNED_LT(dst,src,flag) asm volatile("movaps (%2), %%xmm1\n\t" \
+		"movups (%1), %%xmm0\n\t" \
+		"prefetch 0x10(%1)\n\t" \
+		"cmpltpd %%xmm1, %%xmm0\n\t" \
+		"pshufd $0xee, %%xmm0, %%xmm3\n\t" \
+		"orpd %%xmm0, %%xmm3\n\t" \
+		"pshufd $0x11, %%xmm3, %%xmm1\n\t" \
+		"orpd %%xmm1, %%xmm3\n\t" \
+		"pextrd $0, %%xmm3, %0\n\t" \
+		: "=rm"(flag) \
+		: "r"(dst), "rm"(src) \
+		: )
+
 #define CHECK_BYTE_UNSIGNED_GT(dst,src,flag) asm volatile("movaps (%2), %%xmm0\n\t" \
 		"movups (%1), %%xmm1\n\t" \
 		"prefetch 0x10(%1)\n\t" \
@@ -758,36 +909,58 @@ public:
 				break;
 			case 4:
 				if(type == search_equal) {
-					SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD, ==);
+					if(typeid(T) == typeid(float))
+						SEARCH_ALIGNED(_val, begin, end, CHECK_FLOAT, ==);
+					else
+						SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD, ==);
 				}
 				else if(type == search_gt || type == search_ge) {
-					if(_is_signed())
-						SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_SIGNED_GT, >);
-					else
-						SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_UNSIGNED_GT, >);
+					if(typeid(T) == typeid(float))
+						SEARCH_ALIGNED(_val, begin, end, CHECK_FLOAT_SIGNED_GT, >);
+					else {
+						if(_is_signed())
+							SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_SIGNED_GT, >);
+						else
+							SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_UNSIGNED_GT, >);
+					}
 				}
 				else if(type == search_lt || type == search_le) {
-					if(_is_signed())
-						SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_SIGNED_LT, <);
-					else
-						SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_UNSIGNED_LT, <);
+					if(typeid(T) == typeid(float))
+						SEARCH_ALIGNED(_val, begin, end, CHECK_FLOAT_SIGNED_LT, <);
+					else {
+						if(_is_signed())
+							SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_SIGNED_LT, <);
+						else
+							SEARCH_ALIGNED(_val, begin, end, CHECK_DWORD_UNSIGNED_LT, <);
+					}
 				}
 				break;
 			case 8:
 				if(type == search_equal) {
-					SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD, ==);
+					if(typeid(T) == typeid(double))
+						SEARCH_ALIGNED(_val, begin, end, CHECK_DOUBLE, ==);
+					else
+						SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD, ==);
 				}
 				else if(type == search_gt || type == search_ge) {
-					if(_is_signed())
-						SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_SIGNED_GT, >);
-					else
-						SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_UNSIGNED_GT, >);
+					if(typeid(T) == typeid(double))
+						SEARCH_ALIGNED(_val, begin, end, CHECK_DOUBLE_SIGNED_GT, >);
+					else {
+						if(_is_signed())
+							SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_SIGNED_GT, >);
+						else
+							SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_UNSIGNED_GT, >);
+					}
 				}
 				else if(type == search_lt || type == search_le) {
-					if(_is_signed())
-						SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_SIGNED_LT, <);
-					else
-						SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_UNSIGNED_LT, <);
+					if(typeid(T) == typeid(double))
+						SEARCH_ALIGNED(_val, begin, end, CHECK_DOUBLE_SIGNED_LT, <);
+					else {
+						if(_is_signed())
+							SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_SIGNED_LT, <);
+						else
+							SEARCH_ALIGNED(_val, begin, end, CHECK_QWORD_UNSIGNED_LT, <);
+					}
 				}
 				break;
 		}
