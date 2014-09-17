@@ -13,7 +13,17 @@
 #include "parameters.h"
 
 
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__)
+int main(int argc, char **argv) {
+	std::string target;
+
+	std::cout << NAME << " "VERSION << " by " << AUTHOR << std::endl;
+	std::cout << "Enter the name of the target: ";
+	std::cin >> target;
+
+	return 0;
+}
+#elif defined(__APPLE__)
 int main(int argc, char **argv) {
 	std::string target;
 
