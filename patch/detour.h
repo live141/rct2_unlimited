@@ -17,11 +17,12 @@ protected:
 	uint8_t *_addr_new;
 	uint8_t *_addr_tramp;
 	uint8_t _size_replaced;
-	architecture _arch;
+	const architecture _arch;
 
 public:
-	detour(void *addr_target, void *addr_new, architecture arch) : _saved_ret_addr(0), _addr_target((uint8_t*) addr_target), _addr_new((uint8_t*) addr_new),
-	_addr_tramp(NULL), _size_replaced(0), _arch(arch) {}
+	detour(const void *addr_target, const void *addr_new, const architecture arch) : _saved_ret_addr(0),
+		_addr_target((uint8_t*) addr_target), _addr_new((uint8_t*) addr_new),
+		_addr_tramp(NULL), _size_replaced(0), _arch(arch) {}
 	~detour();
 	void hook();
 	void unhook();

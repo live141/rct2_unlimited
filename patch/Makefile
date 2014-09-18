@@ -83,7 +83,7 @@ clean:
 	@rm -Rf *.o $(OUT) .dep
 
 veryclean:
-	@rm -Rf *.o $(BINARY)_64$(EXTENSION) $(BINARY)_32$(EXTENSION) test_64 test_32
+	@rm -Rf *.o $(BINARY)_64$(EXTENSION) $(BINARY)_32$(EXTENSION) test_64 test_32 test
 
 -include .dep
 .PHONY: clean .dep 64 32
