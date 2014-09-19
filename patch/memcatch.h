@@ -61,7 +61,7 @@ public:
 	}
 
 	void patch_addr(const void *addr) {
-		_new_addr = addr;
+		_new_addr = (void*) addr;
 	}
 	
 	static iterator begin() {

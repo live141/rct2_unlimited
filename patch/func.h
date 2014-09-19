@@ -13,17 +13,17 @@
 
 class func {
 protected:
-	std::vector<void*> _vec_subroutine;
+	std::vector<const void*> _vec_subroutine;
 	std::vector<operand*> _vec_parameter;
-	void *_addr;
+	const void *_addr;
 	basicblock *_bb;
 	architecture _arch;
 
-	static std::map<void*, func*> _map_function;
+	static std::map<const void*, func*> _map_function;
 	func() {}
-	func(void *addr, architecture arch) : _addr(addr), _bb(NULL), _arch(arch) { _map_function[addr] = this; }
+	func(const void *addr, architecture arch) : _addr(addr), _bb(NULL), _arch(arch) { _map_function[addr] = this; }
 public:
-	static func* create(void *addr, architecture arch);
+	static func* create(const void *addr, architecture arch);
 	virtual void analyze() = 0;
 
 	void free() {
@@ -31,11 +31,11 @@ public:
 		delete this;
 	}
 
-	std::vector<operand*>& vec_parameter() {
+	const std::vector<operand*>& vec_parameter() const {
 		return _vec_parameter;
 	}
 
-	unsigned int num_parameters() {
+	unsigned int num_parameters() const {
 		return _vec_parameter.size();
 	}
 };
