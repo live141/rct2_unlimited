@@ -28,7 +28,7 @@ public:
 	void unhook();
 	void jump_to_function();
 
-	uint8_t* trampoline() const {
+	const uint8_t* trampoline() const {
 		return _addr_tramp;
 	}
 };

@@ -23,7 +23,7 @@ protected:
 
 	dfs() {}
 public:
-	dfs(node *start) : _start(start), _next(start), _max_edges() {
+	dfs(const node *start) : _start((node*) start), _next((node*) start), _max_edges() {
 		_max_edges = start->max_edges();
 	}
 
@@ -35,7 +35,7 @@ public:
 		_stack.clear();
 	}
 
-	bool is_reachable(node *n) {
+	bool is_reachable(const node *n) {
 		node *k;
 		reset();
 		while((k = next()) != NULL) {

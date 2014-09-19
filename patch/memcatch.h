@@ -60,7 +60,7 @@ public:
 		return _new_addr;
 	}
 
-	void patch_addr(void *addr) {
+	void patch_addr(const void *addr) {
 		_new_addr = addr;
 	}
 	

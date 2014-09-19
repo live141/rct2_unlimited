@@ -34,7 +34,7 @@ public:
 	static void change_permissions(const void *addr, size_t size, int flags);
 	static void* alloc();
 	static void* alloc(size_t size);
-	static void free(void *addr);
+	static void free(const void *addr);
 	
 	void* addr() const {
 		return _addr;
