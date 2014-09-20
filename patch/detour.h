@@ -20,10 +20,10 @@ protected:
 	const architecture _arch;
 
 public:
-	detour(const void *addr_target, const void *addr_new, const architecture arch) : _saved_ret_addr(0),
+	_detour(const void *addr_target, const void *addr_new, const architecture arch) : _saved_ret_addr(0),
 		_addr_target((uint8_t*) addr_target), _addr_new((uint8_t*) addr_new),
 		_addr_tramp(NULL), _size_replaced(0), _arch(arch) {}
-	~detour();
+	~_detour();
 	void hook();
 	void unhook();
 	void jump_to_function();
@@ -40,13 +40,12 @@ protected:
 	_detour _det;
 
 public:
-	detour_wrapper(void *addr, void *new_addr, architecture arch) : _det(addr, new_addr, arch) {
+	detour(void *addr, void *new_addr, architecture arch) : _det(addr, new_addr, arch), _f((F) NULL) {
 	}
 
-	auto call_original(args&&... a)
-	-> typename std::result_of<F(args...)>::type
+	typename std::result_of<F(args...)>::type call_original(args&&... a)
 	{
-	    return _f(std::forward<args>(a)...);
+		return _f(std::forward<args>(a)...);
 	}
 
 	void hook() {
@@ -55,6 +54,7 @@ public:
 	}
 
 	void unhook() {
+		_f = (F) NULL;
 		_det.unhook();
 	}
 
