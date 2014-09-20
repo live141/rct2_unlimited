@@ -270,13 +270,16 @@ public:
 		return *this;
 	}
 
+	virtual void copy_to(void *dest) = 0;
 	virtual void set_imm(int64_t val) = 0;
+	virtual void set_disp(int64_t val) = 0;
 	virtual const int64_t immediate() const = 0;
+	virtual const int64_t displacement() const = 0;
 	virtual bool is_cond_jump() const  = 0;
 	virtual bool is_jump() const  = 0;
 	virtual bool is_ret() const  = 0;
 	virtual bool is_compare() const = 0;
-	static opcode* create(const void *addr, enum architecture);
+	static opcode* create(const void *addr, architecture arch);
 
 	void free() {
 		delete this;

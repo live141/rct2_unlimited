@@ -6,6 +6,7 @@
 #include "disasm_x86.h"
 #include "page.h"
 #include "defines.h"
+#include <strings.h>
 #include <stdio.h>
 #include <iostream>
 #include <sstream>
@@ -162,6 +163,22 @@ char g_lut_ymm[][7] = {
 	"ymm15"
 };
 
+/* TODO: extend opcode in case we just have 1 or 2 bytes for rel. address, check for thunks */
+void opcode_x86::copy_to(void *dest) {
+	memcpy(dest, _addr, _size);
+	/* fix rel. addresses and PC displacements */
+	opcode *op = opcode::create(dest, _arch);
+	op->decode();
+	if(get_operand(0)->is_rel()) {
+		op->set_imm(immediate());
+	}
+	/* check if PC is used and adjust displacement */
+	else if(get_operand(0)->uses_pc() || get_operand(1)->uses_pc()) {
+		op->set_disp(displacement() + (long) addr() - (long) op->addr());
+	}
+	delete op;
+}
+
 void opcode_x86::set_imm(int64_t val) {
 	_imm = val;
 	if(_operand[0]->type() == OPERAND_TYPE_REL8 || _operand[0]->type() == OPERAND_TYPE_REL32) {
@@ -181,6 +198,28 @@ void opcode_x86::set_imm(int64_t val) {
 			break;
 		case 8:
 			*((int64_t*) ((uint8_t*) _addr+_offset_imm)) = (int64_t) _imm;
+			break;
+		default:
+			break;
+	}
+}
+
+void opcode_x86::set_disp(int64_t val) {
+	_disp = val;
+	/* make page writeable */
+	page::change_permissions(((uint8_t*) _addr+_offset_disp), _disp_size, PAGE_READ | PAGE_WRITE | PAGE_EXEC);
+	switch(_disp_size) {
+		case 1:
+			*((int8_t*) ((uint8_t*) _addr+_offset_disp)) = (int8_t) _disp;
+			break;
+		case 2:
+			*((int16_t*) ((uint8_t*) _addr+_offset_disp)) = (int16_t) _disp;
+			break;
+		case 4:
+			*((int32_t*) ((uint8_t*) _addr+_offset_disp)) = (int32_t) _disp;
+			break;
+		case 8:
+			*((int64_t*) ((uint8_t*) _addr+_offset_disp)) = (int64_t) _disp;
 			break;
 		default:
 			break;

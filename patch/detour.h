@@ -11,7 +11,6 @@
 
 class _detour {
 protected:
-	std::vector<opcode*> _vec_opcode;
 	uint64_t _saved_ret_addr;
 	uint8_t *_addr_target;
 	uint8_t *_addr_new;

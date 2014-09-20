@@ -343,9 +343,11 @@ public:
 		return *this;
 	}
 
+	virtual void copy_to(void *dest);
 	virtual void set_imm(int64_t val);
+	virtual void set_disp(int64_t val);
 
-	const int64_t displacement() const {
+	virtual const int64_t displacement() const {
 		return _disp;
 	}
 	

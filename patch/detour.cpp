@@ -17,49 +17,36 @@
 #include <Windows.h>
 #endif
 
-detour::~detour() {
+_detour::~_detour() {
 	unhook();
 }
 
-void detour::unhook() {
+void _detour::unhook() {
 	if(_addr_tramp != NULL) {
-		memcpy(_addr_target, _addr_tramp, _size_replaced);
 		/* fix rel. addresses */
-		opcode *op = opcode::create(_addr_target, _arch);
+		opcode *op = opcode::create(_addr_tramp, _arch);
 		for(uint32_t i = 0; i < _size_replaced;) {
 			op->decode();
-			if( op->get_operand(0)->is_rel() ) {
-				opcode *rel = opcode::create(_addr_tramp+i, _arch);
-				rel->decode();
-				op->set_imm(rel->immediate());
-				delete rel;
-			}
+			op->copy_to(_addr_target+i);
 			i += op->size();
 		}
 		page::free(_addr_tramp);
 		_addr_tramp = NULL;
 	}
-
-	std::vector<opcode*>::iterator it;
-	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
-		delete *it;
-	}
-	_vec_opcode.clear();
 }
 
-void detour::hook() {
+void _detour::hook() {
 	uint8_t code[8];
 	_size_replaced = 0;
-	while(_size_replaced < 5) {
-		opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
-		op->decode();
-		_size_replaced += op->size();
-		_vec_opcode.push_back(op);
-	}
-	
 	/* create trampoline first, we need executable memory */
 	_addr_tramp = (uint8_t*) page::alloc(_size_replaced+5);
-	memcpy(_addr_tramp, _addr_target, _size_replaced);
+	opcode *op = opcode::create(_addr_target+_size_replaced, _arch);
+	while(_size_replaced < 5) {
+		op->decode();
+		op->copy_to(_addr_tramp+_size_replaced);
+		_size_replaced += op->size();
+	}
+	
 	/* create jumpback */
 	code[0] = 0xE9;
 	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((long) _addr_target + _size_replaced - ((long)_addr_tramp+_size_replaced)-5);
@@ -73,23 +60,9 @@ void detour::hook() {
 	code[0] = 0xE9;
 	*((uint32_t*) ((uint8_t*) code+1)) = (int32_t) ((long) (_addr_new - _addr_target - 5));
 	memcpy(_addr_target, code, 5);
-
-	/* TODO: extend opcode in case we just have 1 or 2 bytes for rel. address */
-	std::vector<opcode*>::iterator it;
-	size_t size = 0;
-	for(it = _vec_opcode.begin(); it < _vec_opcode.end(); ++it) {
-		if((*it)->get_operand(0)->is_rel()) {
-			//opcode_x86 op(_addr_tramp+size, _bitmode);
-			opcode *op = opcode::create(_addr_tramp+size, _arch);
-			op->decode();
-			op->set_imm((*it)->immediate());
-			delete op;
-		}
-		size += (*it)->size();
-	}
 }
 
-void detour::jump_to_function() {
+void _detour::jump_to_function() {
 	/* function begins at trampoline address */
 	if(_addr_tramp == NULL)
 		return;

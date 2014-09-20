@@ -8,6 +8,7 @@
 
 #include "disasm.h"
 #include "decomp.h"
+#include "defines.h"
 #include <vector>
 #include <map>
 
