@@ -18,4 +18,10 @@
 #define debug_printf
 #endif
 
+#if defined(__APPLE__) || defined(linux)
+#define DLLEXP extern "C"
+#else
+#define DLLEXP extern "C" __declspec(dllexport)
+#endif
+
 #endif
