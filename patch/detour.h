@@ -9,7 +9,7 @@
 #include "disasm.h"
 #include <vector>
 
-class detour {
+class _detour {
 protected:
 	std::vector<opcode*> _vec_opcode;
 	uint64_t _saved_ret_addr;
@@ -33,4 +33,30 @@ public:
 	}
 };
 
+template<typename F, typename... args>
+class detour {
+protected:
+	F _f;
+	_detour _det;
+
+public:
+	detour_wrapper(void *addr, void *new_addr, architecture arch) : _det(addr, new_addr, arch) {
+	}
+
+	auto call_original(args&&... a)
+	-> typename std::result_of<F(args...)>::type
+	{
+	    return _f(std::forward<args>(a)...);
+	}
+
+	void hook() {
+		_det.hook();
+		_f = (F) _det.trampoline();
+	}
+
+	void unhook() {
+		_det.unhook();
+	}
+
+};
 #endif
