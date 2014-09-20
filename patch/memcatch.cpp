@@ -266,7 +266,8 @@ void memcatch::init() {
 		std::cout << "Error: Could not set SIGTRAP handler: " << errno << std::endl;
 
 #else
-	SetUnhandledExceptionFilter(windows_exception_handler);
+	//SetUnhandledExceptionFilter(windows_exception_handler);
+	AddVectorExceptionHandler(1, windows_exception_handler);
 #endif
 }
 
