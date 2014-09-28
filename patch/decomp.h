@@ -111,20 +111,6 @@ enum code_type {
 	type_switch
 };
 
-enum condition_type {
-	condition_type_none = 0,
-	condition_type_eq,
-	condition_type_neq,
-	condition_type_lt,
-	condition_type_gt,
-	condition_type_le,
-	condition_type_ge,
-	condition_type_b,
-	condition_type_a,
-	condition_type_be,
-	condition_type_ae
-};
-
 struct condition_t {
 	opcode *op;
 	condition_type type;
@@ -157,7 +143,6 @@ public:
 class code_loop : public code_unit{
 protected:
 	std::vector<condition_t> _vec_condition;
-	condition_type _get_condition_type(const opcode *op, const uint8_t take_jump);
 	std::vector<std::string> _vec_expr;
 
 public:

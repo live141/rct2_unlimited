@@ -4,6 +4,14 @@
 */
 
 #include "exports.h"
+#include "page.h"
+#include "memcatch.h"
+
+DLLEXP int patch_init() {
+	page::init();
+	memcatch::init();
+	return 1;
+}
 
 DLLEXP func* create_func(const void *addr, architecture arch) {
 	return func::create(addr, arch);

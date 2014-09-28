@@ -1072,3 +1072,77 @@ void opcode_x86::_decode() {
 	}
 }
 
+condition_type opcode_x86::condition(bool take_jump) const {
+	/* TODO: classify other jumps */
+	if(take_jump) {
+		switch(instr()){
+			case INSTR_JO:
+			case INSTR_JNO:
+			case INSTR_JB:
+				return condition_type_b;
+			case INSTR_JNB:
+				return condition_type_ae;
+			case INSTR_JZ:
+				return condition_type_eq;
+			case INSTR_JNZ:
+				return condition_type_neq;
+			case INSTR_JBE:
+				return condition_type_be;
+			case INSTR_JNBE:
+				return condition_type_a;
+			case INSTR_JS:
+			case INSTR_JNS:
+			case INSTR_JP:
+			case INSTR_JNP:
+			case INSTR_JL:
+				return condition_type_lt;
+			case INSTR_JNL:
+				return condition_type_ge;
+			case INSTR_JLE:
+				return condition_type_le;
+			case INSTR_JNLE:
+				return condition_type_gt;
+			case INSTR_JCXZ:
+			case INSTR_JECXZ:
+			default:
+				return condition_type_none;
+		};
+	}
+	else {
+		/* jump should not be taken in order to stay in the loop */
+		switch(instr()){
+			case INSTR_JO:
+			case INSTR_JNO:
+			case INSTR_JB:
+				return condition_type_ae;
+			case INSTR_JNB:
+				return condition_type_b;
+			case INSTR_JZ:
+				return condition_type_neq;
+			case INSTR_JNZ:
+				return condition_type_eq;
+			case INSTR_JBE:
+				return condition_type_a;
+			case INSTR_JNBE:
+				return condition_type_be;
+			case INSTR_JS:
+			case INSTR_JNS:
+			case INSTR_JP:
+			case INSTR_JNP:
+			case INSTR_JL:
+				return condition_type_ge;
+			case INSTR_JNL:
+				return condition_type_lt;
+			case INSTR_JLE:
+				return condition_type_gt;
+			case INSTR_JNLE:
+				return condition_type_le;
+			case INSTR_JCXZ:
+			case INSTR_JECXZ:
+			default:
+				return condition_type_none;
+		};
+
+	}
+}
+

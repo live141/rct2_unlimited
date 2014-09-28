@@ -53,6 +53,20 @@ enum reg_size {
 	size_256
 };
 
+enum condition_type {
+	condition_type_none = 0,
+	condition_type_eq,
+	condition_type_neq,
+	condition_type_lt,
+	condition_type_gt,
+	condition_type_le,
+	condition_type_ge,
+	condition_type_b,
+	condition_type_a,
+	condition_type_be,
+	condition_type_ae
+};
+
 class reg {
 protected:
 	reg_t *_reg;
@@ -279,6 +293,7 @@ public:
 	virtual bool is_jump() const  = 0;
 	virtual bool is_ret() const  = 0;
 	virtual bool is_compare() const = 0;
+	virtual condition_type condition(bool take_jump) const = 0;
 	static opcode* create(const void *addr, architecture arch);
 
 	void free() {

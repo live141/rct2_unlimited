@@ -10,7 +10,9 @@
 #include "func.h"
 #include "decomp.h"
 #include "disasm.h"
+#include "detour.h"
 
+DLLEXP int patch_init();
 DLLEXP func* create_func(const void *addr, architecture arch);
 DLLEXP basicblock* create_basicblock(const void *addr, basicblock *prebb = NULL);
 DLLEXP opcode* create_opcode(const void *addr, architecture arch);

@@ -7,6 +7,7 @@
 #define _DETOUR_H_
 
 #include "disasm.h"
+#include "defines.h"
 #include <vector>
 
 class _detour {
@@ -44,6 +45,7 @@ public:
 
 	typename std::result_of<F(args...)>::type call_original(args&&... a)
 	{
+		assert(_f != NULL);
 		return _f(std::forward<args>(a)...);
 	}
 

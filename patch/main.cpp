@@ -16,6 +16,7 @@
 #include "memscan.h"
 #include "detour.h"
 #include "addr.h"
+#include "exports.h"
 
 module_t g_target;
 
@@ -26,6 +27,7 @@ bool main_loop() {
 
 #if defined(__linux__) || defined(__APPLE__)
 void* unix_thread(void *args) {
+	patch_init();
 	while(main_loop());
 	return 0;
 }
@@ -44,6 +46,7 @@ HANDLE g_hProcess = 0;
 DWORD g_dwThreadId = 0;
 
 DWORD WINAPI win_thread(void *args) {
+	patch_init();
 	while(main_loop());
 	return 0;
 }
@@ -75,7 +78,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved) {
 			++pSectionHeader;
 		}
 		
-
 		CreateThread(NULL, NULL, win_thread, NULL, 0, &g_dwThreadId);
 	}
 	return true;
